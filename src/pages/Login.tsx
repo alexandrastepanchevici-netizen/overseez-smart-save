@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import logoImg from '@/assets/overseez-logo.png';
+import OverseezLogo from '@/components/OverseezLogo';
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -36,7 +36,7 @@ export default function Login() {
     <div className="min-h-screen overseez-gradient-hero flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
-          <img src={logoImg} alt="Overseez" className="w-12 h-12 mx-auto mb-3 invert" />
+          <OverseezLogo size={48} className="mx-auto mb-3" color="white" />
           <h1 className="text-3xl font-display font-bold tracking-tight">
             Welcome Back
           </h1>

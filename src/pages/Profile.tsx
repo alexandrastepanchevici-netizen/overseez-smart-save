@@ -1,7 +1,9 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import AppNav from '@/components/AppNav';
-import { User, Calendar, Wallet, Star } from 'lucide-react';
+import { User, Calendar, Wallet, Star, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 export default function Profile() {
   const { profile, user } = useAuth();
@@ -32,6 +34,23 @@ export default function Profile() {
               value={`${profile?.currency || '£'}${Number(profile?.total_saved || 0).toFixed(2)}`} />
             <InfoItem icon={<Star className="w-4 h-4" />} label="Subscription"
               value="Free Plan" />
+          </div>
+        </div>
+
+        <div className="bg-card border border-border rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Shield className="w-5 h-5 text-muted-foreground" />
+            <h3 className="font-display font-semibold">Account</h3>
+          </div>
+          <div className="space-y-3">
+            <Link to="/subscription" className="flex items-center justify-between bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-colors">
+              <span className="text-sm">Manage Subscription</span>
+              <span className="text-xs text-muted-foreground">Free Plan →</span>
+            </Link>
+            <Link to="/terms" className="flex items-center justify-between bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-colors">
+              <span className="text-sm">Terms & Conditions</span>
+              <span className="text-xs text-muted-foreground">View →</span>
+            </Link>
           </div>
         </div>
       </div>

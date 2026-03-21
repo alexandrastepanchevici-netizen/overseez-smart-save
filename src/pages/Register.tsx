@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import logoImg from '@/assets/overseez-logo.png';
+import { CheckCircle2, Mail } from 'lucide-react';
+import OverseezLogo from '@/components/OverseezLogo';
 
 export default function Register() {
   const { signUp } = useAuth();
@@ -16,6 +17,7 @@ export default function Register() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -43,18 +45,49 @@ export default function Register() {
     if (error) {
       setErrors({ submit: error.message });
     } else {
-      navigate('/dashboard');
+      setSuccess(true);
     }
   };
 
   const set = (key: string, value: string | boolean) =>
     setForm(p => ({ ...p, [key]: value }));
 
+  if (success) {
+    return (
+      <div className="min-h-screen overseez-gradient-hero flex items-center justify-center p-4">
+        <div className="w-full max-w-md animate-fade-in-up text-center">
+          <div className="bg-card/50 backdrop-blur-xl border border-border rounded-xl p-8">
+            <div className="w-16 h-16 rounded-full bg-overseez-green/15 flex items-center justify-center mx-auto mb-4">
+              <Mail className="w-8 h-8 text-overseez-green" />
+            </div>
+            <h2 className="text-2xl font-display font-bold tracking-tight mb-2">Check your email</h2>
+            <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+              We've sent a verification link to <strong className="text-foreground">{form.email}</strong>.
+              Please click the link in the email to verify your account.
+            </p>
+            <div className="bg-muted/30 border border-border rounded-lg p-4 mb-6 text-left">
+              <div className="flex items-start gap-3 text-xs text-muted-foreground">
+                <CheckCircle2 className="w-4 h-4 text-overseez-green flex-shrink-0 mt-0.5" />
+                <span>After verifying, you can log in with your email and password to access your dashboard.</span>
+              </div>
+            </div>
+            <Button onClick={() => navigate('/login')} variant="hero" size="xl" className="w-full">
+              Go to Login
+            </Button>
+            <p className="text-xs text-muted-foreground mt-4">
+              Didn't receive the email? Check your spam folder.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen overseez-gradient-hero flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
-          <img src={logoImg} alt="Overseez" className="w-12 h-12 mx-auto mb-3 invert" />
+          <OverseezLogo size={48} className="mx-auto mb-3" color="white" />
           <h1 className="text-3xl font-display font-bold tracking-tight">
             Join Overseez
           </h1>
@@ -106,10 +139,9 @@ export default function Register() {
               onCheckedChange={v => set('terms', v === true)} className="mt-1" />
             <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground">
               I agree to the{' '}
-              <button type="button" onClick={() => setShowTerms(true)}
-                className="text-overseez-blue hover:underline">
+              <Link to="/terms" className="text-overseez-blue hover:underline">
                 Terms and Conditions
-              </button>
+              </Link>
             </Label>
           </div>
           {errors.terms && <p className="text-xs text-overseez-red">{errors.terms}</p>}
@@ -128,28 +160,6 @@ export default function Register() {
           </p>
         </form>
       </div>
-
-      {/* Terms Modal */}
-      {showTerms && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setShowTerms(false)}>
-          <div className="bg-card border border-border rounded-xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto"
-            onClick={e => e.stopPropagation()}>
-            <h2 className="text-xl font-display font-bold mb-4">Terms and Conditions</h2>
-            <div className="text-sm text-muted-foreground space-y-3">
-              <p>By using Overseez, you agree to the following terms:</p>
-              <p><strong>1. Price Accuracy:</strong> Overseez provides AI-generated price comparisons based on available data. We do not guarantee the accuracy of prices displayed. Actual prices may vary.</p>
-              <p><strong>2. No Liability:</strong> Overseez is not responsible for any financial decisions made based on the information provided. Always verify prices at the point of sale.</p>
-              <p><strong>3. Offers May Change:</strong> Promotions, sales, and offers displayed are subject to change without notice. Overseez is not affiliated with any retailers shown.</p>
-              <p><strong>4. Data Usage:</strong> Your search queries and savings data are stored securely and used to improve your experience. We do not sell personal data to third parties.</p>
-              <p><strong>5. Subscription:</strong> Premium features require a paid subscription. You can cancel at any time.</p>
-            </div>
-            <Button onClick={() => setShowTerms(false)} variant="hero" className="w-full mt-6">
-              I Understand
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

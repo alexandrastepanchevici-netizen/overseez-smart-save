@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, LayoutDashboard, CreditCard, LogOut, ChevronDown } from 'lucide-react';
-import logoImg from '@/assets/overseez-logo.png';
+import OverseezLogo from '@/components/OverseezLogo';
 
 export default function AppNav() {
   const { user, profile, signOut } = useAuth();
@@ -20,7 +20,7 @@ export default function AppNav() {
     <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-14">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <img src={logoImg} alt="Overseez" className="w-7 h-7 invert" />
+          <OverseezLogo size={28} color="white" />
           <span className="font-display text-lg font-bold tracking-tight">Overseez</span>
         </Link>
 
