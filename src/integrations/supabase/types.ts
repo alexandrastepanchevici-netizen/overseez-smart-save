@@ -14,7 +14,105 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ai_usage: {
+        Row: {
+          created_at: string
+          id: string
+          question: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          question: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          question?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          birth_date: string
+          created_at: string
+          currency: string
+          full_name: string
+          id: string
+          monthly_saved: number
+          nickname: string
+          total_saved: number
+          updated_at: string
+          user_id: string
+          weekly_saved: number
+        }
+        Insert: {
+          birth_date: string
+          created_at?: string
+          currency?: string
+          full_name: string
+          id?: string
+          monthly_saved?: number
+          nickname: string
+          total_saved?: number
+          updated_at?: string
+          user_id: string
+          weekly_saved?: number
+        }
+        Update: {
+          birth_date?: string
+          created_at?: string
+          currency?: string
+          full_name?: string
+          id?: string
+          monthly_saved?: number
+          nickname?: string
+          total_saved?: number
+          updated_at?: string
+          user_id?: string
+          weekly_saved?: number
+        }
+        Relationships: []
+      }
+      savings_entries: {
+        Row: {
+          amount_saved: number
+          amount_spent: number
+          average_price: number
+          created_at: string
+          currency: string
+          id: string
+          search_query: string | null
+          store_name: string
+          user_id: string
+        }
+        Insert: {
+          amount_saved: number
+          amount_spent: number
+          average_price: number
+          created_at?: string
+          currency?: string
+          id?: string
+          search_query?: string | null
+          store_name: string
+          user_id: string
+        }
+        Update: {
+          amount_saved?: number
+          amount_spent?: number
+          average_price?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          search_query?: string | null
+          store_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
