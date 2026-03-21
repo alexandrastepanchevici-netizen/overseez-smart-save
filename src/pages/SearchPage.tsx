@@ -1,0 +1,461 @@
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import AppNav from '@/components/AppNav';
+import { Search, MapPin, Building2, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+
+interface Place {
+  rank: number;
+  name: string;
+  type: string;
+  price: string;
+  priceValue: number;
+  distance: string;
+  tip: string;
+  searchQuery: string;
+  isSale?: boolean;
+  saleLabel?: string;
+  originalPrice?: string;
+  originalPriceValue?: number;
+  expires?: string;
+}
+
+interface SearchResult {
+  category: string;
+  averagePrice: string;
+  averageValue: number;
+  currency: string;
+  unit: string;
+  insight: string;
+  places: Place[];
+  sales: any[];
+}
+
+const QUICK_SEARCHES = [
+  { label: '🛒 Groceries', q: 'Groceries & supermarkets' },
+  { label: '⛽ Petrol', q: 'Petrol & fuel stations' },
+  { label: '☕ Coffee', q: 'Coffee shops & cafés' },
+  { label: '🏨 Hotels', q: 'Budget hotels & accommodation' },
+  { label: '💊 Pharmacy', q: 'Pharmacies & medicines' },
+  { label: '🍔 Takeaway', q: 'Takeaway & fast food' },
+];
+
+function getCategoryEmoji(type: string): string {
+  if (!type) return '📍';
+  const t = type.toLowerCase();
+  if (t.includes('grocer') || t.includes('supermarket')) return '🛒';
+  if (t.includes('petrol') || t.includes('fuel')) return '⛽';
+  if (t.includes('coffee') || t.includes('café')) return '☕';
+  if (t.includes('hotel')) return '🏨';
+  if (t.includes('pharmacy')) return '💊';
+  if (t.includes('takeaway') || t.includes('fast food')) return '🍔';
+  if (t.includes('gym')) return '🏋';
+  return '📍';
+}
+
+export default function SearchPage() {
+  const { user } = useAuth();
+  const [query, setQuery] = useState('');
+  const [bankName, setBankName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<SearchResult | null>(null);
+  const [bankInfo, setBankInfo] = useState<any>(null);
+  const [combinedPlaces, setCombinedPlaces] = useState<Place[]>([]);
+  const [error, setError] = useState('');
+  const [loc, setLoc] = useState<{ lat: number; lng: number; city: string; cc: string } | null>(null);
+  const [locStatus, setLocStatus] = useState('Location not set');
+  const [usageLeft, setUsageLeft] = useState(10);
+  const [spendModal, setSpendModal] = useState<{ open: boolean; place: Place | null; avgVal: number }>({
+    open: false, place: null, avgVal: 0,
+  });
+  const [spendInput, setSpendInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Check usage
+  useEffect(() => {
+    if (!user) return;
+    const since = new Date(Date.now() - 24 * 3600000).toISOString();
+    supabase.from('ai_usage').select('id', { count: 'exact' })
+      .eq('user_id', user.id).gte('created_at', since)
+      .then(({ count }) => setUsageLeft(Math.max(0, 10 - (count || 0))));
+  }, [user, result]);
+
+  // Request location
+  const requestLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
+    setLocStatus('Detecting…');
+    navigator.geolocation.getCurrentPosition(async pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+        const d = await r.json();
+        const city = d.address?.city || d.address?.town || d.address?.village || 'your area';
+        const cc = (d.address?.country_code || 'GB').toUpperCase();
+        setLoc({ lat, lng, city, cc });
+        setLocStatus(city);
+      } catch {
+        setLoc({ lat, lng, city: `${lat.toFixed(2)}, ${lng.toFixed(2)}`, cc: 'GB' });
+        setLocStatus(`${lat.toFixed(2)}, ${lng.toFixed(2)}`);
+      }
+    }, () => setLocStatus('Location unavailable'));
+  }, []);
+
+  useEffect(() => {
+    navigator.permissions?.query({ name: 'geolocation' as PermissionName }).then(p => {
+      if (p.state === 'granted') requestLocation();
+    }).catch(() => {});
+  }, [requestLocation]);
+
+  const doSearch = async (q?: string) => {
+    const searchQ = q || query;
+    if (!searchQ.trim()) return;
+    if (usageLeft <= 0) {
+      toast.error('Free questions used up! Upgrade to Premium for unlimited access.');
+      return;
+    }
+    setQuery(searchQ);
+    setLoading(true);
+    setError('');
+    setResult(null);
+
+    try {
+      // Track usage
+      if (user) {
+        await supabase.from('ai_usage').insert({ user_id: user.id, question: searchQ });
+      }
+
+      const { data, error: fnErr } = await supabase.functions.invoke('search', {
+        body: {
+          query: searchQ,
+          lat: loc?.lat,
+          lng: loc?.lng,
+          city: loc?.city,
+          countryCode: loc?.cc,
+          bankName: bankName || undefined,
+        },
+      });
+
+      if (fnErr) throw new Error(fnErr.message);
+      if (data?.error) throw new Error(data.error);
+
+      const r = data.result as SearchResult;
+      setResult(r);
+      setBankInfo(data.bankInfo);
+
+      // Merge sales into places
+      const salesAsPlaces: Place[] = (r.sales || []).map((s: any) => ({
+        rank: 0, name: s.name, type: s.type,
+        price: s.salePrice, priceValue: s.salePriceValue,
+        distance: s.distance, tip: s.tip, searchQuery: s.searchQuery,
+        isSale: true, saleLabel: s.saleLabel,
+        originalPrice: s.originalPrice, originalPriceValue: s.originalPriceValue,
+        expires: s.expires,
+      }));
+
+      const combined = [...(r.places || []), ...salesAsPlaces]
+        .filter(p => p.priceValue != null)
+        .sort((a, b) => a.priceValue - b.priceValue)
+        .slice(0, 5)
+        .map((p, i) => ({ ...p, rank: i + 1 }));
+
+      setCombinedPlaces(combined);
+      setUsageLeft(prev => Math.max(0, prev - 1));
+    } catch (e: any) {
+      setError(e.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logSaving = async () => {
+    if (!spendModal.place || !user) return;
+    const spent = parseFloat(spendInput);
+    if (isNaN(spent) || spent < 0) return;
+    const saved = spendModal.avgVal - spent;
+
+    await supabase.from('savings_entries').insert({
+      user_id: user.id,
+      store_name: spendModal.place.name,
+      amount_saved: Math.max(0, saved),
+      amount_spent: spent,
+      average_price: spendModal.avgVal,
+      currency: result?.currency || '£',
+      search_query: query,
+    });
+
+    if (saved > 0) {
+      const { data: prof } = await supabase.from('profiles').select('total_saved')
+        .eq('user_id', user.id).single();
+      if (prof) {
+        await supabase.from('profiles').update({
+          total_saved: Number(prof.total_saved) + saved,
+        }).eq('user_id', user.id);
+      }
+      toast.success(`🎉 You saved ${result?.currency || '£'}${saved.toFixed(2)}!`);
+    } else {
+      toast.info('Logged!');
+    }
+
+    setSpendModal({ open: false, place: null, avgVal: 0 });
+    setSpendInput('');
+  };
+
+  const bankFeeRate = bankInfo ? (bankInfo.overseasFeePercent || 0) / 100 : 0;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <AppNav />
+
+      {/* Search Header */}
+      <div className="sticky top-14 z-40 border-b border-border bg-overseez-mid px-4 py-3">
+        <div className="max-w-3xl mx-auto flex flex-wrap items-center gap-2">
+          <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-muted/50 border border-border rounded-full px-4 py-2 focus-within:border-foreground/30 focus-within:bg-muted/80 transition-all">
+            <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <input ref={inputRef} type="text" value={query} onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && doSearch()}
+              placeholder="Search groceries, hotels, petrol…"
+              className="bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground flex-1" />
+            {query && (
+              <button onClick={() => { setQuery(''); setResult(null); setCombinedPlaces([]); }}>
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center gap-2 bg-muted/30 border border-border rounded-full px-3 py-2 min-w-[130px]">
+            <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
+            <input type="text" value={bankName} onChange={e => setBankName(e.target.value)}
+              placeholder="Your bank"
+              className="bg-transparent border-none outline-none text-xs text-foreground placeholder:text-muted-foreground w-20" />
+          </div>
+          <Button onClick={() => doSearch()} variant="hero" size="sm" disabled={loading || !query.trim()}>
+            Search
+          </Button>
+        </div>
+      </div>
+
+      {/* Quick Chips */}
+      <div className="border-b border-border bg-overseez-mid px-4 py-2">
+        <div className="max-w-3xl mx-auto flex gap-2 overflow-x-auto">
+          {QUICK_SEARCHES.map(c => (
+            <button key={c.q} onClick={() => doSearch(c.q)}
+              className="text-xs text-foreground/80 bg-muted/30 border border-border rounded-full px-3 py-1.5 whitespace-nowrap hover:bg-muted/60 transition-colors flex-shrink-0">
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 py-6">
+        {/* Location + Usage */}
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className={`w-2 h-2 rounded-full ${loc ? 'bg-foreground' : 'bg-muted-foreground/30'}`} />
+            <span>{locStatus}</span>
+            <button onClick={requestLocation} className="text-overseez-blue hover:underline">
+              📍 {loc ? 'Change' : 'Enable location'}
+            </button>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Free questions left: <span className="font-semibold text-foreground">{usageLeft}</span> / 10
+            <span className="text-muted-foreground/60 ml-1">(resets in 24h)</span>
+          </div>
+        </div>
+
+        {/* Usage Progress */}
+        <div className="h-1 bg-muted rounded-full overflow-hidden mb-4">
+          <div className={`h-full rounded-full transition-all duration-500 ${usageLeft <= 2 ? 'bg-overseez-red' : usageLeft <= 5 ? 'bg-overseez-gold' : 'bg-overseez-blue'}`}
+            style={{ width: `${(usageLeft / 10) * 100}%` }} />
+        </div>
+
+        {/* Bank Notice */}
+        {bankInfo && (
+          <div className="bg-overseez-gold/10 border border-overseez-gold/25 rounded-lg px-4 py-2.5 mb-4 text-xs text-overseez-gold">
+            🏦 <strong>{bankInfo.bankName}</strong> overseas fee: <strong>{bankInfo.overseasFeePercent}%</strong> — {bankInfo.feeDescription}
+          </div>
+        )}
+
+        {/* Welcome State */}
+        {!loading && !result && !error && (
+          <div className="text-center py-16 animate-fade-in-up">
+            <h2 className="text-4xl font-display font-bold tracking-tight mb-3 overseez-text-gradient">Overseez</h2>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+              Find the top 5 cheapest options near you for anything — with live sales merged into the ranking, savings vs average, and Google Maps links.
+            </p>
+            <div className="inline-flex items-center gap-2 bg-muted/30 border border-border rounded-full px-4 py-2 mt-4 text-xs text-muted-foreground">
+              🏦 Enter your bank to see overseas fees · 🏷 Sales automatically merged into rankings
+            </div>
+          </div>
+        )}
+
+        {/* Loading */}
+        {loading && (
+          <div className="text-center py-16">
+            <div className="flex justify-center gap-1.5 mb-3">
+              {[0, 1, 2, 3].map(i => (
+                <div key={i}
+                  className="w-2.5 h-2.5 rounded-full animate-pulse-dot"
+                  style={{
+                    animationDelay: `${i * 0.15}s`,
+                    backgroundColor: ['#fff', '#60a5fa', '#fbbf24', '#f87171'][i],
+                  }} />
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground">Searching for cheapest "{query}" near you…</p>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="bg-overseez-red/10 border border-overseez-red/25 rounded-lg p-4 text-sm text-overseez-red mb-4">
+            ⚠ {error}
+          </div>
+        )}
+
+        {/* Results */}
+        {result && combinedPlaces.length > 0 && (
+          <div className="animate-fade-in-up">
+            <p className="text-xs text-muted-foreground mb-3">
+              About {combinedPlaces.length} cheapest results for "{query}"{loc ? ` near ${loc.city}` : ''}
+            </p>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              <span className="text-xs bg-overseez-gold/10 text-overseez-gold border border-overseez-gold/25 rounded-full px-3 py-1">
+                📊 Area average: {result.averagePrice}
+              </span>
+              {result.sales?.length > 0 && (
+                <span className="text-xs bg-overseez-red/10 text-overseez-red border border-overseez-red/25 rounded-full px-3 py-1">
+                  🏷 {result.sales.length} sale{result.sales.length > 1 ? 's' : ''} found
+                </span>
+              )}
+            </div>
+
+            {result.insight && (
+              <div className="bg-overseez-blue/10 border border-overseez-blue/20 rounded-lg px-4 py-3 mb-4">
+                <p className="text-[11px] font-bold text-overseez-blue uppercase tracking-wider mb-1">⚡ AI Insight</p>
+                <p className="text-sm text-foreground/85 leading-relaxed">{result.insight}</p>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {combinedPlaces.map((place, i) => {
+                const feeAmount = bankFeeRate > 0 ? place.priceValue * bankFeeRate : 0;
+                const effectivePrice = place.priceValue + feeAmount;
+                const saving = result.averageValue - effectivePrice;
+                const mapsUrl = loc
+                  ? `https://www.google.com/maps/search/${encodeURIComponent(place.searchQuery || place.name)}/@${loc.lat},${loc.lng},14z`
+                  : `https://www.google.com/maps/search/${encodeURIComponent(place.searchQuery || place.name)}`;
+
+                return (
+                  <div key={i}
+                    className={`bg-card border rounded-xl p-4 animate-card-in overseez-card-hover ${
+                      place.isSale ? 'border-overseez-red/30 bg-gradient-to-br from-card to-overseez-red/5' : 'border-border'
+                    }`}
+                    style={{ animationDelay: `${i * 0.06}s` }}>
+                    <div className="flex items-start gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
+                        ${i === 0 ? 'bg-foreground/15 text-foreground border border-foreground/30' : 'bg-muted text-muted-foreground border border-border'}
+                        ${place.isSale ? 'bg-overseez-red/15 text-overseez-red border-overseez-red/30' : ''}`}>
+                        #{place.rank}
+                      </div>
+
+                      <div className="w-14 h-14 rounded-lg bg-muted/50 border border-border flex items-center justify-center flex-shrink-0 text-2xl">
+                        {getCategoryEmoji(place.type)}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-sm">{place.name}</span>
+                          {i === 0 && <span className="text-[10px] bg-foreground/10 text-foreground px-2 py-0.5 rounded-full font-semibold">Cheapest</span>}
+                          {place.isSale && (
+                            <span className="text-[10px] bg-overseez-red/15 text-overseez-red border border-overseez-red/30 px-2 py-0.5 rounded-full font-bold">
+                              🏷 SALE
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground/50 mt-0.5">{place.type?.toLowerCase().replace(/ /g, '-')}.overseez.co.uk</p>
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1 flex-wrap">
+                          <span>{place.type}</span>
+                          <span className="text-muted-foreground/30">·</span>
+                          <span>~{place.distance}</span>
+                          {saving > 0 && (
+                            <>
+                              <span className="text-muted-foreground/30">·</span>
+                              <span className="font-semibold text-foreground">Save {result.currency}{saving.toFixed(2)} vs avg</span>
+                            </>
+                          )}
+                        </div>
+                        {place.isSale && place.saleLabel && (
+                          <p className="text-xs text-overseez-red font-semibold mt-1">{place.saleLabel}</p>
+                        )}
+                        <p className="text-xs text-foreground/80 mt-1.5 leading-relaxed">{place.tip}</p>
+                        {place.expires && (
+                          <p className="text-[11px] text-overseez-gold/80 italic mt-1">⏱ {place.expires}</p>
+                        )}
+                        {bankFeeRate > 0 && (
+                          <div className="text-[11px] text-overseez-gold bg-overseez-gold/8 rounded px-2 py-1 mt-1.5 border border-overseez-gold/15">
+                            + {result.currency}{feeAmount.toFixed(2)} overseas fee = <strong>{result.currency}{effectivePrice.toFixed(2)} true cost</strong>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-right flex-shrink-0 ml-2">
+                        <p className="text-lg font-bold">{place.price}</p>
+                        {place.isSale && place.originalPrice && (
+                          <p className="text-xs text-muted-foreground/40 line-through">{place.originalPrice}</p>
+                        )}
+                        {bankFeeRate > 0 && (
+                          <p className="text-xs text-overseez-gold font-semibold">+ fee: {result.currency}{effectivePrice.toFixed(2)}</p>
+                        )}
+                        <p className="text-[11px] text-muted-foreground mt-0.5">avg: {result.averagePrice.split(' ')[0]}</p>
+                        {saving > 0 && <p className="text-xs font-semibold mt-0.5">▼ {result.currency}{saving.toFixed(2)}</p>}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 mt-3 pt-2 border-t border-border/50">
+                      <a href={mapsUrl} target="_blank" rel="noopener"
+                        className="text-xs text-overseez-blue hover:underline flex items-center gap-1">
+                        <MapPin className="w-3 h-3" /> View on Maps
+                      </a>
+                      <button onClick={() => {
+                        setSpendModal({ open: true, place, avgVal: result.averageValue });
+                        setSpendInput(place.priceValue.toFixed(2));
+                      }}
+                        className="text-xs bg-muted/50 border border-border rounded-md px-3 py-1.5 hover:bg-muted transition-colors">
+                        🏷 I saved here
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Spend Modal */}
+      {spendModal.open && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setSpendModal({ open: false, place: null, avgVal: 0 })}>
+          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full"
+            onClick={e => e.stopPropagation()}>
+            <h3 className="font-display font-semibold mb-1">How much did you spend?</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Enter what you spent at {spendModal.place?.name} — we'll calculate your real saving.
+            </p>
+            <input type="number" min="0" step="0.01" value={spendInput}
+              onChange={e => setSpendInput(e.target.value)}
+              className="w-full bg-muted/50 border border-border rounded-lg px-4 py-3 text-foreground outline-none focus:border-foreground/30 mb-4" />
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" size="sm" onClick={() => setSpendModal({ open: false, place: null, avgVal: 0 })}>
+                Cancel
+              </Button>
+              <Button variant="hero" size="sm" onClick={logSaving}>Log Saving</Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
