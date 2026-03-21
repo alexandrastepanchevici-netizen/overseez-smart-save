@@ -21,8 +21,15 @@ export default function Login() {
     setError('');
     const { error: err } = await signIn(email, password);
     setLoading(false);
-    if (err) setError(err.message);
-    else navigate('/dashboard');
+    if (err) {
+      if (err.message?.toLowerCase().includes('email not confirmed')) {
+        setError('Please check your inbox and confirm your email before logging in. A confirmation email was sent when you registered.');
+      } else {
+        setError(err.message);
+      }
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (
