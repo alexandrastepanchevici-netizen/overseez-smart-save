@@ -1,13 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AppNav from '@/components/AppNav';
 import { Button } from '@/components/ui/button';
-import { Check, Zap } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Check, Zap, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useSearchParams } from 'react-router-dom';
 
 export default function Subscription() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const { subscribed, subscriptionEnd, checkSubscription } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('success') === 'true') {
+      toast.success('Welcome to Premium! Your subscription is now active.');
+      checkSubscription();
+    }
+    if (searchParams.get('canceled') === 'true') {
+      toast.info('Checkout was canceled.');
+    }
+  }, [searchParams]);
+
+  const handleUpgrade = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout');
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to start checkout');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleManage = async () => {
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal');
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to open portal');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -18,7 +62,10 @@ export default function Subscription() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Free */}
-          <div className="bg-card border border-border rounded-xl p-6 overseez-card-hover">
+          <div className={`bg-card border rounded-xl p-6 overseez-card-hover ${!subscribed ? 'border-foreground/20' : 'border-border'}`}>
+            {!subscribed && (
+              <span className="text-[10px] bg-foreground/10 text-foreground px-2 py-0.5 rounded-full font-semibold mb-3 inline-block">Your Plan</span>
+            )}
             <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2">Free</p>
             <p className="text-3xl font-display font-bold mb-1">£0<span className="text-sm font-normal text-muted-foreground">/month</span></p>
             <p className="text-xs text-muted-foreground mb-6">Perfect for getting started</p>
@@ -28,14 +75,16 @@ export default function Subscription() {
               <Feature text="Basic savings tracking" />
               <Feature text="Google Maps links" />
             </div>
-            <Button variant="outline" className="w-full" disabled>Current Plan</Button>
+            <Button variant="outline" className="w-full" disabled>
+              {!subscribed ? 'Current Plan' : 'Downgrade'}
+            </Button>
           </div>
 
           {/* Premium */}
-          <div className="bg-card border-2 border-overseez-blue/40 rounded-xl p-6 overseez-card-hover relative overflow-hidden">
+          <div className={`bg-card rounded-xl p-6 overseez-card-hover relative overflow-hidden ${subscribed ? 'border-2 border-overseez-green/40' : 'border-2 border-overseez-blue/40'}`}>
             <div className="absolute top-3 right-3">
               <span className="text-[10px] bg-overseez-blue/15 text-overseez-blue px-2 py-0.5 rounded-full font-semibold flex items-center gap-1">
-                <Zap className="w-3 h-3" /> Recommended
+                <Zap className="w-3 h-3" /> {subscribed ? 'Active' : 'Recommended'}
               </span>
             </div>
             <p className="text-xs uppercase tracking-wider text-overseez-blue font-medium mb-2">Premium</p>
@@ -48,10 +97,29 @@ export default function Subscription() {
               <Feature text="Bank fee integration" highlight />
               <Feature text="Sale alerts & notifications" highlight />
             </div>
-            <Button variant="accent" className="w-full" onClick={() => navigate('/subscription/checkout')}>
-              Upgrade Now
-            </Button>
+            {subscribed ? (
+              <div className="space-y-2">
+                <Button variant="outline" className="w-full" onClick={handleManage} disabled={portalLoading}>
+                  {portalLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Manage Subscription'}
+                </Button>
+                {subscriptionEnd && (
+                  <p className="text-[11px] text-muted-foreground text-center">
+                    Renews {new Date(subscriptionEnd).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <Button variant="accent" className="w-full" onClick={handleUpgrade} disabled={loading}>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Upgrade Now'}
+              </Button>
+            )}
           </div>
+        </div>
+
+        <div className="mt-6 text-center">
+          <Button variant="ghost" size="sm" onClick={() => checkSubscription()} className="text-xs text-muted-foreground">
+            Refresh subscription status
+          </Button>
         </div>
       </div>
     </div>
