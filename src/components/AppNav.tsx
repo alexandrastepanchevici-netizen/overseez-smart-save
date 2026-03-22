@@ -5,7 +5,7 @@ import { User, LayoutDashboard, CreditCard, LogOut, ChevronDown, Search, Home } 
 import OverseezLogo from '@/components/OverseezLogo';
 
 const NAV_LINKS = [
-  { to: '/', label: 'Home', icon: Home },
+  { to: '/home', label: 'Home', icon: Home },
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/search', label: 'AI Assistant', icon: Search },
   { to: '/subscription', label: 'Subscription', icon: CreditCard },
