@@ -339,7 +339,7 @@ export default function Index() {
       <footer className="border-t border-border bg-card/50 py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={user ? '/home' : '/'} className="flex items-center gap-2">
               <OverseezLogo size={24} color="white" />
               <span className="font-display font-bold">Overseez</span>
             </Link>
