@@ -8,15 +8,39 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle2, Mail } from 'lucide-react';
 import OverseezLogo from '@/components/OverseezLogo';
 
+const CURRENCIES = [
+  { code: 'GB', symbol: '£', label: 'United Kingdom (£)' },
+  { code: 'US', symbol: '$', label: 'United States ($)' },
+  { code: 'EU', symbol: '€', label: 'Eurozone (€)' },
+  { code: 'CA', symbol: 'C$', label: 'Canada (C$)' },
+  { code: 'AU', symbol: 'A$', label: 'Australia (A$)' },
+  { code: 'JP', symbol: '¥', label: 'Japan (¥)' },
+  { code: 'IN', symbol: '₹', label: 'India (₹)' },
+  { code: 'NG', symbol: '₦', label: 'Nigeria (₦)' },
+  { code: 'GH', symbol: '₵', label: 'Ghana (₵)' },
+  { code: 'KE', symbol: 'KSh', label: 'Kenya (KSh)' },
+  { code: 'ZA', symbol: 'R', label: 'South Africa (R)' },
+  { code: 'BR', symbol: 'R$', label: 'Brazil (R$)' },
+  { code: 'MX', symbol: '$', label: 'Mexico ($)' },
+  { code: 'KR', symbol: '₩', label: 'South Korea (₩)' },
+  { code: 'CN', symbol: '¥', label: 'China (¥)' },
+  { code: 'AE', symbol: 'AED', label: 'UAE (AED)' },
+  { code: 'TR', symbol: '₺', label: 'Turkey (₺)' },
+  { code: 'PL', symbol: 'zł', label: 'Poland (zł)' },
+  { code: 'SE', symbol: 'kr', label: 'Sweden (kr)' },
+  { code: 'CH', symbol: 'CHF', label: 'Switzerland (CHF)' },
+  { code: 'SG', symbol: 'S$', label: 'Singapore (S$)' },
+  { code: 'HK', symbol: 'HK$', label: 'Hong Kong (HK$)' },
+];
+
 export default function Register() {
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    fullName: '', birthDate: '', nickname: '', email: '', password: '', terms: false,
+    fullName: '', birthDate: '', nickname: '', email: '', password: '', currency: 'GB', terms: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const validate = () => {
@@ -27,10 +51,13 @@ export default function Register() {
     if (form.nickname.length < 3) e.nickname = 'Nickname must be at least 3 characters';
     if (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email)) e.email = 'Valid email is required';
     if (form.password.length < 6) e.password = 'Password must be at least 6 characters';
+    if (!form.currency) e.currency = 'Currency is required';
     if (!form.terms) e.terms = 'You must accept the terms';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
+
+  const selectedCurrency = CURRENCIES.find(c => c.code === form.currency);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +67,7 @@ export default function Register() {
       full_name: form.fullName,
       nickname: form.nickname,
       birth_date: form.birthDate,
+      currency: selectedCurrency?.symbol || '£',
     });
     setLoading(false);
     if (error) {
@@ -117,6 +145,18 @@ export default function Register() {
             <Input id="nickname" value={form.nickname} onChange={e => set('nickname', e.target.value)}
               placeholder="Choose a unique nickname" className="mt-1 bg-muted/50 border-border" />
             {errors.nickname && <p className="text-xs text-overseez-red mt-1">{errors.nickname}</p>}
+          </div>
+
+          <div>
+            <Label htmlFor="currency">Country / Currency</Label>
+            <select id="currency" value={form.currency}
+              onChange={e => set('currency', e.target.value)}
+              className="mt-1 w-full bg-muted/50 border border-border rounded-md px-3 py-2 text-sm text-foreground outline-none focus:border-foreground/30">
+              {CURRENCIES.map(c => (
+                <option key={c.code} value={c.code}>{c.label}</option>
+              ))}
+            </select>
+            {errors.currency && <p className="text-xs text-overseez-red mt-1">{errors.currency}</p>}
           </div>
 
           <div>

@@ -45,9 +45,11 @@ const App = () => (
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            {/* First screen for unauthenticated users is register */}
+            <Route path="/" element={<AuthGate />} />
             <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="/home" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
@@ -60,5 +62,13 @@ const App = () => (
     </TooltipProvider>
   </QueryClientProvider>
 );
+
+function AuthGate() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  // Unauthenticated → registration. Authenticated → landing/home page.
+  if (!user) return <Navigate to="/register" replace />;
+  return <Index />;
+}
 
 export default App;
