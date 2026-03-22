@@ -78,7 +78,7 @@ export default function Index() {
       {/* Nav */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-card/90 backdrop-blur-xl border-b border-border' : 'bg-transparent'}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-16">
-          <Link to="/" className="flex items-center gap-2">
+          <Link to={user ? '/home' : '/'} className="flex items-center gap-2">
             <OverseezLogo size={30} color="white" />
             <span className="font-display text-xl font-bold tracking-tight">Overseez</span>
           </Link>
