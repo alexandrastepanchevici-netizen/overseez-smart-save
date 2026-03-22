@@ -1,12 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
-import { User, Calendar, Wallet, Star, Shield } from 'lucide-react';
+import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+
+const MILESTONES = [5, 25, 50, 100, 250, 500, 1000];
 
 export default function Profile() {
-  const { profile, user } = useAuth();
+  const { profile, user, subscribed } = useAuth();
+  const [usageLeft, setUsageLeft] = useState(5);
+  const [animatedTotal, setAnimatedTotal] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const since = new Date(Date.now() - 24 * 3600000).toISOString();
+    supabase.from('ai_usage').select('id', { count: 'exact' })
+      .eq('user_id', user.id).gte('created_at', since)
+      .then(({ count }) => setUsageLeft(Math.max(0, 5 - (count || 0))));
+  }, [user]);
+
+  // Animate total
+  useEffect(() => {
+    const target = profile?.total_saved || 0;
+    if (target === 0) { setAnimatedTotal(0); return; }
+    const dur = 800;
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const p = Math.min((now - t0) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      setAnimatedTotal(target * ease);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [profile?.total_saved]);
+
+  const currency = profile?.currency || '£';
+  const totalSaved = profile?.total_saved || 0;
+  const goalMax = MILESTONES[MILESTONES.length - 1];
+  const pct = Math.min((totalSaved / goalMax) * 100, 100);
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,13 +62,61 @@ export default function Profile() {
               value={profile?.birth_date ? new Date(profile.birth_date).toLocaleDateString() : '—'} />
             <InfoItem icon={<User className="w-4 h-4" />} label="Email"
               value={user?.email || '—'} />
-            <InfoItem icon={<Wallet className="w-4 h-4" />} label="Total Saved"
-              value={`${profile?.currency || '£'}${Number(profile?.total_saved || 0).toFixed(2)}`} />
+            <InfoItem icon={<Wallet className="w-4 h-4" />} label="Currency"
+              value={currency} />
             <InfoItem icon={<Star className="w-4 h-4" />} label="Subscription"
-              value="Free Plan" />
+              value={subscribed ? 'Premium' : 'Free Plan'} />
           </div>
         </div>
 
+        {/* Savings Progress */}
+        <div className="bg-card border border-border rounded-xl p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <TrendingUp className="w-5 h-5 text-overseez-blue" />
+            <h3 className="font-display font-semibold">Savings Progress</h3>
+          </div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-2xl font-display font-bold tracking-tight">
+              {currency}{animatedTotal.toFixed(2)}
+            </p>
+            <p className="text-xs text-muted-foreground">Goal: {currency}{goalMax.toLocaleString()}</p>
+          </div>
+          <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
+            <div className="h-full rounded-full bg-gradient-to-r from-overseez-blue to-overseez-green transition-all duration-700"
+              style={{ width: `${pct}%` }} />
+          </div>
+          <div className="flex justify-between">
+            {MILESTONES.map(m => (
+              <div key={m} className="flex flex-col items-center gap-0.5">
+                <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
+                <span className={`text-[10px] ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>
+                  {m >= 1000 ? `${currency}1k` : `${currency}${m}`}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Usage */}
+        <div className="bg-card border border-border rounded-xl p-6 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-display font-semibold">AI Usage</h3>
+            <span className="text-sm text-muted-foreground">
+              {subscribed ? 'Unlimited' : `${usageLeft} / 5 remaining`}
+            </span>
+          </div>
+          {!subscribed && (
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <div className={`h-full rounded-full transition-all duration-500 ${usageLeft <= 1 ? 'bg-overseez-red' : usageLeft <= 2 ? 'bg-overseez-gold' : 'bg-overseez-blue'}`}
+                style={{ width: `${(usageLeft / 5) * 100}%` }} />
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground mt-2">
+            {subscribed ? 'Premium subscribers have unlimited AI access.' : 'Free questions reset every 24 hours.'}
+          </p>
+        </div>
+
+        {/* Account */}
         <div className="bg-card border border-border rounded-xl p-6">
           <div className="flex items-center gap-3 mb-4">
             <Shield className="w-5 h-5 text-muted-foreground" />
@@ -45,7 +125,7 @@ export default function Profile() {
           <div className="space-y-3">
             <Link to="/subscription" className="flex items-center justify-between bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-colors">
               <span className="text-sm">Manage Subscription</span>
-              <span className="text-xs text-muted-foreground">Free Plan →</span>
+              <span className="text-xs text-muted-foreground">{subscribed ? 'Premium' : 'Free Plan'} →</span>
             </Link>
             <Link to="/terms" className="flex items-center justify-between bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-colors">
               <span className="text-sm">Terms & Conditions</span>

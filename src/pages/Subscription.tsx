@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AppNav from '@/components/AppNav';
 import { Button } from '@/components/ui/button';
-import { Check, Zap, Loader2 } from 'lucide-react';
+import { Check, Zap, Loader2, ArrowRight, Coffee } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -60,6 +60,48 @@ export default function Subscription() {
         <h1 className="text-2xl font-display font-bold tracking-tight mb-2">Subscription</h1>
         <p className="text-sm text-muted-foreground mb-8">Choose the plan that works for you.</p>
 
+        {/* Case Study */}
+        <div className="bg-card border border-border rounded-xl p-6 mb-8">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-overseez-gold/15 flex items-center justify-center flex-shrink-0">
+              <Coffee className="w-5 h-5 text-overseez-gold" />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-widest text-overseez-gold font-medium mb-1">Real Example</p>
+              <h3 className="font-display font-semibold text-lg">How Maria saved more than her subscription — on coffee alone.</h3>
+            </div>
+          </div>
+          <div className="bg-muted/30 rounded-lg p-5 mb-4 space-y-3 text-sm text-foreground/85 leading-relaxed">
+            <p>
+              Maria moved from Brazil to London for university. Every morning, she bought coffee at the café nearest to campus — <strong>£4.20 each time</strong>. She assumed that was the going rate.
+            </p>
+            <p>
+              After signing up for Overseez, she searched "coffee near me" and discovered three cheaper options within a 5-minute walk. She switched to a local spot charging <strong>£2.10</strong>.
+            </p>
+            <div className="grid grid-cols-3 gap-3 py-3">
+              <div className="text-center bg-card border border-border rounded-lg p-3">
+                <p className="text-xl font-display font-bold text-overseez-green">€2.10</p>
+                <p className="text-[11px] text-muted-foreground">saved per day</p>
+              </div>
+              <div className="text-center bg-card border border-border rounded-lg p-3">
+                <p className="text-xl font-display font-bold text-overseez-green">€63+</p>
+                <p className="text-[11px] text-muted-foreground">saved per month</p>
+              </div>
+              <div className="text-center bg-card border border-overseez-green/30 rounded-lg p-3">
+                <p className="text-xl font-display font-bold text-overseez-green">6.3×</p>
+                <p className="text-[11px] text-muted-foreground">the subscription cost</p>
+              </div>
+            </div>
+            <p className="font-semibold text-foreground">
+              👉 From just one product, Maria's savings covered her £10 subscription more than six times over.
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground italic">
+            "I was paying the foreigner tax without even knowing it. Now I save on everything — groceries, transport, even my phone plan." — Maria S., London
+          </p>
+        </div>
+
+        {/* Pricing Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Free */}
           <div className={`bg-card border rounded-xl p-6 overseez-card-hover ${!subscribed ? 'border-foreground/20' : 'border-border'}`}>
@@ -70,7 +112,7 @@ export default function Subscription() {
             <p className="text-3xl font-display font-bold mb-1">£0<span className="text-sm font-normal text-muted-foreground">/month</span></p>
             <p className="text-xs text-muted-foreground mb-6">Perfect for getting started</p>
             <div className="space-y-2.5 mb-6">
-              <Feature text="10 AI questions per 24 hours" />
+              <Feature text="5 AI questions per 24 hours" />
               <Feature text="Location-based search" />
               <Feature text="Basic savings tracking" />
               <Feature text="Google Maps links" />
@@ -89,7 +131,7 @@ export default function Subscription() {
             </div>
             <p className="text-xs uppercase tracking-wider text-overseez-blue font-medium mb-2">Premium</p>
             <p className="text-3xl font-display font-bold mb-1">£10<span className="text-sm font-normal text-muted-foreground">/month</span></p>
-            <p className="text-xs text-muted-foreground mb-6">For serious savers</p>
+            <p className="text-xs text-muted-foreground mb-6">You save more than you pay.</p>
             <div className="space-y-2.5 mb-6">
               <Feature text="Unlimited AI questions" highlight />
               <Feature text="Priority AI responses" highlight />
@@ -109,8 +151,10 @@ export default function Subscription() {
                 )}
               </div>
             ) : (
-              <Button variant="accent" className="w-full" onClick={handleUpgrade} disabled={loading}>
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Upgrade Now'}
+              <Button variant="accent" className="w-full group" onClick={handleUpgrade} disabled={loading}>
+                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                  <>Upgrade Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
+                )}
               </Button>
             )}
           </div>

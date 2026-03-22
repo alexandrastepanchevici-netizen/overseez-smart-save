@@ -5,6 +5,7 @@ import AppNav from '@/components/AppNav';
 import { Search, MapPin, Building2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface Place {
   rank: number;
@@ -55,8 +56,11 @@ function getCategoryEmoji(type: string): string {
   return '📍';
 }
 
+const FREE_LIMIT = 5;
+
 export default function SearchPage() {
-  const { user } = useAuth();
+  const { user, subscribed, profile } = useAuth();
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [bankName, setBankName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -66,21 +70,23 @@ export default function SearchPage() {
   const [error, setError] = useState('');
   const [loc, setLoc] = useState<{ lat: number; lng: number; city: string; cc: string } | null>(null);
   const [locStatus, setLocStatus] = useState('Location not set');
-  const [usageLeft, setUsageLeft] = useState(10);
+  const [usageLeft, setUsageLeft] = useState(FREE_LIMIT);
   const [spendModal, setSpendModal] = useState<{ open: boolean; place: Place | null; avgVal: number }>({
     open: false, place: null, avgVal: 0,
   });
   const [spendInput, setSpendInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const userCurrency = profile?.currency || '£';
+
   // Check usage
   useEffect(() => {
-    if (!user) return;
+    if (!user || subscribed) return;
     const since = new Date(Date.now() - 24 * 3600000).toISOString();
     supabase.from('ai_usage').select('id', { count: 'exact' })
       .eq('user_id', user.id).gte('created_at', since)
-      .then(({ count }) => setUsageLeft(Math.max(0, 10 - (count || 0))));
-  }, [user, result]);
+      .then(({ count }) => setUsageLeft(Math.max(0, FREE_LIMIT - (count || 0))));
+  }, [user, result, subscribed]);
 
   // Request location
   const requestLocation = useCallback(() => {
@@ -111,8 +117,10 @@ export default function SearchPage() {
   const doSearch = async (q?: string) => {
     const searchQ = q || query;
     if (!searchQ.trim()) return;
-    if (usageLeft <= 0) {
-      toast.error('Free questions used up! Upgrade to Premium for unlimited access.');
+    if (!subscribed && usageLeft <= 0) {
+      toast.error('Free questions used up! Upgrade to Premium for unlimited access.', {
+        action: { label: 'Upgrade', onClick: () => navigate('/subscription') },
+      });
       return;
     }
     setQuery(searchQ);
@@ -121,7 +129,6 @@ export default function SearchPage() {
     setResult(null);
 
     try {
-      // Track usage
       if (user) {
         await supabase.from('ai_usage').insert({ user_id: user.id, question: searchQ });
       }
@@ -134,6 +141,7 @@ export default function SearchPage() {
           city: loc?.city,
           countryCode: loc?.cc,
           bankName: bankName || undefined,
+          userCurrency,
         },
       });
 
@@ -144,7 +152,6 @@ export default function SearchPage() {
       setResult(r);
       setBankInfo(data.bankInfo);
 
-      // Merge sales into places
       const salesAsPlaces: Place[] = (r.sales || []).map((s: any) => ({
         rank: 0, name: s.name, type: s.type,
         price: s.salePrice, priceValue: s.salePriceValue,
@@ -161,7 +168,7 @@ export default function SearchPage() {
         .map((p, i) => ({ ...p, rank: i + 1 }));
 
       setCombinedPlaces(combined);
-      setUsageLeft(prev => Math.max(0, prev - 1));
+      if (!subscribed) setUsageLeft(prev => Math.max(0, prev - 1));
     } catch (e: any) {
       setError(e.message || 'Something went wrong');
     } finally {
@@ -181,7 +188,7 @@ export default function SearchPage() {
       amount_saved: Math.max(0, saved),
       amount_spent: spent,
       average_price: spendModal.avgVal,
-      currency: result?.currency || '£',
+      currency: result?.currency || userCurrency,
       search_query: query,
     });
 
@@ -193,7 +200,7 @@ export default function SearchPage() {
           total_saved: Number(prof.total_saved) + saved,
         }).eq('user_id', user.id);
       }
-      toast.success(`🎉 You saved ${result?.currency || '£'}${saved.toFixed(2)}!`);
+      toast.success(`🎉 You saved ${result?.currency || userCurrency}${saved.toFixed(2)}!`);
     } else {
       toast.info('Logged!');
     }
@@ -258,16 +265,24 @@ export default function SearchPage() {
             </button>
           </div>
           <div className="text-xs text-muted-foreground">
-            Free questions left: <span className="font-semibold text-foreground">{usageLeft}</span> / 10
-            <span className="text-muted-foreground/60 ml-1">(resets in 24h)</span>
+            {subscribed ? (
+              <span className="text-overseez-green font-semibold">∞ Unlimited</span>
+            ) : (
+              <>
+                Free questions left: <span className="font-semibold text-foreground">{usageLeft}</span> / {FREE_LIMIT}
+                <span className="text-muted-foreground/60 ml-1">(resets in 24h)</span>
+              </>
+            )}
           </div>
         </div>
 
         {/* Usage Progress */}
-        <div className="h-1 bg-muted rounded-full overflow-hidden mb-4">
-          <div className={`h-full rounded-full transition-all duration-500 ${usageLeft <= 2 ? 'bg-overseez-red' : usageLeft <= 5 ? 'bg-overseez-gold' : 'bg-overseez-blue'}`}
-            style={{ width: `${(usageLeft / 10) * 100}%` }} />
-        </div>
+        {!subscribed && (
+          <div className="h-1 bg-muted rounded-full overflow-hidden mb-4">
+            <div className={`h-full rounded-full transition-all duration-500 ${usageLeft <= 1 ? 'bg-overseez-red' : usageLeft <= 2 ? 'bg-overseez-gold' : 'bg-overseez-blue'}`}
+              style={{ width: `${(usageLeft / FREE_LIMIT) * 100}%` }} />
+          </div>
+        )}
 
         {/* Bank Notice */}
         {bankInfo && (
@@ -279,9 +294,9 @@ export default function SearchPage() {
         {/* Welcome State */}
         {!loading && !result && !error && (
           <div className="text-center py-16 animate-fade-in-up">
-            <h2 className="text-4xl font-display font-bold tracking-tight mb-3 overseez-text-gradient">Overseez</h2>
+            <h2 className="text-4xl font-display font-bold tracking-tight mb-3 overseez-text-gradient">Overseez AI</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-              Find the top 5 cheapest options near you for anything — with live sales merged into the ranking, savings vs average, and Google Maps links.
+              Find the top 5 cheapest options near you for anything — with live sales merged into the ranking, savings vs average, and Google Maps links. All prices shown in your currency ({userCurrency}).
             </p>
             <div className="inline-flex items-center gap-2 bg-muted/30 border border-border rounded-full px-4 py-2 mt-4 text-xs text-muted-foreground">
               🏦 Enter your bank to see overseas fees · 🏷 Sales automatically merged into rankings
