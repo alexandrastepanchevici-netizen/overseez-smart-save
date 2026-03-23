@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
+import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
 import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -11,6 +12,7 @@ export default function Profile() {
   const { profile, user, subscribed } = useAuth();
   const [usageLeft, setUsageLeft] = useState(5);
   const [animatedTotal, setAnimatedTotal] = useState(0);
+  const [displayCurrency, setDisplayCurrency] = useState('USD');
 
   useEffect(() => {
     if (!user) return;
@@ -20,23 +22,23 @@ export default function Profile() {
       .then(({ count }) => setUsageLeft(Math.max(0, 5 - (count || 0))));
   }, [user]);
 
-  // Animate total
+  const profileCurrency = profile?.currency || 'USD';
+  const sym = getCurrencySymbol(displayCurrency);
+  const totalSaved = convertCurrency(profile?.total_saved || 0, profileCurrency, displayCurrency);
+
   useEffect(() => {
-    const target = profile?.total_saved || 0;
-    if (target === 0) { setAnimatedTotal(0); return; }
+    if (totalSaved === 0) { setAnimatedTotal(0); return; }
     const dur = 800;
     const t0 = performance.now();
     const step = (now: number) => {
       const p = Math.min((now - t0) / dur, 1);
       const ease = 1 - Math.pow(1 - p, 3);
-      setAnimatedTotal(target * ease);
+      setAnimatedTotal(totalSaved * ease);
       if (p < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
-  }, [profile?.total_saved]);
+  }, [totalSaved]);
 
-  const currency = profile?.currency || '£';
-  const totalSaved = profile?.total_saved || 0;
   const goalMax = MILESTONES[MILESTONES.length - 1];
   const pct = Math.min((totalSaved / goalMax) * 100, 100);
 
@@ -44,7 +46,10 @@ export default function Profile() {
     <div className="min-h-screen bg-background">
       <AppNav />
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-display font-bold tracking-tight mb-6">Your Profile</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-display font-bold tracking-tight">Your Profile</h1>
+          <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} />
+        </div>
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
@@ -63,7 +68,7 @@ export default function Profile() {
             <InfoItem icon={<User className="w-4 h-4" />} label="Email"
               value={user?.email || '—'} />
             <InfoItem icon={<Wallet className="w-4 h-4" />} label="Currency"
-              value={currency} />
+              value={`${getCurrencySymbol(profileCurrency)} (${profileCurrency})`} />
             <InfoItem icon={<Star className="w-4 h-4" />} label="Subscription"
               value={subscribed ? 'Premium' : 'Free Plan'} />
           </div>
@@ -77,9 +82,9 @@ export default function Profile() {
           </div>
           <div className="flex items-center justify-between mb-2">
             <p className="text-2xl font-display font-bold tracking-tight">
-              {currency}{animatedTotal.toFixed(2)}
+              {sym}{animatedTotal.toFixed(2)}
             </p>
-            <p className="text-xs text-muted-foreground">Goal: {currency}{goalMax.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">Goal: {sym}{goalMax.toLocaleString()}</p>
           </div>
           <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
             <div className="h-full rounded-full bg-gradient-to-r from-overseez-blue to-overseez-green transition-all duration-700"
@@ -90,7 +95,7 @@ export default function Profile() {
               <div key={m} className="flex flex-col items-center gap-0.5">
                 <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
                 <span className={`text-[10px] ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>
-                  {m >= 1000 ? `${currency}1k` : `${currency}${m}`}
+                  {m >= 1000 ? `${sym}1k` : `${sym}${m}`}
                 </span>
               </div>
             ))}
