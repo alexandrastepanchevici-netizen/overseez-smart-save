@@ -73,27 +73,27 @@ export default function Subscription() {
           </div>
           <div className="bg-muted/30 rounded-lg p-5 mb-4 space-y-3 text-sm text-foreground/85 leading-relaxed">
             <p>
-              Maria moved from Brazil to London for university. Every morning, she bought coffee at the café nearest to campus — <strong>£4.20 each time</strong>. She assumed that was the going rate.
+              Maria moved from Brazil to London for university. Every morning, she bought coffee at the café nearest to campus — <strong>$5.30 each time</strong>. She assumed that was the going rate.
             </p>
             <p>
-              After signing up for Overseez, she searched "coffee near me" and discovered three cheaper options within a 5-minute walk. She switched to a local spot charging <strong>£2.10</strong>.
+              After signing up for Overseez, she searched "coffee near me" and discovered three cheaper options within a 5-minute walk. She switched to a local spot charging <strong>$2.65</strong>.
             </p>
             <div className="grid grid-cols-3 gap-3 py-3">
               <div className="text-center bg-card border border-border rounded-lg p-3">
-                <p className="text-xl font-display font-bold text-overseez-green">€2.10</p>
+                <p className="text-xl font-display font-bold text-overseez-green">$2.65</p>
                 <p className="text-[11px] text-muted-foreground">saved per day</p>
               </div>
               <div className="text-center bg-card border border-border rounded-lg p-3">
-                <p className="text-xl font-display font-bold text-overseez-green">€63+</p>
+                <p className="text-xl font-display font-bold text-overseez-green">$79+</p>
                 <p className="text-[11px] text-muted-foreground">saved per month</p>
               </div>
               <div className="text-center bg-card border border-overseez-green/30 rounded-lg p-3">
-                <p className="text-xl font-display font-bold text-overseez-green">6.3×</p>
+                <p className="text-xl font-display font-bold text-overseez-green">7.9×</p>
                 <p className="text-[11px] text-muted-foreground">the subscription cost</p>
               </div>
             </div>
             <p className="font-semibold text-foreground">
-              👉 From just one product, Maria's savings covered her £10 subscription more than six times over.
+              👉 From just one product, Maria's savings covered her $10 subscription nearly eight times over.
             </p>
           </div>
           <p className="text-xs text-muted-foreground italic">
@@ -109,7 +109,7 @@ export default function Subscription() {
               <span className="text-[10px] bg-foreground/10 text-foreground px-2 py-0.5 rounded-full font-semibold mb-3 inline-block">Your Plan</span>
             )}
             <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2">Free</p>
-            <p className="text-3xl font-display font-bold mb-1">£0<span className="text-sm font-normal text-muted-foreground">/month</span></p>
+            <p className="text-3xl font-display font-bold mb-1">$0<span className="text-sm font-normal text-muted-foreground">/month</span></p>
             <p className="text-xs text-muted-foreground mb-6">Perfect for getting started</p>
             <div className="space-y-2.5 mb-6">
               <Feature text="5 AI questions per 24 hours" />
@@ -130,7 +130,7 @@ export default function Subscription() {
               </span>
             </div>
             <p className="text-xs uppercase tracking-wider text-overseez-blue font-medium mb-2">Premium</p>
-            <p className="text-3xl font-display font-bold mb-1">£10<span className="text-sm font-normal text-muted-foreground">/month</span></p>
+            <p className="text-3xl font-display font-bold mb-1">$10<span className="text-sm font-normal text-muted-foreground">/month</span></p>
             <p className="text-xs text-muted-foreground mb-6">You save more than you pay.</p>
             <div className="space-y-2.5 mb-6">
               <Feature text="Unlimited AI questions" highlight />

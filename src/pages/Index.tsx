@@ -32,12 +32,12 @@ function RevealSection({ children, className = '', delay = 0 }: { children: Reac
 }
 
 const REVIEWS = [
-  { name: 'Amara K.', loc: 'London, UK', text: 'Overseez helped me find groceries 30% cheaper just two streets away. I save about £47 a week now.', stars: 5 },
-  { name: 'Daniel M.', loc: 'Berlin, DE', text: 'As an exchange student, the bank fee calculator alone is worth it. I avoided €200 in hidden charges.', stars: 5 },
+  { name: 'Amara K.', loc: 'London, UK', text: 'Overseez helped me find groceries 30% cheaper just two streets away. I save about $58 a week now.', stars: 5 },
+  { name: 'Daniel M.', loc: 'Berlin, DE', text: 'As an exchange student, the bank fee calculator alone is worth it. I avoided $220 in hidden charges.', stars: 5 },
   { name: 'Sofia R.', loc: 'Barcelona, ES', text: 'The AI comparison is surprisingly accurate. I use it every time I travel to find the best local prices.', stars: 5 },
   { name: 'Kwame A.', loc: 'Accra, GH', text: 'Finally a finance tool that actually works for everyday shopping. The savings tracker keeps me motivated.', stars: 4 },
   { name: 'Yuki T.', loc: 'Tokyo, JP', text: 'The location-based search changed how I shop abroad. Clean UI, fast results, and real savings.', stars: 5 },
-  { name: 'Liam O.', loc: 'Dublin, IE', text: 'I was sceptical at first, but in three months I\'ve tracked over €380 in savings. The data doesn\'t lie.', stars: 5 },
+  { name: 'Liam O.', loc: 'Dublin, IE', text: 'I was sceptical at first, but in three months I\'ve tracked over $420 in savings. The data doesn\'t lie.', stars: 5 },
 ];
 
 const FEATURES = [
@@ -61,11 +61,10 @@ const PAIN_QUOTES = [
   "The 'foreigner tax' is real — and it costs you hundreds every month.",
 ];
 
-/* Before / After comparison data */
 const COMPARISONS = [
-  { item: 'Morning Coffee', before: '4.80', after: '2.10', currency: '£', emoji: '☕' },
-  { item: 'Weekly Groceries', before: '78.50', after: '52.30', currency: '£', emoji: '🛒' },
-  { item: 'Monthly Transport', before: '142.00', after: '89.00', currency: '£', emoji: '🚌' },
+  { item: 'Morning Coffee', before: '5.90', after: '2.60', emoji: '☕' },
+  { item: 'Weekly Groceries', before: '97.50', after: '64.30', emoji: '🛒' },
+  { item: 'Monthly Transport', before: '175.00', after: '109.00', emoji: '🚌' },
 ];
 
 export default function Index() {
@@ -162,7 +161,7 @@ export default function Index() {
               </div>
               <div className="text-center">
                 <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  £<AnimatedCounter end={1847} decimals={0} />
+                  $<AnimatedCounter end={2340} decimals={0} />
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">saved per user</p>
               </div>
@@ -208,25 +207,24 @@ export default function Index() {
               return (
                 <RevealSection key={c.item} delay={i * 120}>
                   <div className="bg-card border border-border rounded-2xl p-6 overseez-card-hover text-center relative overflow-hidden group">
-                    {/* Decorative oval */}
                     <svg className="absolute -top-8 -right-8 w-32 h-32 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
-                      <ellipse cx="50" cy="50" rx="36" ry="32" transform="rotate(-25 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
+                      <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
                     </svg>
                     <div className="text-4xl mb-3">{c.emoji}</div>
                     <h3 className="font-display font-semibold text-sm mb-4">{c.item}</h3>
                     <div className="flex items-center justify-center gap-4 mb-4">
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">Before</p>
-                        <p className="text-lg font-display font-bold text-overseez-red line-through opacity-70">{c.currency}{c.before}</p>
+                        <p className="text-lg font-display font-bold text-overseez-red line-through opacity-70">${c.before}</p>
                       </div>
                       <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">After</p>
-                        <p className="text-lg font-display font-bold text-overseez-green">{c.currency}{c.after}</p>
+                        <p className="text-lg font-display font-bold text-overseez-green">${c.after}</p>
                       </div>
                     </div>
                     <div className="bg-overseez-green/10 border border-overseez-green/20 rounded-full px-4 py-1.5 inline-block">
-                      <span className="text-xs font-semibold text-overseez-green">Save {c.currency}{saved} every time</span>
+                      <span className="text-xs font-semibold text-overseez-green">Save ${saved} every time</span>
                     </div>
                   </div>
                 </RevealSection>
@@ -287,7 +285,7 @@ export default function Index() {
               <RevealSection key={f.title} delay={i * 80}>
                 <div className="bg-card border border-border rounded-xl p-6 overseez-card-hover h-full relative overflow-hidden group">
                   <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
-                    <ellipse cx="50" cy="50" rx="36" ry="32" transform="rotate(-25 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
+                    <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
                   </svg>
                   <div className="w-10 h-10 rounded-lg bg-overseez-blue/10 border border-overseez-blue/15 flex items-center justify-center text-overseez-blue mb-4">
                     {f.icon}
@@ -376,9 +374,8 @@ export default function Index() {
         <FloatingOvals />
         <RevealSection className="relative z-10">
           <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-card to-overseez-surface border border-border rounded-2xl p-8 sm:p-12 relative overflow-hidden">
-            {/* Decorative brand mark */}
             <svg className="absolute -top-12 -right-12 w-48 h-48 opacity-[0.04]" viewBox="0 0 100 100" fill="none">
-              <ellipse cx="50" cy="50" rx="36" ry="32" transform="rotate(-25 50 50)" stroke="white" strokeWidth="3" />
+              <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="white" strokeWidth="3" />
             </svg>
             <OverseezLogo size={48} className="mx-auto mb-6 opacity-30" color="white" />
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">

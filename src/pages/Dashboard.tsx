@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
 import FloatingOvals from '@/components/FloatingOvals';
+import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
 import { TrendingUp, Calendar, Wallet, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [savings, setSavings] = useState<any[]>([]);
   const [animatedTotal, setAnimatedTotal] = useState(0);
+  const [displayCurrency, setDisplayCurrency] = useState('USD');
 
   useEffect(() => {
     if (!user) return;
@@ -23,23 +25,27 @@ export default function Dashboard() {
       .then(({ data }) => { if (data) setSavings(data); });
   }, [user]);
 
+  const profileCurrency = profile?.currency || 'USD';
+  const sym = getCurrencySymbol(displayCurrency);
+
+  const convertAmount = (amount: number) => convertCurrency(amount, profileCurrency, displayCurrency);
+
+  const totalSaved = convertAmount(profile?.total_saved || 0);
+
   useEffect(() => {
-    const target = profile?.total_saved || 0;
-    if (target === 0) { setAnimatedTotal(0); return; }
+    if (totalSaved === 0) { setAnimatedTotal(0); return; }
     let start = 0;
     const dur = 800;
     const t0 = performance.now();
     const step = (now: number) => {
       const p = Math.min((now - t0) / dur, 1);
       const ease = 1 - Math.pow(1 - p, 3);
-      setAnimatedTotal(start + (target - start) * ease);
+      setAnimatedTotal(start + (totalSaved - start) * ease);
       if (p < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
-  }, [profile?.total_saved]);
+  }, [totalSaved]);
 
-  const currency = profile?.currency || '£';
-  const totalSaved = profile?.total_saved || 0;
   const goalMax = MILESTONES[MILESTONES.length - 1];
   const pct = Math.min((totalSaved / goalMax) * 100, 100);
   const milestonesHit = MILESTONES.filter(m => totalSaved >= m).length;
@@ -47,8 +53,8 @@ export default function Dashboard() {
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 3600000);
   const monthAgo = new Date(now.getTime() - 30 * 24 * 3600000);
-  const weeklySaved = savings.filter(s => new Date(s.created_at) >= weekAgo).reduce((a, s) => a + Number(s.amount_saved), 0);
-  const monthlySaved = savings.filter(s => new Date(s.created_at) >= monthAgo).reduce((a, s) => a + Number(s.amount_saved), 0);
+  const weeklySaved = savings.filter(s => new Date(s.created_at) >= weekAgo).reduce((a, s) => a + convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency), 0);
+  const monthlySaved = savings.filter(s => new Date(s.created_at) >= monthAgo).reduce((a, s) => a + convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency), 0);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -62,12 +68,15 @@ export default function Dashboard() {
             <div>
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Total saved</p>
               <p className="text-2xl font-display font-bold tracking-tight tabular-nums">
-                {currency}{animatedTotal.toFixed(2)}
+                {sym}{animatedTotal.toFixed(2)}
               </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Goal: {currency}{goalMax.toLocaleString()} · {milestonesHit}/{MILESTONES.length} milestones
-            </p>
+            <div className="flex items-center gap-3">
+              <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} />
+              <p className="text-xs text-muted-foreground">
+                Goal: {sym}{goalMax.toLocaleString()} · {milestonesHit}/{MILESTONES.length} milestones
+              </p>
+            </div>
           </div>
           <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <div className="h-full rounded-full bg-gradient-to-r from-overseez-blue to-overseez-green transition-all duration-700"
@@ -78,7 +87,7 @@ export default function Dashboard() {
               <div key={m} className="flex flex-col items-center gap-0.5">
                 <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
                 <span className={`text-[10px] ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>
-                  {m >= 1000 ? `${currency}1k` : `${currency}${m}`}
+                  {m >= 1000 ? `${sym}1k` : `${sym}${m}`}
                 </span>
               </div>
             ))}
@@ -89,9 +98,9 @@ export default function Dashboard() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative z-10">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <StatCard icon={<Wallet className="w-5 h-5" />} label="Total Saved" value={`${currency}${totalSaved.toFixed(2)}`} />
-          <StatCard icon={<Calendar className="w-5 h-5" />} label="This Week" value={`${currency}${weeklySaved.toFixed(2)}`} />
-          <StatCard icon={<TrendingUp className="w-5 h-5" />} label="This Month" value={`${currency}${monthlySaved.toFixed(2)}`} />
+          <StatCard icon={<Wallet className="w-5 h-5" />} label="Total Saved" value={`${sym}${totalSaved.toFixed(2)}`} />
+          <StatCard icon={<Calendar className="w-5 h-5" />} label="This Week" value={`${sym}${weeklySaved.toFixed(2)}`} />
+          <StatCard icon={<TrendingUp className="w-5 h-5" />} label="This Month" value={`${sym}${monthlySaved.toFixed(2)}`} />
         </div>
 
         {/* Quick Actions */}
@@ -99,7 +108,7 @@ export default function Dashboard() {
           <button onClick={() => navigate('/search')}
             className="bg-card border border-border rounded-xl p-5 text-left overseez-card-hover group relative overflow-hidden">
             <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
-              <ellipse cx="50" cy="50" rx="36" ry="32" transform="rotate(-25 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
+              <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
             </svg>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-lg bg-overseez-blue/15 flex items-center justify-center">
@@ -113,7 +122,7 @@ export default function Dashboard() {
           <button onClick={() => navigate('/subscription')}
             className="bg-card border border-border rounded-xl p-5 text-left overseez-card-hover group relative overflow-hidden">
             <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
-              <ellipse cx="50" cy="50" rx="36" ry="32" transform="rotate(-25 50 50)" stroke="hsl(43 96% 56%)" strokeWidth="4" />
+              <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(43 96% 56%)" strokeWidth="4" />
             </svg>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-lg bg-overseez-gold/15 flex items-center justify-center">
@@ -136,17 +145,20 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="space-y-2">
-            {savings.slice(0, 10).map(s => (
-              <div key={s.id} className="bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between overseez-card-hover">
-                <div>
-                  <p className="text-sm font-medium">{s.store_name}</p>
-                  <p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</p>
+            {savings.slice(0, 10).map(s => {
+              const converted = convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency);
+              return (
+                <div key={s.id} className="bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between overseez-card-hover">
+                  <div>
+                    <p className="text-sm font-medium">{s.store_name}</p>
+                    <p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</p>
+                  </div>
+                  <span className="text-sm font-semibold text-overseez-green tabular-nums">
+                    ▼ {sym}{converted.toFixed(2)}
+                  </span>
                 </div>
-                <span className="text-sm font-semibold text-overseez-green tabular-nums">
-                  ▼ {s.currency}{Number(s.amount_saved).toFixed(2)}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

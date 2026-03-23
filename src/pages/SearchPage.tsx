@@ -77,7 +77,7 @@ export default function SearchPage() {
   const [spendInput, setSpendInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const userCurrency = profile?.currency || '£';
+  const userCurrency = profile?.currency || '$';
 
   // Check usage
   useEffect(() => {
