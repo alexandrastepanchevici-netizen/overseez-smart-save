@@ -16,15 +16,17 @@ export default function OverseezLogo({ size = 32, className = '', color = 'curre
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
+      {/* Thick tilted oval matching the brand mark exactly */}
       <ellipse
         cx="50"
         cy="50"
-        rx="38"
-        ry="42"
-        transform="rotate(-15 50 50)"
+        rx="36"
+        ry="32"
+        transform="rotate(-25 50 50)"
         stroke={color}
-        strokeWidth="6"
+        strokeWidth="8"
         fill="none"
+        strokeLinecap="round"
       />
     </svg>
   );

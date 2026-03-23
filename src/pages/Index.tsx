@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import OverseezLogo from '@/components/OverseezLogo';
+import FloatingOvals from '@/components/FloatingOvals';
+import AnimatedCounter from '@/components/AnimatedCounter';
 import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, ChevronRight, Instagram } from 'lucide-react';
 
 function useReveal() {
@@ -59,6 +61,13 @@ const PAIN_QUOTES = [
   "The 'foreigner tax' is real — and it costs you hundreds every month.",
 ];
 
+/* Before / After comparison data */
+const COMPARISONS = [
+  { item: 'Morning Coffee', before: '4.80', after: '2.10', currency: '£', emoji: '☕' },
+  { item: 'Weekly Groceries', before: '78.50', after: '52.30', currency: '£', emoji: '🛒' },
+  { item: 'Monthly Transport', before: '142.00', after: '89.00', currency: '£', emoji: '🚌' },
+];
+
 export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -77,7 +86,7 @@ export default function Index() {
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Nav */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-card/90 backdrop-blur-xl border-b border-border' : 'bg-transparent'}`}>
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-16">
+        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
           <Link to={user ? '/home' : '/'} className="flex items-center gap-2">
             <OverseezLogo size={30} color="white" />
             <span className="font-display text-xl font-bold tracking-tight">Overseez</span>
@@ -108,67 +117,134 @@ export default function Index() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* ─── HERO ─── */}
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 overseez-gradient-hero" />
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full opacity-[0.06] animate-float" style={{ background: 'radial-gradient(circle, hsl(200 80% 55%) 0%, transparent 70%)' }} />
-          <div className="absolute bottom-1/4 -right-32 w-80 h-80 rounded-full opacity-[0.04] animate-float-delayed" style={{ background: 'radial-gradient(circle, hsl(185 70% 55%) 0%, transparent 70%)' }} />
-        </div>
+        <FloatingOvals />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center pt-24 pb-16">
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 pb-16">
           <div className="animate-fade-in-up">
             <div className="inline-flex items-center gap-2 bg-muted/20 border border-border/50 rounded-full px-4 py-1.5 mb-8 text-xs text-muted-foreground">
               <div className="w-1.5 h-1.5 rounded-full bg-overseez-green animate-pulse" />
               AI-powered price intelligence
             </div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold tracking-tight leading-[1.05] mb-6">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight leading-[1.05] mb-6">
               Stop paying the{' '}
-              <span className="overseez-text-gradient">foreigner tax.</span>{' '}
+              <span className="overseez-text-gradient">foreigner tax.</span>
+              <br className="hidden sm:block" />
               Start saving instantly.
             </h1>
 
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10 px-2">
               Every day you overpay for groceries, coffee, and transport — simply because you don't know the local prices. Overseez uses AI to find the cheapest options near you, in your currency, so you stop guessing and start keeping your money.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="hero" size="xl" className="group" onClick={goAI}>
+              <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
                 Try AI Now
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="hero-outline" size="xl" onClick={goSub}>
+              <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goSub}>
                 See Cheaper Options
               </Button>
             </div>
           </div>
 
           {/* Stats bar */}
-          <div className="mt-16 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <div className="inline-flex flex-wrap justify-center gap-8 sm:gap-16 border border-border/30 bg-card/20 backdrop-blur-sm rounded-2xl px-8 py-5">
-              <Stat value="47.2%" label="avg. savings" />
-              <Stat value="£1,847" label="saved per user" />
-              <Stat value="32" label="countries" />
-              <Stat value="4.9★" label="user rating" />
+          <div className="mt-14 sm:mt-16 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <div className="inline-flex flex-wrap justify-center gap-6 sm:gap-12 border border-border/30 bg-card/20 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-5">
+              <div className="text-center">
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
+                  <AnimatedCounter end={47.2} suffix="%" decimals={1} />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">avg. savings</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
+                  £<AnimatedCounter end={1847} decimals={0} />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">saved per user</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
+                  <AnimatedCounter end={32} decimals={0} />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">countries</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
+                  <AnimatedCounter end={4.9} decimals={1} />★
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">user rating</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-20">
-          <OverseezLogo size={48} color="white" />
+        {/* Decorative brand mark at bottom */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-10">
+          <OverseezLogo size={56} color="white" />
         </div>
       </section>
 
-      {/* Pain Points */}
-      <section className="py-20 px-4 bg-overseez-mid">
-        <div className="max-w-4xl mx-auto">
+      {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
+      <section className="py-20 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
+        <FloatingOvals className="opacity-50" />
+        <div className="max-w-5xl mx-auto relative z-10">
+          <RevealSection className="text-center mb-12">
+            <p className="text-xs uppercase tracking-widest text-overseez-gold font-medium mb-3">Real savings</p>
+            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
+              Before vs. After Overseez
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
+              These are real price differences our users found — in their first week.
+            </p>
+          </RevealSection>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {COMPARISONS.map((c, i) => {
+              const saved = (parseFloat(c.before) - parseFloat(c.after)).toFixed(2);
+              return (
+                <RevealSection key={c.item} delay={i * 120}>
+                  <div className="bg-card border border-border rounded-2xl p-6 overseez-card-hover text-center relative overflow-hidden group">
+                    {/* Decorative oval */}
+                    <svg className="absolute -top-8 -right-8 w-32 h-32 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
+                      <ellipse cx="50" cy="50" rx="36" ry="32" transform="rotate(-25 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
+                    </svg>
+                    <div className="text-4xl mb-3">{c.emoji}</div>
+                    <h3 className="font-display font-semibold text-sm mb-4">{c.item}</h3>
+                    <div className="flex items-center justify-center gap-4 mb-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Before</p>
+                        <p className="text-lg font-display font-bold text-overseez-red line-through opacity-70">{c.currency}{c.before}</p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">After</p>
+                        <p className="text-lg font-display font-bold text-overseez-green">{c.currency}{c.after}</p>
+                      </div>
+                    </div>
+                    <div className="bg-overseez-green/10 border border-overseez-green/20 rounded-full px-4 py-1.5 inline-block">
+                      <span className="text-xs font-semibold text-overseez-green">Save {c.currency}{saved} every time</span>
+                    </div>
+                  </div>
+                </RevealSection>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PAIN POINTS ─── */}
+      <section className="py-20 px-4 sm:px-6 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto relative z-10">
           <RevealSection className="text-center mb-12">
             <p className="text-xs uppercase tracking-widest text-overseez-red font-medium mb-3">The problem</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
               Living abroad costs more than it should.
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
               You pay more for the same products. You get hit with hidden bank fees. You don't know what a fair price looks like. That uncertainty costs real money — every single day.
             </p>
           </RevealSection>
@@ -176,30 +252,32 @@ export default function Index() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {PAIN_QUOTES.map((q, i) => (
               <RevealSection key={i} delay={i * 100}>
-                <div className="bg-card border border-overseez-red/15 rounded-xl p-6 text-center">
-                  <p className="text-lg font-display font-bold leading-snug">"{q}"</p>
+                <div className="bg-card border border-overseez-red/15 rounded-xl p-6 text-center relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-overseez-red/30 to-transparent" />
+                  <p className="text-base sm:text-lg font-display font-bold leading-snug">"{q}"</p>
                 </div>
               </RevealSection>
             ))}
           </div>
 
           <RevealSection delay={300} className="text-center mt-10">
-            <Button variant="hero" size="xl" className="group" onClick={goAI}>
+            <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
               Start Saving <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </RevealSection>
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+      {/* ─── FEATURES ─── */}
+      <section id="features" className="py-24 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
+        <FloatingOvals className="opacity-30" />
+        <div className="max-w-6xl mx-auto relative z-10">
           <RevealSection className="text-center mb-16">
             <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Features</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
               Built for people who refuse to overpay
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
               AI-powered price comparison, overseas bank fee tracking, and savings analytics — all adjusted to your currency.
             </p>
           </RevealSection>
@@ -207,7 +285,10 @@ export default function Index() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES.map((f, i) => (
               <RevealSection key={f.title} delay={i * 80}>
-                <div className="bg-card border border-border rounded-xl p-6 overseez-card-hover h-full">
+                <div className="bg-card border border-border rounded-xl p-6 overseez-card-hover h-full relative overflow-hidden group">
+                  <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
+                    <ellipse cx="50" cy="50" rx="36" ry="32" transform="rotate(-25 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
+                  </svg>
                   <div className="w-10 h-10 rounded-lg bg-overseez-blue/10 border border-overseez-blue/15 flex items-center justify-center text-overseez-blue mb-4">
                     {f.icon}
                   </div>
@@ -219,16 +300,16 @@ export default function Index() {
           </div>
 
           <RevealSection delay={500} className="text-center mt-10">
-            <Button variant="hero-outline" size="xl" onClick={goAI}>
+            <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goAI}>
               Try AI Assistant <ChevronRight className="w-4 h-4" />
             </Button>
           </RevealSection>
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="how-it-works" className="py-24 px-4 bg-overseez-mid">
-        <div className="max-w-4xl mx-auto">
+      {/* ─── HOW IT WORKS ─── */}
+      <section id="how-it-works" className="py-24 px-4 sm:px-6 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto relative z-10">
           <RevealSection className="text-center mb-16">
             <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">How it works</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
@@ -239,10 +320,11 @@ export default function Index() {
           <div className="space-y-6">
             {STEPS.map((s, i) => (
               <RevealSection key={s.num} delay={i * 120}>
-                <div className="flex gap-6 items-start bg-card border border-border rounded-xl p-6 overseez-card-hover">
-                  <span className="text-4xl font-display font-bold text-overseez-blue/20 flex-shrink-0 w-16">{s.num}</span>
+                <div className="flex gap-4 sm:gap-6 items-start bg-card border border-border rounded-xl p-5 sm:p-6 overseez-card-hover relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-overseez-blue/40 to-transparent rounded-l-xl" />
+                  <span className="text-3xl sm:text-4xl font-display font-bold text-overseez-blue/20 flex-shrink-0 w-12 sm:w-16">{s.num}</span>
                   <div>
-                    <h3 className="font-display font-semibold text-lg mb-1">{s.title}</h3>
+                    <h3 className="font-display font-semibold text-base sm:text-lg mb-1">{s.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
                   </div>
                 </div>
@@ -252,9 +334,10 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Reviews */}
-      <section id="reviews" className="py-24 px-4">
-        <div className="max-w-6xl mx-auto">
+      {/* ─── REVIEWS ─── */}
+      <section id="reviews" className="py-24 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
+        <FloatingOvals className="opacity-30" />
+        <div className="max-w-6xl mx-auto relative z-10">
           <RevealSection className="text-center mb-16">
             <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Reviews</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
@@ -288,23 +371,28 @@ export default function Index() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 px-4">
-        <RevealSection>
-          <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-card to-overseez-surface border border-border rounded-2xl p-12">
-            <OverseezLogo size={48} className="mx-auto mb-6 opacity-40" color="white" />
+      {/* ─── CTA ─── */}
+      <section className="py-24 px-4 sm:px-6 relative overflow-hidden">
+        <FloatingOvals />
+        <RevealSection className="relative z-10">
+          <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-card to-overseez-surface border border-border rounded-2xl p-8 sm:p-12 relative overflow-hidden">
+            {/* Decorative brand mark */}
+            <svg className="absolute -top-12 -right-12 w-48 h-48 opacity-[0.04]" viewBox="0 0 100 100" fill="none">
+              <ellipse cx="50" cy="50" rx="36" ry="32" transform="rotate(-25 50 50)" stroke="white" strokeWidth="3" />
+            </svg>
+            <OverseezLogo size={48} className="mx-auto mb-6 opacity-30" color="white" />
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
               Your money deserves better.
             </h2>
-            <p className="text-muted-foreground max-w-md mx-auto mb-8">
+            <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm sm:text-base">
               Stop overpaying. Stop guessing. Start using AI to find cheaper options in seconds — in your currency, near your location. Free to start.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="hero" size="xl" className="group" onClick={goAI}>
+              <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
                 Try AI Now
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="hero-outline" size="xl" onClick={goSub}>
+              <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goSub}>
                 View Plans
               </Button>
             </div>
@@ -312,13 +400,13 @@ export default function Index() {
         </RevealSection>
       </section>
 
-      {/* Social / Community */}
-      <section className="py-20 px-4 bg-overseez-mid">
+      {/* ─── COMMUNITY / SOCIAL ─── */}
+      <section className="py-20 px-4 sm:px-6 bg-overseez-mid">
         <div className="max-w-4xl mx-auto text-center">
           <RevealSection>
             <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Community</p>
             <h2 className="text-3xl font-display font-bold tracking-tight mb-4">Join the movement</h2>
-            <p className="text-muted-foreground max-w-md mx-auto mb-8">Follow us for savings tips, real user stories, and product updates.</p>
+            <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm sm:text-base">Follow us for savings tips, real user stories, and product updates.</p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <a href="https://www.instagram.com/overseez.co" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-card border border-border rounded-full px-5 py-2.5 hover:border-overseez-blue/40 transition-colors group">
@@ -335,15 +423,15 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card/50 py-12 px-4">
+      {/* ─── FOOTER ─── */}
+      <footer className="border-t border-border bg-card/50 py-12 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <Link to={user ? '/home' : '/'} className="flex items-center gap-2">
               <OverseezLogo size={24} color="white" />
               <span className="font-display font-bold">Overseez</span>
             </Link>
-            <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-muted-foreground">
               <a href="#features" className="hover:text-foreground transition-colors">Features</a>
               <a href="#how-it-works" className="hover:text-foreground transition-colors">How it works</a>
               <a href="#reviews" className="hover:text-foreground transition-colors">Reviews</a>
@@ -356,15 +444,6 @@ export default function Index() {
           </div>
         </div>
       </footer>
-    </div>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="text-center">
-      <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">{value}</p>
-      <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
     </div>
   );
 }
