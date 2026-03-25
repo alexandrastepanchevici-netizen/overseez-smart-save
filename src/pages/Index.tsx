@@ -62,9 +62,9 @@ const PAIN_QUOTES = [
 ];
 
 const COMPARISONS = [
-  { item: 'Morning Coffee', before: '5.90', after: '2.60', emoji: '☕' },
-  { item: 'Weekly Groceries', before: '97.50', after: '64.30', emoji: '🛒' },
-  { item: 'Monthly Transport', before: '175.00', after: '109.00', emoji: '🚌' },
+  { item: 'Morning Coffee', before: '5.90', after: '2.60' },
+  { item: 'Weekly Groceries', before: '97.50', after: '64.30' },
+  { item: 'Monthly Transport', before: '175.00', after: '109.00' },
 ];
 
 export default function Index() {
@@ -187,6 +187,31 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ─── TRUSTED BY ─── */}
+      <section className="py-12 px-4 sm:px-6 relative overflow-hidden border-b border-border/30">
+        <div className="max-w-4xl mx-auto relative z-10">
+          <RevealSection className="text-center">
+            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground/60 font-medium mb-6">Trusted worldwide</p>
+            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14">
+              <div className="text-center">
+                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">200+</p>
+                <p className="text-xs text-muted-foreground mt-1">active users</p>
+              </div>
+              <div className="w-px h-10 bg-border/40 hidden sm:block" />
+              <div className="text-center">
+                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">25+</p>
+                <p className="text-xs text-muted-foreground mt-1">countries</p>
+              </div>
+              <div className="w-px h-10 bg-border/40 hidden sm:block" />
+              <div className="text-center">
+                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">$48K+</p>
+                <p className="text-xs text-muted-foreground mt-1">total saved</p>
+              </div>
+            </div>
+          </RevealSection>
+        </div>
+      </section>
+
       {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
         <FloatingOvals className="opacity-50" />
@@ -210,7 +235,6 @@ export default function Index() {
                     <svg className="absolute -top-8 -right-8 w-32 h-32 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
                       <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
                     </svg>
-                    <div className="text-4xl mb-3">{c.emoji}</div>
                     <h3 className="font-display font-semibold text-sm mb-4">{c.item}</h3>
                     <div className="flex items-center justify-center gap-4 mb-4">
                       <div>

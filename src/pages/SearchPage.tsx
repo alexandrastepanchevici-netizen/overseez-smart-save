@@ -58,6 +58,14 @@ function getCategoryEmoji(type: string): string {
 
 const FREE_LIMIT = 5;
 
+function formatCountdown(ms: number): string {
+  if (ms <= 0) return '00:00:00';
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 export default function SearchPage() {
   const { user, subscribed, profile } = useAuth();
   const navigate = useNavigate();
@@ -71,6 +79,8 @@ export default function SearchPage() {
   const [loc, setLoc] = useState<{ lat: number; lng: number; city: string; cc: string } | null>(null);
   const [locStatus, setLocStatus] = useState('Location not set');
   const [usageLeft, setUsageLeft] = useState(FREE_LIMIT);
+  const [resetCountdown, setResetCountdown] = useState('');
+  const [oldestUsageTime, setOldestUsageTime] = useState<number | null>(null);
   const [spendModal, setSpendModal] = useState<{ open: boolean; place: Place | null; avgVal: number }>({
     open: false, place: null, avgVal: 0,
   });
@@ -79,14 +89,47 @@ export default function SearchPage() {
 
   const userCurrency = profile?.currency || '$';
 
-  // Check usage
+  // Check usage and get oldest usage timestamp for timer
   useEffect(() => {
     if (!user || subscribed) return;
     const since = new Date(Date.now() - 24 * 3600000).toISOString();
-    supabase.from('ai_usage').select('id', { count: 'exact' })
+    supabase.from('ai_usage').select('id, created_at', { count: 'exact' })
       .eq('user_id', user.id).gte('created_at', since)
-      .then(({ count }) => setUsageLeft(Math.max(0, FREE_LIMIT - (count || 0))));
+      .order('created_at', { ascending: true })
+      .then(({ data, count }) => {
+        const used = count || 0;
+        setUsageLeft(Math.max(0, FREE_LIMIT - used));
+        if (data && data.length > 0) {
+          // The oldest usage in the last 24h — that's when the first credit resets
+          setOldestUsageTime(new Date(data[0].created_at).getTime());
+        } else {
+          setOldestUsageTime(null);
+        }
+      });
   }, [user, result, subscribed]);
+
+  // Live countdown timer
+  useEffect(() => {
+    if (subscribed || oldestUsageTime === null || usageLeft >= FREE_LIMIT) {
+      setResetCountdown('');
+      return;
+    }
+    const resetAt = oldestUsageTime + 24 * 3600000;
+    const tick = () => {
+      const remaining = resetAt - Date.now();
+      if (remaining <= 0) {
+        setResetCountdown('');
+        // Refresh usage
+        setUsageLeft(prev => Math.min(FREE_LIMIT, prev + 1));
+        setOldestUsageTime(null);
+        return;
+      }
+      setResetCountdown(formatCountdown(remaining));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [oldestUsageTime, subscribed, usageLeft]);
 
   // Request location
   const requestLocation = useCallback(() => {
@@ -264,14 +307,20 @@ export default function SearchPage() {
               📍 {loc ? 'Change' : 'Enable location'}
             </button>
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 text-xs text-muted-foreground">
             {subscribed ? (
-              <span className="text-overseez-green font-semibold">∞ Unlimited</span>
+              <span className="text-overseez-green font-semibold">Unlimited</span>
             ) : (
-              <>
-                Free questions left: <span className="font-semibold text-foreground">{usageLeft}</span> / {FREE_LIMIT}
-                <span className="text-muted-foreground/60 ml-1">(resets in 24h)</span>
-              </>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                <span>
+                  Free questions left: <span className="font-semibold text-foreground">{usageLeft}</span> / {FREE_LIMIT}
+                </span>
+                {resetCountdown && (
+                  <span className="text-overseez-blue font-mono text-[11px] bg-overseez-blue/10 border border-overseez-blue/20 rounded-full px-2.5 py-0.5">
+                    Next credit in {resetCountdown}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>
