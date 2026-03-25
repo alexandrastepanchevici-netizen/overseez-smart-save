@@ -167,7 +167,13 @@ export default function Index() {
               </div>
               <div className="text-center">
                 <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={32} decimals={0} />
+                  <AnimatedCounter end={200} decimals={0} suffix="+" />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">active users</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
+                  <AnimatedCounter end={25} decimals={0} suffix="+" />
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">countries</p>
               </div>
