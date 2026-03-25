@@ -193,30 +193,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ─── TRUSTED BY ─── */}
-      <section className="py-12 px-4 sm:px-6 relative overflow-hidden border-b border-border/30">
-        <div className="max-w-4xl mx-auto relative z-10">
-          <RevealSection className="text-center">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground/60 font-medium mb-6">Trusted worldwide</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14">
-              <div className="text-center">
-                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">200+</p>
-                <p className="text-xs text-muted-foreground mt-1">active users</p>
-              </div>
-              <div className="w-px h-10 bg-border/40 hidden sm:block" />
-              <div className="text-center">
-                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">25+</p>
-                <p className="text-xs text-muted-foreground mt-1">countries</p>
-              </div>
-              <div className="w-px h-10 bg-border/40 hidden sm:block" />
-              <div className="text-center">
-                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">$48K+</p>
-                <p className="text-xs text-muted-foreground mt-1">total saved</p>
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
 
       {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
