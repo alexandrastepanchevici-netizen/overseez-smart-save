@@ -62,9 +62,9 @@ const PAIN_QUOTES = [
 ];
 
 const COMPARISONS = [
-  { item: 'Morning Coffee', before: '5.90', after: '2.60', emoji: '☕' },
-  { item: 'Weekly Groceries', before: '97.50', after: '64.30', emoji: '🛒' },
-  { item: 'Monthly Transport', before: '175.00', after: '109.00', emoji: '🚌' },
+  { item: 'Morning Coffee', before: '5.90', after: '2.60' },
+  { item: 'Weekly Groceries', before: '97.50', after: '64.30' },
+  { item: 'Monthly Transport', before: '175.00', after: '109.00' },
 ];
 
 export default function Index() {
