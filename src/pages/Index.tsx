@@ -210,7 +210,6 @@ export default function Index() {
                     <svg className="absolute -top-8 -right-8 w-32 h-32 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
                       <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
                     </svg>
-                    <div className="text-4xl mb-3">{c.emoji}</div>
                     <h3 className="font-display font-semibold text-sm mb-4">{c.item}</h3>
                     <div className="flex items-center justify-center gap-4 mb-4">
                       <div>
