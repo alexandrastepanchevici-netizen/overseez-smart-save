@@ -307,14 +307,20 @@ export default function SearchPage() {
               📍 {loc ? 'Change' : 'Enable location'}
             </button>
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 text-xs text-muted-foreground">
             {subscribed ? (
-              <span className="text-overseez-green font-semibold">∞ Unlimited</span>
+              <span className="text-overseez-green font-semibold">Unlimited</span>
             ) : (
-              <>
-                Free questions left: <span className="font-semibold text-foreground">{usageLeft}</span> / {FREE_LIMIT}
-                <span className="text-muted-foreground/60 ml-1">(resets in 24h)</span>
-              </>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                <span>
+                  Free questions left: <span className="font-semibold text-foreground">{usageLeft}</span> / {FREE_LIMIT}
+                </span>
+                {resetCountdown && (
+                  <span className="text-overseez-blue font-mono text-[11px] bg-overseez-blue/10 border border-overseez-blue/20 rounded-full px-2.5 py-0.5">
+                    Next credit in {resetCountdown}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>
