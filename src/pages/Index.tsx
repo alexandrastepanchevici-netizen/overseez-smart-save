@@ -87,7 +87,7 @@ export default function Index() {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-card/90 backdrop-blur-xl border-b border-border' : 'bg-transparent'}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
           <Link to={user ? '/home' : '/'} className="flex items-center gap-2">
-            <OverseezLogo size={30} color="white" />
+            <OverseezLogo size={38} color="white" />
             <span className="font-display text-xl font-bold tracking-tight">Overseez</span>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
@@ -167,7 +167,13 @@ export default function Index() {
               </div>
               <div className="text-center">
                 <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={32} decimals={0} />
+                  <AnimatedCounter end={200} decimals={0} suffix="+" />
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">active users</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
+                  <AnimatedCounter end={25} decimals={0} suffix="+" />
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">countries</p>
               </div>
@@ -187,30 +193,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ─── TRUSTED BY ─── */}
-      <section className="py-12 px-4 sm:px-6 relative overflow-hidden border-b border-border/30">
-        <div className="max-w-4xl mx-auto relative z-10">
-          <RevealSection className="text-center">
-            <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground/60 font-medium mb-6">Trusted worldwide</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-14">
-              <div className="text-center">
-                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">200+</p>
-                <p className="text-xs text-muted-foreground mt-1">active users</p>
-              </div>
-              <div className="w-px h-10 bg-border/40 hidden sm:block" />
-              <div className="text-center">
-                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">25+</p>
-                <p className="text-xs text-muted-foreground mt-1">countries</p>
-              </div>
-              <div className="w-px h-10 bg-border/40 hidden sm:block" />
-              <div className="text-center">
-                <p className="text-3xl sm:text-4xl font-display font-bold tracking-tight">$48K+</p>
-                <p className="text-xs text-muted-foreground mt-1">total saved</p>
-              </div>
-            </div>
-          </RevealSection>
-        </div>
-      </section>
 
       {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">

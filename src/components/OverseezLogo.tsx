@@ -15,7 +15,7 @@ export default function OverseezLogo({ size = 32, className = '' }: OverseezLogo
       width={size}
       height={size}
       className={`object-contain ${className}`}
-      style={{ width: size, height: size }}
+      style={{ height: size, width: 'auto' }}
     />
   );
 }
