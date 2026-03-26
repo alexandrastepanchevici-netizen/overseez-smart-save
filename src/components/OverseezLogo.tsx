@@ -13,7 +13,7 @@ export default function OverseezLogo({ size = 32, className = '' }: OverseezLogo
       src={logoImg}
       alt="Overseez"
       className={`object-contain ${className}`}
-      style={{ height: size, width: 'auto', imageRendering: 'auto', filter: 'brightness(1.15) contrast(1.1)' }}
+      style={{ height: size, width: 'auto', imageRendering: 'auto', filter: 'brightness(1.15) contrast(1.1)', verticalAlign: 'middle' }}
     />
   );
 }

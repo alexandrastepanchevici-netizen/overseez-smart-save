@@ -24,14 +24,42 @@ const RATES_TO_USD: Record<string, number> = {
   SEK: 10.45,
 };
 
+const SYMBOL_OR_COUNTRY_TO_CODE: Record<string, string> = {
+  '$': 'USD',
+  '€': 'EUR',
+  '£': 'GBP',
+  '¥': 'JPY',
+  'CHF': 'CHF',
+  'kr': 'SEK',
+  'C$': 'CAD',
+  'A$': 'AUD',
+  US: 'USD',
+  GB: 'GBP',
+  EU: 'EUR',
+  CA: 'CAD',
+  AU: 'AUD',
+  JP: 'JPY',
+  CH: 'CHF',
+  SE: 'SEK',
+};
+
+export function normalizeCurrencyCode(input: string): string {
+  if (!input) return 'USD';
+  const cleaned = input.trim().toUpperCase();
+  return RATES_TO_USD[cleaned] ? cleaned : (SYMBOL_OR_COUNTRY_TO_CODE[input] || SYMBOL_OR_COUNTRY_TO_CODE[cleaned] || 'USD');
+}
+
 export function convertCurrency(amount: number, fromCode: string, toCode: string): number {
-  if (fromCode === toCode) return amount;
-  const inUSD = amount / (RATES_TO_USD[fromCode] || 1);
-  return inUSD * (RATES_TO_USD[toCode] || 1);
+  const from = normalizeCurrencyCode(fromCode);
+  const to = normalizeCurrencyCode(toCode);
+  if (from === to) return amount;
+  const inUSD = amount / (RATES_TO_USD[from] || 1);
+  return inUSD * (RATES_TO_USD[to] || 1);
 }
 
 export function getCurrencySymbol(code: string): string {
-  return CURRENCIES.find(c => c.code === code)?.symbol || '$';
+  const normalized = normalizeCurrencyCode(code);
+  return CURRENCIES.find(c => c.code === normalized)?.symbol || '$';
 }
 
 interface CurrencySwitcherProps {
@@ -55,7 +83,7 @@ export default function CurrencySwitcher({ value, onChange, compact = false }: C
   const current = CURRENCIES.find(c => c.code === value) || CURRENCIES[0];
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative z-[120]">
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 bg-muted/40 border border-border rounded-full px-3 py-1.5 text-xs hover:bg-muted/70 transition-colors"
@@ -66,7 +94,7 @@ export default function CurrencySwitcher({ value, onChange, compact = false }: C
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-48 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in">
+        <div className="absolute right-0 top-full mt-1.5 w-48 bg-card border border-border rounded-xl shadow-lg z-[130] py-1 animate-fade-in">
           {CURRENCIES.map(c => (
             <button
               key={c.code}
