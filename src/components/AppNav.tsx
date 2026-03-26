@@ -29,7 +29,7 @@ export default function AppNav() {
     <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-14">
         <Link to="/dashboard" className="flex items-center gap-1">
-          <OverseezLogo size={36} color="white" />
+          <OverseezLogo size={72} color="white" />
           <span className="font-display text-lg font-bold tracking-tight leading-none">Overseez</span>
         </Link>
 

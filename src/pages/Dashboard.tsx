@@ -62,7 +62,7 @@ export default function Dashboard() {
       <AppNav />
 
       {/* Savings Progress Bar */}
-      <div className="border-b border-border bg-overseez-mid px-4 sm:px-6 py-3 relative z-10">
+      <div className="border-b border-border bg-overseez-mid px-4 sm:px-6 py-3 relative z-[60]">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
             <div>
