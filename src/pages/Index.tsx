@@ -189,7 +189,7 @@ export default function Index() {
 
         {/* Decorative brand mark at bottom */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-10">
-          <OverseezLogo size={64} color="white" />
+          <OverseezLogo size={128} color="white" />
         </div>
       </section>
 
