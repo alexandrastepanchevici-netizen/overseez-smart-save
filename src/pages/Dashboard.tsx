@@ -72,7 +72,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} />
+              <CurrencySwitcher value={displayCurrency} onChange={(c) => { setDisplayCurrency(c); localStorage.setItem('overseez_display_currency', c); }} />
               <p className="text-xs text-muted-foreground">
                 Goal: {sym}{goalMax.toLocaleString()} · {milestonesHit}/{MILESTONES.length} milestones
               </p>
