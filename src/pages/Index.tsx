@@ -383,7 +383,7 @@ export default function Index() {
             <svg className="absolute -top-12 -right-12 w-48 h-48 opacity-[0.04]" viewBox="0 0 100 100" fill="none">
               <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="white" strokeWidth="3" />
             </svg>
-            <OverseezLogo size={56} className="mx-auto mb-6 opacity-30" color="white" />
+            <OverseezLogo size={112} className="mx-auto mb-6 opacity-30" color="white" />
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
               Your money deserves better.
             </h2>
