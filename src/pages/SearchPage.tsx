@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
+import CurrencySwitcher, { convertCurrency, getCurrencySymbol, normalizeCurrencyCode } from '@/components/CurrencySwitcher';
 import { Search, MapPin, Building2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -87,7 +88,21 @@ export default function SearchPage() {
   const [spendInput, setSpendInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const userCurrency = profile?.currency || '$';
+  const profileCurrency = normalizeCurrencyCode(profile?.currency || 'USD');
+  const [displayCurrency, setDisplayCurrency] = useState(profileCurrency);
+
+  useEffect(() => {
+    setDisplayCurrency(profileCurrency);
+  }, [profileCurrency]);
+
+  const resultCurrencyCode = normalizeCurrencyCode(result?.currency || profileCurrency);
+  const currencySymbol = getCurrencySymbol(displayCurrency);
+
+  const toDisplay = (amount: number, fromCode: string = resultCurrencyCode) =>
+    convertCurrency(amount, fromCode, displayCurrency);
+
+  const formatDisplay = (amount: number, fromCode: string = resultCurrencyCode) =>
+    `${currencySymbol}${toDisplay(amount, fromCode).toFixed(2)}`;
 
   // Check usage and get oldest usage timestamp for timer
   useEffect(() => {
@@ -184,7 +199,7 @@ export default function SearchPage() {
           city: loc?.city,
           countryCode: loc?.cc,
           bankName: bankName || undefined,
-          userCurrency,
+          userCurrency: displayCurrency,
         },
       });
 
@@ -231,7 +246,7 @@ export default function SearchPage() {
       amount_saved: Math.max(0, saved),
       amount_spent: spent,
       average_price: spendModal.avgVal,
-      currency: result?.currency || userCurrency,
+      currency: displayCurrency,
       search_query: query,
     });
 
@@ -239,11 +254,12 @@ export default function SearchPage() {
       const { data: prof } = await supabase.from('profiles').select('total_saved')
         .eq('user_id', user.id).single();
       if (prof) {
+        const savedInProfileCurrency = convertCurrency(Math.max(0, saved), displayCurrency, profileCurrency);
         await supabase.from('profiles').update({
-          total_saved: Number(prof.total_saved) + saved,
+          total_saved: Number(prof.total_saved) + savedInProfileCurrency,
         }).eq('user_id', user.id);
       }
-      toast.success(`🎉 You saved ${result?.currency || userCurrency}${saved.toFixed(2)}!`);
+      toast.success(`🎉 You saved ${currencySymbol}${saved.toFixed(2)}!`);
     } else {
       toast.info('Logged!');
     }
@@ -308,6 +324,9 @@ export default function SearchPage() {
             </button>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 text-xs text-muted-foreground">
+            <div className="mb-1 sm:mb-0 sm:mr-2">
+              <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} compact />
+            </div>
             {subscribed ? (
               <span className="text-overseez-green font-semibold">Unlimited</span>
             ) : (
@@ -345,7 +364,7 @@ export default function SearchPage() {
           <div className="text-center py-16 animate-fade-in-up">
             <h2 className="text-4xl font-display font-bold tracking-tight mb-3 overseez-text-gradient">Overseez AI</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-              Find the top 5 cheapest options near you for anything — with live sales merged into the ranking, savings vs average, and Google Maps links. All prices shown in your currency ({userCurrency}).
+              Find the top 5 cheapest options near you for anything — with live sales merged into the ranking, savings vs average, and Google Maps links. All prices shown in your selected currency ({displayCurrency}).
             </p>
             <div className="inline-flex items-center gap-2 bg-muted/30 border border-border rounded-full px-4 py-2 mt-4 text-xs text-muted-foreground">
               🏦 Enter your bank to see overseas fees · 🏷 Sales automatically merged into rankings
@@ -386,7 +405,7 @@ export default function SearchPage() {
 
             <div className="flex flex-wrap gap-2 mb-4">
               <span className="text-xs bg-overseez-gold/10 text-overseez-gold border border-overseez-gold/25 rounded-full px-3 py-1">
-                📊 Area average: {result.averagePrice}
+                📊 Area average: {formatDisplay(result.averageValue)}
               </span>
               {result.sales?.length > 0 && (
                 <span className="text-xs bg-overseez-red/10 text-overseez-red border border-overseez-red/25 rounded-full px-3 py-1">
@@ -404,9 +423,12 @@ export default function SearchPage() {
 
             <div className="space-y-3">
               {combinedPlaces.map((place, i) => {
-                const feeAmount = bankFeeRate > 0 ? place.priceValue * bankFeeRate : 0;
-                const effectivePrice = place.priceValue + feeAmount;
-                const saving = result.averageValue - effectivePrice;
+                const displayedAverage = toDisplay(result.averageValue);
+                const displayedPrice = toDisplay(place.priceValue);
+                const displayedOriginalPrice = place.originalPriceValue != null ? toDisplay(place.originalPriceValue) : null;
+                const feeAmount = bankFeeRate > 0 ? displayedPrice * bankFeeRate : 0;
+                const effectivePrice = displayedPrice + feeAmount;
+                const saving = displayedAverage - effectivePrice;
                 const mapsUrl = loc
                   ? `https://www.google.com/maps/search/${encodeURIComponent(place.searchQuery || place.name)}/@${loc.lat},${loc.lng},14z`
                   : `https://www.google.com/maps/search/${encodeURIComponent(place.searchQuery || place.name)}`;
@@ -446,7 +468,7 @@ export default function SearchPage() {
                           {saving > 0 && (
                             <>
                               <span className="text-muted-foreground/30">·</span>
-                              <span className="font-semibold text-foreground">Save {result.currency}{saving.toFixed(2)} vs avg</span>
+                              <span className="font-semibold text-foreground">Save {currencySymbol}{saving.toFixed(2)} vs avg</span>
                             </>
                           )}
                         </div>
@@ -459,21 +481,21 @@ export default function SearchPage() {
                         )}
                         {bankFeeRate > 0 && (
                           <div className="text-[11px] text-overseez-gold bg-overseez-gold/8 rounded px-2 py-1 mt-1.5 border border-overseez-gold/15">
-                            + {result.currency}{feeAmount.toFixed(2)} overseas fee = <strong>{result.currency}{effectivePrice.toFixed(2)} true cost</strong>
+                            + {currencySymbol}{feeAmount.toFixed(2)} overseas fee = <strong>{currencySymbol}{effectivePrice.toFixed(2)} true cost</strong>
                           </div>
                         )}
                       </div>
 
                       <div className="text-right flex-shrink-0 ml-2">
-                        <p className="text-lg font-bold">{place.price}</p>
-                        {place.isSale && place.originalPrice && (
-                          <p className="text-xs text-muted-foreground/40 line-through">{place.originalPrice}</p>
+                        <p className="text-lg font-bold">{currencySymbol}{displayedPrice.toFixed(2)}</p>
+                        {place.isSale && displayedOriginalPrice != null && (
+                          <p className="text-xs text-muted-foreground/40 line-through">{currencySymbol}{displayedOriginalPrice.toFixed(2)}</p>
                         )}
                         {bankFeeRate > 0 && (
-                          <p className="text-xs text-overseez-gold font-semibold">+ fee: {result.currency}{effectivePrice.toFixed(2)}</p>
+                          <p className="text-xs text-overseez-gold font-semibold">+ fee: {currencySymbol}{effectivePrice.toFixed(2)}</p>
                         )}
-                        <p className="text-[11px] text-muted-foreground mt-0.5">avg: {result.averagePrice.split(' ')[0]}</p>
-                        {saving > 0 && <p className="text-xs font-semibold mt-0.5">▼ {result.currency}{saving.toFixed(2)}</p>}
+                        <p className="text-[11px] text-muted-foreground mt-0.5">avg: {currencySymbol}{displayedAverage.toFixed(2)}</p>
+                        {saving > 0 && <p className="text-xs font-semibold mt-0.5">▼ {currencySymbol}{saving.toFixed(2)}</p>}
                       </div>
                     </div>
 
@@ -483,8 +505,8 @@ export default function SearchPage() {
                         <MapPin className="w-3 h-3" /> View on Maps
                       </a>
                       <button onClick={() => {
-                        setSpendModal({ open: true, place, avgVal: result.averageValue });
-                        setSpendInput(place.priceValue.toFixed(2));
+                        setSpendModal({ open: true, place, avgVal: displayedAverage });
+                        setSpendInput(displayedPrice.toFixed(2));
                       }}
                         className="text-xs bg-muted/50 border border-border rounded-md px-3 py-1.5 hover:bg-muted transition-colors">
                         🏷 I saved here
