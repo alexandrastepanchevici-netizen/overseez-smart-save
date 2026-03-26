@@ -15,7 +15,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [savings, setSavings] = useState<any[]>([]);
   const [animatedTotal, setAnimatedTotal] = useState(0);
-  const [displayCurrency, setDisplayCurrency] = useState('USD');
+  const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || 'USD');
 
   useEffect(() => {
     if (!user) return;
