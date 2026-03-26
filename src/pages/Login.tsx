@@ -36,7 +36,7 @@ export default function Login() {
     <div className="min-h-screen overseez-gradient-hero flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
-          <OverseezLogo size={48} className="mx-auto mb-3" color="white" />
+          <OverseezLogo size={56} className="mx-auto mb-3" color="white" />
           <h1 className="text-3xl font-display font-bold tracking-tight">
             Welcome Back
           </h1>

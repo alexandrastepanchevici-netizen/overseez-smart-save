@@ -66,7 +66,7 @@ export default function CurrencySwitcher({ value, onChange, compact = false }: C
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-48 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in">
+        <div className="absolute right-0 top-full mt-1.5 w-48 bg-card border border-border rounded-xl shadow-lg py-1 animate-fade-in" style={{ zIndex: 9999 }}>
           {CURRENCIES.map(c => (
             <button
               key={c.code}
