@@ -15,7 +15,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [savings, setSavings] = useState<any[]>([]);
   const [animatedTotal, setAnimatedTotal] = useState(0);
-  const [displayCurrency, setDisplayCurrency] = useState('USD');
+  const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || 'USD');
 
   useEffect(() => {
     if (!user) return;
@@ -62,7 +62,7 @@ export default function Dashboard() {
       <AppNav />
 
       {/* Savings Progress Bar */}
-      <div className="border-b border-border bg-overseez-mid px-4 sm:px-6 py-3 relative z-10">
+      <div className="border-b border-border bg-overseez-mid px-4 sm:px-6 py-3 relative z-[60]">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
             <div>
@@ -72,7 +72,7 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} />
+              <CurrencySwitcher value={displayCurrency} onChange={(c) => { setDisplayCurrency(c); localStorage.setItem('overseez_display_currency', c); }} />
               <p className="text-xs text-muted-foreground">
                 Goal: {sym}{goalMax.toLocaleString()} · {milestonesHit}/{MILESTONES.length} milestones
               </p>

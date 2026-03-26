@@ -89,7 +89,7 @@ export default function SearchPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const profileCurrency = normalizeCurrencyCode(profile?.currency || 'USD');
-  const [displayCurrency, setDisplayCurrency] = useState(profileCurrency);
+  const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || profileCurrency);
 
   useEffect(() => {
     setDisplayCurrency(profileCurrency);

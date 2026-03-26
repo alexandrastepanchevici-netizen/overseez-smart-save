@@ -87,7 +87,7 @@ export default function Index() {
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-card/90 backdrop-blur-xl border-b border-border' : 'bg-transparent'}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
           <Link to={user ? '/home' : '/'} className="flex items-center gap-1">
-            <OverseezLogo size={40} color="white" />
+            <OverseezLogo size={80} color="white" />
             <span className="font-display text-xl font-bold tracking-tight leading-none">Overseez</span>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
@@ -189,7 +189,7 @@ export default function Index() {
 
         {/* Decorative brand mark at bottom */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-10">
-          <OverseezLogo size={64} color="white" />
+          <OverseezLogo size={128} color="white" />
         </div>
       </section>
 
@@ -383,7 +383,7 @@ export default function Index() {
             <svg className="absolute -top-12 -right-12 w-48 h-48 opacity-[0.04]" viewBox="0 0 100 100" fill="none">
               <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="white" strokeWidth="3" />
             </svg>
-            <OverseezLogo size={56} className="mx-auto mb-6 opacity-30" color="white" />
+            <OverseezLogo size={112} className="mx-auto mb-6 opacity-30" color="white" />
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
               Your money deserves better.
             </h2>
@@ -431,7 +431,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <Link to={user ? '/home' : '/'} className="flex items-center gap-2">
-              <OverseezLogo size={32} color="white" />
+              <OverseezLogo size={64} color="white" />
               <span className="font-display font-bold">Overseez</span>
             </Link>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-muted-foreground">

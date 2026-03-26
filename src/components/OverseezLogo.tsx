@@ -7,7 +7,7 @@ interface OverseezLogoProps {
   color?: string;
 }
 
-export default function OverseezLogo({ size = 32, className = '' }: OverseezLogoProps) {
+export default function OverseezLogo({ size = 64, className = '' }: OverseezLogoProps) {
   return (
     <img
       src={logoImg}
