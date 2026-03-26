@@ -431,7 +431,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <Link to={user ? '/home' : '/'} className="flex items-center gap-2">
-              <OverseezLogo size={32} color="white" />
+              <OverseezLogo size={64} color="white" />
               <span className="font-display font-bold">Overseez</span>
             </Link>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-muted-foreground">
