@@ -43,7 +43,7 @@ const SYMBOL_OR_COUNTRY_TO_CODE: Record<string, string> = {
   SE: 'SEK',
 };
 
-function normalizeCurrencyCode(input: string): string {
+export function normalizeCurrencyCode(input: string): string {
   if (!input) return 'USD';
   const cleaned = input.trim().toUpperCase();
   return RATES_TO_USD[cleaned] ? cleaned : (SYMBOL_OR_COUNTRY_TO_CODE[input] || SYMBOL_OR_COUNTRY_TO_CODE[cleaned] || 'USD');
@@ -83,7 +83,7 @@ export default function CurrencySwitcher({ value, onChange, compact = false }: C
   const current = CURRENCIES.find(c => c.code === value) || CURRENCIES[0];
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative z-[120]">
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 bg-muted/40 border border-border rounded-full px-3 py-1.5 text-xs hover:bg-muted/70 transition-colors"
@@ -94,7 +94,7 @@ export default function CurrencySwitcher({ value, onChange, compact = false }: C
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-48 bg-card border border-border rounded-xl shadow-lg py-1 animate-fade-in" style={{ zIndex: 9999 }}>
+        <div className="absolute right-0 top-full mt-1.5 w-48 bg-card border border-border rounded-xl shadow-lg z-[130] py-1 animate-fade-in">
           {CURRENCIES.map(c => (
             <button
               key={c.code}
