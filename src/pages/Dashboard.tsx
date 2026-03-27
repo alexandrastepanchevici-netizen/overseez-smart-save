@@ -8,7 +8,28 @@ import { TrendingUp, Calendar, Wallet, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
-const MILESTONES = [5, 25, 50, 100, 250, 500, 1000];
+const BASE_MILESTONES = [5, 25, 50, 100, 250, 500, 1000];
+
+function getMilestones(total: number): number[] {
+  // Find which tier we're in
+  let tier = 0;
+  while (total >= 1000 * Math.pow(10, tier)) {
+    tier++;
+  }
+  if (tier === 0) return BASE_MILESTONES;
+  const base = 1000 * Math.pow(10, tier - 1);
+  const top = 1000 * Math.pow(10, tier);
+  const steps = [
+    base,
+    Math.round(base * 2.5),
+    Math.round(base * 5),
+    Math.round(base * 10),
+    Math.round(base * 25),
+    Math.round(base * 50),
+    top,
+  ];
+  return steps;
+}
 
 export default function Dashboard() {
   const { user, profile, refreshProfile } = useAuth();
