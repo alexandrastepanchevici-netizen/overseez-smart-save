@@ -6,7 +6,22 @@ import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/componen
 import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const MILESTONES = [5, 25, 50, 100, 250, 500, 1000];
+function getMilestones(total: number): number[] {
+  const base = [5, 25, 50, 100, 250, 500, 1000];
+  let ms = base;
+  while (total >= ms[ms.length - 1]) {
+    const last = ms[ms.length - 1];
+    const next = [last * 2, last * 5, last * 10].filter(v => v > last);
+    ms = [...ms, ...next];
+  }
+  return ms;
+}
+
+function formatMilestone(sym: string, m: number): string {
+  if (m >= 1_000_000) return `${sym}${(m / 1_000_000).toFixed(0)}M`;
+  if (m >= 1_000) return `${sym}${(m / 1_000).toFixed(0)}k`;
+  return `${sym}${m}`;
+}
 
 export default function Profile() {
   const { profile, user, subscribed } = useAuth();
