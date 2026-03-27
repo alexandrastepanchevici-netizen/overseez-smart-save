@@ -6,7 +6,22 @@ import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/componen
 import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const MILESTONES = [5, 25, 50, 100, 250, 500, 1000];
+function getMilestones(total: number): number[] {
+  const base = [5, 25, 50, 100, 250, 500, 1000];
+  let ms = base;
+  while (total >= ms[ms.length - 1]) {
+    const last = ms[ms.length - 1];
+    const next = [last * 2, last * 5, last * 10].filter(v => v > last);
+    ms = [...ms, ...next];
+  }
+  return ms;
+}
+
+function formatMilestone(sym: string, m: number): string {
+  if (m >= 1_000_000) return `${sym}${(m / 1_000_000).toFixed(0)}M`;
+  if (m >= 1_000) return `${sym}${(m / 1_000).toFixed(0)}k`;
+  return `${sym}${m}`;
+}
 
 export default function Profile() {
   const { profile, user, subscribed } = useAuth();
@@ -39,8 +54,16 @@ export default function Profile() {
     requestAnimationFrame(step);
   }, [totalSaved]);
 
-  const goalMax = MILESTONES[MILESTONES.length - 1];
+  const milestones = getMilestones(totalSaved);
+  const goalMax = milestones[milestones.length - 1];
   const pct = Math.min((totalSaved / goalMax) * 100, 100);
+  // Only show milestones that are spaced enough apart (>8% of bar)
+  const visibleMilestones = milestones.reduce<number[]>((acc, m) => {
+    const pos = (m / goalMax) * 100;
+    const lastPos = acc.length > 0 ? (acc[acc.length - 1] / goalMax) * 100 : -20;
+    if (pos - lastPos >= 8) acc.push(m);
+    return acc;
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,7 +114,7 @@ export default function Profile() {
               style={{ width: `${pct}%` }} />
           </div>
           <div className="relative h-6 mt-1">
-            {MILESTONES.map(m => (
+            {visibleMilestones.map(m => (
               <div
                 key={m}
                 className="absolute top-0 flex flex-col items-center gap-0.5"
@@ -99,7 +122,7 @@ export default function Profile() {
               >
                 <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
                 <span className={`text-[10px] whitespace-nowrap ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>
-                  {m >= 1000 ? `${sym}1k` : `${sym}${m}`}
+                  {formatMilestone(sym, m)}
                 </span>
               </div>
             ))}
