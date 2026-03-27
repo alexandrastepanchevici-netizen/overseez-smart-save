@@ -193,16 +193,21 @@ export default function SearchPage() {
         await supabase.from('ai_usage').insert({ user_id: user.id, question: searchQ });
       }
 
+      const searchBody: any = {
+        query: searchQ,
+        bankName: bankName || undefined,
+        userCurrency: displayCurrency,
+      };
+      if (useCustomLoc && customLocation.trim()) {
+        searchBody.customCity = customLocation.trim();
+      } else {
+        searchBody.lat = loc?.lat;
+        searchBody.lng = loc?.lng;
+        searchBody.city = loc?.city;
+        searchBody.countryCode = loc?.cc;
+      }
       const { data, error: fnErr } = await supabase.functions.invoke('search', {
-        body: {
-          query: searchQ,
-          lat: loc?.lat,
-          lng: loc?.lng,
-          city: loc?.city,
-          countryCode: loc?.cc,
-          bankName: bankName || undefined,
-          userCurrency: displayCurrency,
-        },
+        body: searchBody,
       });
 
       if (fnErr) throw new Error(fnErr.message);
