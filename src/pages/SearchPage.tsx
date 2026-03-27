@@ -457,11 +457,8 @@ export default function SearchPage() {
                 const feeAmount = bankFeeRate > 0 ? displayedPrice * bankFeeRate : 0;
                 const effectivePrice = displayedPrice + feeAmount;
                 const saving = displayedAverage - effectivePrice;
-                const cityCtx = useCustomLoc && customLocation.trim() ? customLocation.trim() : (loc?.city || '');
-                const mapsSearch = `${place.name} ${cityCtx}`.trim();
-                const mapsUrl = loc && !useCustomLoc
-                  ? `https://www.google.com/maps/search/${encodeURIComponent(mapsSearch)}/@${loc.lat},${loc.lng},15z`
-                  : `https://www.google.com/maps/search/${encodeURIComponent(mapsSearch)}`;
+                const mapsQuery = place.searchQuery || place.name;
+                const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(mapsQuery)}`;
 
                 return (
                   <div key={i}
