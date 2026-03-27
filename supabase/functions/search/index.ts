@@ -115,9 +115,10 @@ Use correct local currency. Amounts under 1 unit: use decimals e.g. "${cur}0.89"
                       priceValue: { type: "number" },
                       distance: { type: "string" },
                       tip: { type: "string" },
-                      searchQuery: { type: "string" },
+                      searchQuery: { type: "string", description: "Exact store name + specific address/location for Google Maps lookup" },
+                      websiteUrl: { type: "string", description: "Real official website URL of this store/business" },
                     },
-                    required: ["rank", "name", "type", "price", "priceValue", "distance", "tip", "searchQuery"],
+                    required: ["rank", "name", "type", "price", "priceValue", "distance", "tip", "searchQuery", "websiteUrl"],
                     additionalProperties: false,
                   }
                 },
