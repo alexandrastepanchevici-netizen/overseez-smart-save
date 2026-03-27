@@ -114,7 +114,7 @@ export default function Profile() {
               style={{ width: `${pct}%` }} />
           </div>
           <div className="relative h-6 mt-1">
-            {MILESTONES.map(m => (
+            {visibleMilestones.map(m => (
               <div
                 key={m}
                 className="absolute top-0 flex flex-col items-center gap-0.5"
@@ -122,7 +122,7 @@ export default function Profile() {
               >
                 <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
                 <span className={`text-[10px] whitespace-nowrap ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>
-                  {m >= 1000 ? `${sym}1k` : `${sym}${m}`}
+                  {formatMilestone(sym, m)}
                 </span>
               </div>
             ))}
