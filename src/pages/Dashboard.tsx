@@ -67,6 +67,7 @@ export default function Dashboard() {
     requestAnimationFrame(step);
   }, [totalSaved]);
 
+  const MILESTONES = getMilestones(totalSaved);
   const goalMax = MILESTONES[MILESTONES.length - 1];
   const pct = Math.min((totalSaved / goalMax) * 100, 100);
   const milestonesHit = MILESTONES.filter(m => totalSaved >= m).length;
