@@ -79,6 +79,8 @@ export default function SearchPage() {
   const [error, setError] = useState('');
   const [loc, setLoc] = useState<{ lat: number; lng: number; city: string; cc: string } | null>(null);
   const [locStatus, setLocStatus] = useState('Location not set');
+  const [customLocation, setCustomLocation] = useState('');
+  const [useCustomLoc, setUseCustomLoc] = useState(false);
   const [usageLeft, setUsageLeft] = useState(FREE_LIMIT);
   const [resetCountdown, setResetCountdown] = useState('');
   const [oldestUsageTime, setOldestUsageTime] = useState<number | null>(null);
