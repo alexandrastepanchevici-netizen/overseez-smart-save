@@ -457,9 +457,11 @@ export default function SearchPage() {
                 const feeAmount = bankFeeRate > 0 ? displayedPrice * bankFeeRate : 0;
                 const effectivePrice = displayedPrice + feeAmount;
                 const saving = displayedAverage - effectivePrice;
-                const mapsUrl = loc
-                  ? `https://www.google.com/maps/search/${encodeURIComponent(place.searchQuery || place.name)}/@${loc.lat},${loc.lng},14z`
-                  : `https://www.google.com/maps/search/${encodeURIComponent(place.searchQuery || place.name)}`;
+                const cityCtx = useCustomLoc && customLocation.trim() ? customLocation.trim() : (loc?.city || '');
+                const mapsSearch = `${place.name} ${cityCtx}`.trim();
+                const mapsUrl = loc && !useCustomLoc
+                  ? `https://www.google.com/maps/search/${encodeURIComponent(mapsSearch)}/@${loc.lat},${loc.lng},15z`
+                  : `https://www.google.com/maps/search/${encodeURIComponent(mapsSearch)}`;
 
                 return (
                   <div key={i}
@@ -488,7 +490,11 @@ export default function SearchPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground/50 mt-0.5">{place.type?.toLowerCase().replace(/ /g, '-')}.overseez.co.uk</p>
+                        {(place as any).websiteUrl && (
+                          <a href={(place as any).websiteUrl} target="_blank" rel="noopener" className="text-xs text-overseez-blue/70 hover:underline mt-0.5 block truncate max-w-[250px]">
+                            {(place as any).websiteUrl.replace(/^https?:\/\/(www\.)?/, '').split('/')[0]}
+                          </a>
+                        )}
                         <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1 flex-wrap">
                           <span>{place.type}</span>
                           <span className="text-muted-foreground/30">·</span>

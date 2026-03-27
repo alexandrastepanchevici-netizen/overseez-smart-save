@@ -73,8 +73,8 @@ Return ONLY this JSON (no markdown, no extra text):
     const searchPrompt = `You are a local price comparison engine with sale detection. User searches: "${query}". ${locCtx}
 
 TWO tasks:
-1. Find the top 5 cheapest real places near the user for "${query}", cheapest first.
-2. Find up to 3 current sales, promotions or discounts for "${query}" near the user.
+1. Find the top 5 cheapest REAL, EXISTING places/stores/businesses near the user for "${query}", cheapest first. Use real business names that actually exist (e.g. "Tesco", "Carrefour", "Walmart", not made-up names). For each place, provide the REAL official website URL (e.g. https://www.tesco.com). For searchQuery, use the exact store name + specific location/address so Google Maps can find the exact branch.
+2. Find up to 3 current sales, promotions or discounts for "${query}" near the user. Same rules: real stores, real URLs, specific location in searchQuery.
 
 Use correct local currency. Amounts under 1 unit: use decimals e.g. "${cur}0.89".`;
 
@@ -115,9 +115,10 @@ Use correct local currency. Amounts under 1 unit: use decimals e.g. "${cur}0.89"
                       priceValue: { type: "number" },
                       distance: { type: "string" },
                       tip: { type: "string" },
-                      searchQuery: { type: "string" },
+                      searchQuery: { type: "string", description: "Exact store name + specific address/location for Google Maps lookup" },
+                      websiteUrl: { type: "string", description: "Real official website URL of this store/business" },
                     },
-                    required: ["rank", "name", "type", "price", "priceValue", "distance", "tip", "searchQuery"],
+                    required: ["rank", "name", "type", "price", "priceValue", "distance", "tip", "searchQuery", "websiteUrl"],
                     additionalProperties: false,
                   }
                 },
@@ -135,10 +136,11 @@ Use correct local currency. Amounts under 1 unit: use decimals e.g. "${cur}0.89"
                       distance: { type: "string" },
                       saleLabel: { type: "string" },
                       tip: { type: "string" },
-                      searchQuery: { type: "string" },
+                      searchQuery: { type: "string", description: "Exact store name + specific address/location for Google Maps lookup" },
                       expires: { type: "string" },
+                      websiteUrl: { type: "string", description: "Real official website URL of this store/business" },
                     },
-                    required: ["name", "type", "salePrice", "salePriceValue", "originalPrice", "originalPriceValue", "distance", "saleLabel", "tip", "searchQuery"],
+                    required: ["name", "type", "salePrice", "salePriceValue", "originalPrice", "originalPriceValue", "distance", "saleLabel", "tip", "searchQuery", "websiteUrl"],
                     additionalProperties: false,
                   }
                 },
