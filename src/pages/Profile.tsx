@@ -54,8 +54,16 @@ export default function Profile() {
     requestAnimationFrame(step);
   }, [totalSaved]);
 
-  const goalMax = MILESTONES[MILESTONES.length - 1];
+  const milestones = getMilestones(totalSaved);
+  const goalMax = milestones[milestones.length - 1];
   const pct = Math.min((totalSaved / goalMax) * 100, 100);
+  // Only show milestones that are spaced enough apart (>8% of bar)
+  const visibleMilestones = milestones.reduce<number[]>((acc, m) => {
+    const pos = (m / goalMax) * 100;
+    const lastPos = acc.length > 0 ? (acc[acc.length - 1] / goalMax) * 100 : -20;
+    if (pos - lastPos >= 8) acc.push(m);
+    return acc;
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
