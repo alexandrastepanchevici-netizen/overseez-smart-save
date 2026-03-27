@@ -199,7 +199,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
         {icon}
         <span className="text-xs uppercase tracking-wider font-medium">{label}</span>
       </div>
-      <p className="text-2xl font-display font-bold tracking-tight tabular-nums">{value}</p>
+      <p className="text-xl sm:text-2xl font-display font-bold tracking-tight tabular-nums truncate">{value}</p>
     </div>
   );
 }
