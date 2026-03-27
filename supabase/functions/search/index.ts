@@ -9,15 +9,20 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { query, lat, lng, city, countryCode, bankName } = await req.json();
+    const { query, lat, lng, city, countryCode, bankName, customCity } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const cur = getCurrency(countryCode || "GB");
 
-    const locCtx = lat
-      ? `User is at ${lat}, ${lng} (${city || "unknown"}, country: ${countryCode || "GB"}). Use currency symbol "${cur}" for all prices.`
-      : `No location available. Use realistic UK results with £.`;
+    let locCtx: string;
+    if (customCity) {
+      locCtx = `User wants results from "${customCity}". Use the local currency of that city for all prices. Research what currency is used there.`;
+    } else if (lat) {
+      locCtx = `User is at ${lat}, ${lng} (${city || "unknown"}, country: ${countryCode || "GB"}). Use currency symbol "${cur}" for all prices.`;
+    } else {
+      locCtx = `No location available. Use realistic UK results with £.`;
+    }
 
     // Bank fee lookup
     let bankInfo = null;
