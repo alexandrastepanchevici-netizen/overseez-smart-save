@@ -79,6 +79,8 @@ export default function SearchPage() {
   const [error, setError] = useState('');
   const [loc, setLoc] = useState<{ lat: number; lng: number; city: string; cc: string } | null>(null);
   const [locStatus, setLocStatus] = useState('Location not set');
+  const [customLocation, setCustomLocation] = useState('');
+  const [useCustomLoc, setUseCustomLoc] = useState(false);
   const [usageLeft, setUsageLeft] = useState(FREE_LIMIT);
   const [resetCountdown, setResetCountdown] = useState('');
   const [oldestUsageTime, setOldestUsageTime] = useState<number | null>(null);
@@ -191,16 +193,21 @@ export default function SearchPage() {
         await supabase.from('ai_usage').insert({ user_id: user.id, question: searchQ });
       }
 
+      const searchBody: any = {
+        query: searchQ,
+        bankName: bankName || undefined,
+        userCurrency: displayCurrency,
+      };
+      if (useCustomLoc && customLocation.trim()) {
+        searchBody.customCity = customLocation.trim();
+      } else {
+        searchBody.lat = loc?.lat;
+        searchBody.lng = loc?.lng;
+        searchBody.city = loc?.city;
+        searchBody.countryCode = loc?.cc;
+      }
       const { data, error: fnErr } = await supabase.functions.invoke('search', {
-        body: {
-          query: searchQ,
-          lat: loc?.lat,
-          lng: loc?.lng,
-          city: loc?.city,
-          countryCode: loc?.cc,
-          bankName: bankName || undefined,
-          userCurrency: displayCurrency,
-        },
+        body: searchBody,
       });
 
       if (fnErr) throw new Error(fnErr.message);
@@ -316,12 +323,33 @@ export default function SearchPage() {
       <div className="max-w-3xl mx-auto px-4 py-6">
         {/* Location + Usage */}
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <div className={`w-2 h-2 rounded-full ${loc ? 'bg-foreground' : 'bg-muted-foreground/30'}`} />
-            <span>{locStatus}</span>
-            <button onClick={requestLocation} className="text-overseez-blue hover:underline">
-              📍 {loc ? 'Change' : 'Enable location'}
-            </button>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+            {!useCustomLoc ? (
+              <>
+                <div className={`w-2 h-2 rounded-full ${loc ? 'bg-foreground' : 'bg-muted-foreground/30'}`} />
+                <span>{locStatus}</span>
+                <button onClick={requestLocation} className="text-overseez-blue hover:underline">
+                  📍 {loc ? 'Refresh' : 'Enable location'}
+                </button>
+                <button onClick={() => setUseCustomLoc(true)} className="text-overseez-blue hover:underline ml-1">
+                  🌍 Search another city
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span>🌍</span>
+                <input
+                  type="text"
+                  value={customLocation}
+                  onChange={e => setCustomLocation(e.target.value)}
+                  placeholder="e.g. Paris, France"
+                  className="bg-muted/50 border border-border rounded-md px-2 py-1 text-xs text-foreground outline-none w-40 focus:border-foreground/30"
+                />
+                <button onClick={() => { setUseCustomLoc(false); setCustomLocation(''); }} className="text-overseez-blue hover:underline">
+                  📍 Use my location
+                </button>
+              </div>
+            )}
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 text-xs text-muted-foreground">
             <div className="mb-1 sm:mb-0 sm:mr-2">
