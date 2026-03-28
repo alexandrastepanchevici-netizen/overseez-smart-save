@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 import { User, LayoutDashboard, CreditCard, LogOut, ChevronDown, Search, Home } from 'lucide-react';
 import OverseezLogo from '@/components/OverseezLogo';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const NAV_LINKS = [
-  { to: '/home', label: 'Home', icon: Home },
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/search', label: 'AI Assistant', icon: Search },
-  { to: '/subscription', label: 'Subscription', icon: CreditCard },
-  { to: '/profile', label: 'Profile', icon: User },
+  { to: '/home', labelKey: 'nav.home', icon: Home },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { to: '/search', labelKey: 'nav.aiAssistant', icon: Search },
+  { to: '/subscription', labelKey: 'nav.subscription', icon: CreditCard },
+  { to: '/profile', labelKey: 'nav.profile', icon: User },
 ];
 
 export default function AppNav() {
