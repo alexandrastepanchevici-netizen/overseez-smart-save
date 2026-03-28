@@ -32,14 +32,6 @@ function RevealSection({ children, className = '', delay = 0 }: { children: Reac
   );
 }
 
-const REVIEWS = [
-  { name: 'Amara K.', loc: 'London, UK', text: 'Overseez helped me find groceries 30% cheaper just two streets away. I save about $58 a week now.', stars: 5 },
-  { name: 'Daniel M.', loc: 'Berlin, DE', text: 'As an exchange student, the bank fee calculator alone is worth it. I avoided $220 in hidden charges.', stars: 5 },
-  { name: 'Sofia R.', loc: 'Barcelona, ES', text: 'The AI comparison is surprisingly accurate. I use it every time I travel to find the best local prices.', stars: 5 },
-  { name: 'Kwame A.', loc: 'Accra, GH', text: 'Finally a finance tool that actually works for everyday shopping. The savings tracker keeps me motivated.', stars: 4 },
-  { name: 'Yuki T.', loc: 'Tokyo, JP', text: 'The location-based search changed how I shop abroad. Clean UI, fast results, and real savings.', stars: 5 },
-  { name: 'Liam O.', loc: 'Dublin, IE', text: 'I was sceptical at first, but in three months I\'ve tracked over $420 in savings. The data doesn\'t lie.', stars: 5 },
-];
 
 const FEATURES = [
   { icon: <Search className="w-5 h-5" />, title: 'AI Price Comparison', desc: 'Get the top 5 cheapest options near you for anything — groceries, petrol, coffee, hotels.' },
