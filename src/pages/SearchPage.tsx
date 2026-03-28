@@ -458,7 +458,7 @@ export default function SearchPage() {
                 const effectivePrice = displayedPrice + feeAmount;
                 const saving = displayedAverage - effectivePrice;
                 const mapsQuery = place.searchQuery || place.name;
-                const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(mapsQuery)}`;
+                const mapsUrl = `https://www.google.com/maps/place/${encodeURIComponent(mapsQuery)}`;
 
                 return (
                   <div key={i}

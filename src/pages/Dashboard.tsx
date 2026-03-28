@@ -119,7 +119,7 @@ const MILESTONES = getMilestones(totalSaved);
               style={{ width: `${pct}%` }} />
           </div>
           <div className="hidden sm:block relative mt-1.5 h-6">
-            {MILESTONES.map(m => (
+            {visibleMilestones.map(m => (
               <div
                 key={m}
                 className="absolute top-0 flex flex-col items-center gap-0.5"
@@ -127,7 +127,7 @@ const MILESTONES = getMilestones(totalSaved);
               >
                 <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
                 <span className={`text-[10px] whitespace-nowrap ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>
-                  {m >= 1000000 ? `${sym}${(m/1000000).toFixed(m % 1000000 === 0 ? 0 : 1)}M` : m >= 1000 ? `${sym}${(m/1000).toFixed(m % 1000 === 0 ? 0 : 1)}k` : `${sym}${m}`}
+                  {formatMilestone(m)}
                 </span>
               </div>
             ))}
