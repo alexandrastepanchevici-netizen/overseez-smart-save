@@ -89,34 +89,40 @@ function Pin({ lat, lng, name }: CountryPin) {
 }
 
 function Earth() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const atmosphereRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
 
   const earthMap = useLoader(THREE.TextureLoader, "https://cdn.jsdelivr.net/npm/three-globe@2.34.1/example/img/earth-blue-marble.jpg");
   const bumpMap = useLoader(THREE.TextureLoader, "https://cdn.jsdelivr.net/npm/three-globe@2.34.1/example/img/earth-topology.png");
 
   useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.0008;
+    if (groupRef.current) {
+      groupRef.current.rotation.y += 0.0008;
     }
   });
 
   return (
     <group>
-      {/* Earth */}
-      <mesh ref={meshRef}>
-        <sphereGeometry args={[1, 64, 64]} />
-        <meshPhongMaterial
-          map={earthMap}
-          bumpMap={bumpMap}
-          bumpScale={0.04}
-          specular={new THREE.Color("#1a3a5c")}
-          shininess={15}
-        />
-      </mesh>
+      {/* Rotating group: earth + pins move together */}
+      <group ref={groupRef}>
+        <mesh>
+          <sphereGeometry args={[1, 64, 64]} />
+          <meshPhongMaterial
+            map={earthMap}
+            bumpMap={bumpMap}
+            bumpScale={0.04}
+            specular={new THREE.Color("#1a3a5c")}
+            shininess={15}
+          />
+        </mesh>
 
-      {/* Atmosphere glow */}
-      <mesh ref={atmosphereRef} scale={[1.15, 1.15, 1.15]}>
+        {/* Country pins */}
+        {COUNTRIES.map((c) => (
+          <Pin key={c.name} {...c} />
+        ))}
+      </group>
+
+      {/* Atmosphere glow (doesn't rotate) */}
+      <mesh scale={[1.15, 1.15, 1.15]}>
         <sphereGeometry args={[1, 64, 64]} />
         <shaderMaterial
           transparent
@@ -138,11 +144,6 @@ function Earth() {
           `}
         />
       </mesh>
-
-      {/* Country pins */}
-      {COUNTRIES.map((c) => (
-        <Pin key={c.name} {...c} />
-      ))}
     </group>
   );
 }
