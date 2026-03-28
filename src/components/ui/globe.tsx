@@ -90,23 +90,14 @@ function Pin({ lat, lng, name }: CountryPin) {
 
 function Earth() {
   const meshRef = useRef<THREE.Mesh>(null);
-  const cloudsRef = useRef<THREE.Mesh>(null);
   const atmosphereRef = useRef<THREE.Mesh>(null);
 
-  // Load NASA earth textures from public CDN
-  const [earthMap, bumpMap, specMap, cloudsMap] = useLoader(THREE.TextureLoader, [
-    "https://unpkg.com/three-globe@2.35.0/example/img/earth-blue-marble.jpg",
-    "https://unpkg.com/three-globe@2.35.0/example/img/earth-topology.png",
-    "https://unpkg.com/three-globe@2.35.0/example/img/earth-water.png",
-    "https://unpkg.com/three-globe@2.35.0/example/img/earth-clouds.png",
-  ]);
+  const earthMap = useLoader(THREE.TextureLoader, "https://cdn.jsdelivr.net/npm/three-globe@2.34.1/example/img/earth-blue-marble.jpg");
+  const bumpMap = useLoader(THREE.TextureLoader, "https://cdn.jsdelivr.net/npm/three-globe@2.34.1/example/img/earth-topology.png");
 
   useFrame(() => {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.0008;
-    }
-    if (cloudsRef.current) {
-      cloudsRef.current.rotation.y += 0.001;
     }
   });
 
@@ -119,20 +110,8 @@ function Earth() {
           map={earthMap}
           bumpMap={bumpMap}
           bumpScale={0.04}
-          specularMap={specMap}
           specular={new THREE.Color("#1a3a5c")}
           shininess={15}
-        />
-      </mesh>
-
-      {/* Clouds */}
-      <mesh ref={cloudsRef}>
-        <sphereGeometry args={[1.008, 64, 64]} />
-        <meshPhongMaterial
-          map={cloudsMap}
-          transparent
-          opacity={0.2}
-          depthWrite={false}
         />
       </mesh>
 
