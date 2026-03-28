@@ -50,17 +50,19 @@ export default function AppNav() {
           })}
         </div>
 
-        <div className="relative">
-          <button onClick={() => setOpen(!open)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-muted/50 hover:bg-muted transition-colors text-sm">
-            <div className="w-7 h-7 rounded-full bg-overseez-blue/20 flex items-center justify-center">
-              <User className="w-4 h-4 text-overseez-blue" />
-            </div>
-            <span className="hidden sm:inline text-muted-foreground">
-              {profile?.nickname || 'Account'}
-            </span>
-            <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher compact />
+          <div className="relative">
+            <button onClick={() => setOpen(!open)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-muted/50 hover:bg-muted transition-colors text-sm">
+              <div className="w-7 h-7 rounded-full bg-overseez-blue/20 flex items-center justify-center">
+                <User className="w-4 h-4 text-overseez-blue" />
+              </div>
+              <span className="hidden sm:inline text-muted-foreground">
+                {profile?.nickname || t('nav.account')}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
 
           {open && (
             <>
