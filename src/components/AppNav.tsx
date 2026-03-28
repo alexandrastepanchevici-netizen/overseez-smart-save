@@ -44,7 +44,7 @@ export default function AppNav() {
               <Link key={link.to} to={link.to}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-colors ${active ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}>
                 <link.icon className="w-3.5 h-3.5" />
-                {link.label}
+                {t(link.labelKey)}
               </Link>
             );
           })}
