@@ -80,6 +80,10 @@ export default function Index() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const testimonials = useTestimonials();
+  const testimonialsCol1 = testimonials.slice(0, 3);
+  const testimonialsCol2 = testimonials.slice(3, 6);
+  const testimonialsCol3 = testimonials.slice(6, 9);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40);
