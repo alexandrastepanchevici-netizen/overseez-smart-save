@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
+import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol, normalizeCurrencyCode } from '@/components/CurrencySwitcher';
 import { Search, MapPin, Building2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
