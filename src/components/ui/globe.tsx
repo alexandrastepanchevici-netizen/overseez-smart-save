@@ -151,9 +151,10 @@ function Earth() {
 function Scene() {
   return (
     <>
-      <ambientLight intensity={0.15} />
-      <directionalLight position={[5, 3, 5]} intensity={1.2} color="#ffffff" />
-      <pointLight position={[-10, -5, -10]} intensity={0.3} color="#38bdf8" />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 3, 5]} intensity={1.8} color="#ffffff" />
+      <directionalLight position={[-5, 2, -3]} intensity={0.8} color="#e0f0ff" />
+      <pointLight position={[-10, -5, -10]} intensity={0.5} color="#38bdf8" />
       <Stars radius={100} depth={60} count={3000} factor={4} saturation={0} fade speed={1} />
       <Suspense fallback={null}>
         <Earth />
