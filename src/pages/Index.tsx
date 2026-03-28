@@ -9,6 +9,7 @@ import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, Che
 import ReviewSection from '@/components/ReviewSection';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import GlobeComponent from '@/components/ui/globe';
+import WavyBackground from '@/components/ui/blue-meshy-background';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
