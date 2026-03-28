@@ -169,34 +169,24 @@ export default function Index() {
           <div className="mt-14 sm:mt-16 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <div className="inline-flex flex-wrap justify-center gap-6 sm:gap-12 border border-border/30 bg-card/20 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-5">
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={47.2} suffix="%" decimals={1} />
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">avg. savings</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={47.2} suffix="%" decimals={1} /></p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.avgSavings')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  $<AnimatedCounter end={2340} decimals={0} />
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">saved per user</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">$<AnimatedCounter end={2340} decimals={0} /></p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.savedPerUser')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={200} decimals={0} suffix="+" />
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">active users</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={200} decimals={0} suffix="+" /></p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.activeUsers')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={25} decimals={0} suffix="+" />
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">countries</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={25} decimals={0} suffix="+" /></p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.countries')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={4.9} decimals={1} />★
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">user rating</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={4.9} decimals={1} />★</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.userRating')}</p>
               </div>
             </div>
           </div>
