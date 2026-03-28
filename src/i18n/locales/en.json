@@ -78,7 +78,18 @@
   "testimonials": {
     "label": "Testimonials",
     "title": "What our users say",
-    "subtitle": "Real stories from people saving real money abroad."
+    "subtitle": "Real stories from people saving real money abroad.",
+    "items": [
+      { "text": "I came to Berlin on a FLEX exchange program and was shocked at grocery prices. Overseez showed me stores 40% cheaper just two blocks from my dorm.", "name": "Sofia M.", "role": "FLEX Exchange Student, Berlin" },
+      { "text": "As a uni student in London, every pound matters. This tool helped me find cheaper food, transport, and even my gym membership.", "name": "Daniel K.", "role": "Exchange Student, King's College London" },
+      { "text": "Did Work and Travel in the US last summer. Overseez saved me from tourist traps and found local prices in every city I visited.", "name": "Mia L.", "role": "Work & Travel, USA" },
+      { "text": "The savings tracker is addictive. Watching my monthly savings climb past $200 during my YES program year was incredibly motivating.", "name": "James R.", "role": "YES Program, Portland" },
+      { "text": "I recommend Overseez to every international student. The AI is surprisingly accurate and the Google Maps links are a lifesaver on campus.", "name": "Aisha T.", "role": "Int'l Student, University of Melbourne" },
+      { "text": "As an Au Pair in France, my budget was tight. Overseez helped me plan every purchase smarter and avoid hidden bank fees.", "name": "Luca B.", "role": "Au Pair, Paris" },
+      { "text": "The currency conversion feature is seamless. During my Erasmus semester I always knew exactly what I was paying in my home currency.", "name": "Elena V.", "role": "Erasmus Student, Barcelona" },
+      { "text": "Honestly didn't expect much, but the first search saved me €15 on weekly groceries. Been hooked since my first week abroad.", "name": "Marco P.", "role": "Exchange Student, Amsterdam" },
+      { "text": "The location-based search is brilliant. It finds deals I would never discover on my own, even after a full semester at Waseda.", "name": "Yuki S.", "role": "Int'l Student, Waseda University" }
+    ]
   },
   "feedback": {
     "label": "Feedback",
