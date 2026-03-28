@@ -5,8 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import OverseezLogo from '@/components/OverseezLogo';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 export default function Login() {
+  const { t } = useTranslation();
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -16,58 +19,38 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) { setError('All fields are required'); return; }
-    setLoading(true);
-    setError('');
+    if (!email || !password) { setError(t('login.allRequired')); return; }
+    setLoading(true); setError('');
     const { error: err } = await signIn(email, password);
     setLoading(false);
     if (err) {
       if (err.message?.toLowerCase().includes('email not confirmed')) {
-        setError('Please check your inbox and confirm your email before logging in. A confirmation email was sent when you registered.');
-      } else {
-        setError(err.message);
-      }
-    } else {
-      navigate('/dashboard');
-    }
+        setError(t('login.emailNotConfirmed'));
+      } else { setError(err.message); }
+    } else { navigate('/dashboard'); }
   };
 
   return (
-    <div className="min-h-screen overseez-gradient-hero flex items-center justify-center p-4">
+    <div className="min-h-screen overseez-gradient-hero flex items-center justify-center p-4 relative">
+      <div className="absolute top-4 right-4 z-50"><LanguageSwitcher /></div>
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
           <OverseezLogo size={112} className="mx-auto mb-3" color="white" />
-          <h1 className="text-3xl font-display font-bold tracking-tight">
-            Welcome Back
-          </h1>
-          <p className="text-muted-foreground mt-2 text-sm">
-            Log in to continue saving smarter.
-          </p>
+          <h1 className="text-3xl font-display font-bold tracking-tight">{t('login.title')}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">{t('login.subtitle')}</p>
         </div>
-
         <form onSubmit={handleSubmit} className="space-y-4 bg-card/50 backdrop-blur-xl border border-border rounded-xl p-6">
           <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com" className="mt-1 bg-muted/50 border-border" />
+            <Label htmlFor="email">{t('login.email')}</Label>
+            <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t('login.emailPlaceholder')} className="mt-1 bg-muted/50 border-border" />
           </div>
-
           <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="Your password" className="mt-1 bg-muted/50 border-border" />
+            <Label htmlFor="password">{t('login.password')}</Label>
+            <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={t('login.passwordPlaceholder')} className="mt-1 bg-muted/50 border-border" />
           </div>
-
           {error && <p className="text-sm text-overseez-red bg-overseez-red/10 rounded-lg p-3">{error}</p>}
-
-          <Button type="submit" variant="hero" size="xl" className="w-full" disabled={loading}>
-            {loading ? 'Logging in…' : 'Log In'}
-          </Button>
-
-          <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-overseez-blue hover:underline">Sign up</Link>
-          </p>
+          <Button type="submit" variant="hero" size="xl" className="w-full" disabled={loading}>{loading ? t('login.loggingIn') : t('login.loginBtn')}</Button>
+          <p className="text-center text-sm text-muted-foreground">{t('login.noAccount')}{' '}<Link to="/register" className="text-overseez-blue hover:underline">{t('login.signUp')}</Link></p>
         </form>
       </div>
     </div>
