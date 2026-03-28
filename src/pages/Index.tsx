@@ -129,8 +129,7 @@ export default function Index() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 overseez-gradient-hero" />
+      <WavyBackground className="min-h-[92vh] flex items-center justify-center">
         <FloatingOvals />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 pb-16">
