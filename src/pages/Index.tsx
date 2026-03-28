@@ -202,7 +202,7 @@ export default function Index() {
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-10">
           <OverseezLogo size={128} color="white" />
         </div>
-      </section>
+      </WavyBackground>
 
 
       {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
