@@ -16,6 +16,7 @@ const NAV_LINKS = [
 
 export default function AppNav() {
   const { user, profile, signOut } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
