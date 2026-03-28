@@ -9,6 +9,8 @@ import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, Che
 import ReviewSection from '@/components/ReviewSection';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import GlobeComponent from '@/components/ui/globe';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -80,6 +82,7 @@ const testimonialsCol3 = TESTIMONIALS.slice(6, 9);
 
 export default function Index() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
 
@@ -102,24 +105,25 @@ export default function Index() {
             <span className="font-display text-lg font-bold tracking-tight leading-none -ml-3">Overseez</span>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-foreground transition-colors">How it works</a>
-            <a href="#reviews" className="hover:text-foreground transition-colors">Reviews</a>
-            {user && <Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>}
-            {user && <Link to="/search" className="hover:text-foreground transition-colors">AI Assistant</Link>}
+            <a href="#features" className="hover:text-foreground transition-colors">{t('footer.features')}</a>
+            <a href="#how-it-works" className="hover:text-foreground transition-colors">{t('footer.howItWorks')}</a>
+            <a href="#reviews" className="hover:text-foreground transition-colors">{t('footer.reviews')}</a>
+            {user && <Link to="/dashboard" className="hover:text-foreground transition-colors">{t('nav.dashboard')}</Link>}
+            {user && <Link to="/search" className="hover:text-foreground transition-colors">{t('nav.aiAssistant')}</Link>}
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher compact />
             {user ? (
               <Link to="/dashboard">
-                <Button variant="hero" size="sm">Dashboard</Button>
+                <Button variant="hero" size="sm">{t('nav.dashboard')}</Button>
               </Link>
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="ghost" size="sm">Log in</Button>
+                  <Button variant="ghost" size="sm">{t('login.loginBtn')}</Button>
                 </Link>
                 <Link to="/register">
-                  <Button variant="hero" size="sm">Sign Up Free</Button>
+                  <Button variant="hero" size="sm">{t('footer.signUp')}</Button>
                 </Link>
               </>
             )}
@@ -136,27 +140,27 @@ export default function Index() {
           <div className="animate-fade-in-up">
             <div className="inline-flex items-center gap-2 bg-muted/20 border border-border/50 rounded-full px-4 py-1.5 mb-8 text-xs text-muted-foreground">
               <div className="w-1.5 h-1.5 rounded-full bg-overseez-green animate-pulse" />
-              AI-powered price intelligence
+              {t('hero.badge')}
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight leading-[1.05] mb-6">
-              Stop paying the{' '}
-              <span className="overseez-text-gradient">foreigner tax.</span>
+              {t('hero.title1')}{' '}
+              <span className="overseez-text-gradient">{t('hero.titleHighlight')}</span>
               <br className="hidden sm:block" />
-              Start saving instantly.
+              {t('hero.title2')}
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10 px-2">
-              Every day you overpay for groceries, coffee, and transport — simply because you don't know the local prices. Overseez uses AI to find the cheapest options near you, in your currency, so you stop guessing and start keeping your money.
+              {t('hero.subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
-                Try AI Now
+                {t('hero.tryAI')}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goSub}>
-                See Cheaper Options
+                {t('hero.seeOptions')}
               </Button>
             </div>
           </div>
@@ -165,34 +169,24 @@ export default function Index() {
           <div className="mt-14 sm:mt-16 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <div className="inline-flex flex-wrap justify-center gap-6 sm:gap-12 border border-border/30 bg-card/20 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-5">
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={47.2} suffix="%" decimals={1} />
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">avg. savings</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={47.2} suffix="%" decimals={1} /></p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.avgSavings')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  $<AnimatedCounter end={2340} decimals={0} />
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">saved per user</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">$<AnimatedCounter end={2340} decimals={0} /></p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.savedPerUser')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={200} decimals={0} suffix="+" />
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">active users</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={200} decimals={0} suffix="+" /></p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.activeUsers')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={25} decimals={0} suffix="+" />
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">countries</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={25} decimals={0} suffix="+" /></p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.countries')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">
-                  <AnimatedCounter end={4.9} decimals={1} />★
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">user rating</p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={4.9} decimals={1} />★</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('hero.userRating')}</p>
               </div>
             </div>
           </div>

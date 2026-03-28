@@ -6,6 +6,7 @@ import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
 import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function getMilestones(total: number): number[] {
   const base = [5, 25, 50, 100, 250, 500, 1000];
@@ -25,6 +26,7 @@ function formatMilestone(sym: string, m: number): string {
 }
 
 export default function Profile() {
+  const { t } = useTranslation();
   const { profile, user, subscribed } = useAuth();
   const [usageLeft, setUsageLeft] = useState(5);
   const [animatedTotal, setAnimatedTotal] = useState(0);
@@ -44,12 +46,10 @@ export default function Profile() {
 
   useEffect(() => {
     if (totalSaved === 0) { setAnimatedTotal(0); return; }
-    const dur = 800;
-    const t0 = performance.now();
+    const dur = 800; const t0 = performance.now();
     const step = (now: number) => {
       const p = Math.min((now - t0) / dur, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      setAnimatedTotal(totalSaved * ease);
+      setAnimatedTotal(totalSaved * (1 - Math.pow(1 - p, 3)));
       if (p < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
@@ -58,7 +58,6 @@ export default function Profile() {
   const milestones = getMilestones(totalSaved);
   const goalMax = milestones[milestones.length - 1];
   const pct = Math.min((totalSaved / goalMax) * 100, 100);
-  // Only show milestones that are spaced enough apart (>8% of bar)
   const visibleMilestones = milestones.reduce<number[]>((acc, m) => {
     const pos = (m / goalMax) * 100;
     const lastPos = acc.length > 0 ? (acc[acc.length - 1] / goalMax) * 100 : -20;
@@ -72,98 +71,68 @@ export default function Profile() {
       <AppNav />
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-display font-bold tracking-tight">Your Profile</h1>
+          <h1 className="text-2xl font-display font-bold tracking-tight">{t('profile.title')}</h1>
           <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} />
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-overseez-blue/20 flex items-center justify-center">
-              <User className="w-8 h-8 text-overseez-blue" />
-            </div>
+            <div className="w-16 h-16 rounded-full bg-overseez-blue/20 flex items-center justify-center"><User className="w-8 h-8 text-overseez-blue" /></div>
             <div>
               <h2 className="text-xl font-display font-semibold">{profile?.full_name || 'User'}</h2>
               <p className="text-sm text-muted-foreground">@{profile?.nickname || 'user'}</p>
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-4">
-            <InfoItem icon={<Calendar className="w-4 h-4" />} label="Birth Date"
-              value={profile?.birth_date ? new Date(profile.birth_date).toLocaleDateString() : '—'} />
-            <InfoItem icon={<User className="w-4 h-4" />} label="Email"
-              value={user?.email || '—'} />
-            <InfoItem icon={<Wallet className="w-4 h-4" />} label="Currency"
-              value={`${getCurrencySymbol(profileCurrency)} (${profileCurrency})`} />
-            <InfoItem icon={<Star className="w-4 h-4" />} label="Subscription"
-              value={subscribed ? 'Premium' : 'Free Plan'} />
+            <InfoItem icon={<Calendar className="w-4 h-4" />} label={t('profile.birthDate')} value={profile?.birth_date ? new Date(profile.birth_date).toLocaleDateString() : '—'} />
+            <InfoItem icon={<User className="w-4 h-4" />} label={t('profile.email')} value={user?.email || '—'} />
+            <InfoItem icon={<Wallet className="w-4 h-4" />} label={t('profile.currency')} value={`${getCurrencySymbol(profileCurrency)} (${profileCurrency})`} />
+            <InfoItem icon={<Star className="w-4 h-4" />} label={t('profile.subscriptionLabel')} value={subscribed ? t('profile.premium') : t('profile.freePlan')} />
           </div>
         </div>
 
-        {/* Savings Progress */}
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-3 mb-4">
-            <TrendingUp className="w-5 h-5 text-overseez-blue" />
-            <h3 className="font-display font-semibold">Savings Progress</h3>
-          </div>
+          <div className="flex items-center gap-3 mb-4"><TrendingUp className="w-5 h-5 text-overseez-blue" /><h3 className="font-display font-semibold">{t('profile.savingsProgress')}</h3></div>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-2xl font-display font-bold tracking-tight">
-              {sym}{animatedTotal.toFixed(2)}
-            </p>
-            <p className="text-xs text-muted-foreground">Goal: {sym}{goalMax.toLocaleString()}</p>
+            <p className="text-2xl font-display font-bold tracking-tight">{sym}{animatedTotal.toFixed(2)}</p>
+            <p className="text-xs text-muted-foreground">{t('profile.goal')} {sym}{goalMax.toLocaleString()}</p>
           </div>
           <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
-            <div className="h-full rounded-full bg-gradient-to-r from-overseez-blue to-overseez-green transition-all duration-700"
-              style={{ width: `${pct}%` }} />
+            <div className="h-full rounded-full bg-gradient-to-r from-overseez-blue to-overseez-green transition-all duration-700" style={{ width: `${pct}%` }} />
           </div>
           <div className="relative h-6 mt-1">
             {visibleMilestones.map(m => (
-              <div
-                key={m}
-                className="absolute top-0 flex flex-col items-center gap-0.5"
-                style={{ left: `${(m / goalMax) * 100}%`, transform: 'translateX(-50%)' }}
-              >
+              <div key={m} className="absolute top-0 flex flex-col items-center gap-0.5" style={{ left: `${(m / goalMax) * 100}%`, transform: 'translateX(-50%)' }}>
                 <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
-                <span className={`text-[10px] whitespace-nowrap ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>
-                  {formatMilestone(sym, m)}
-                </span>
+                <span className={`text-[10px] whitespace-nowrap ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>{formatMilestone(sym, m)}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Usage */}
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display font-semibold">AI Usage</h3>
-            <span className="text-sm text-muted-foreground">
-              {subscribed ? 'Unlimited' : `${usageLeft} / 5 remaining`}
-            </span>
+            <h3 className="font-display font-semibold">{t('profile.aiUsage')}</h3>
+            <span className="text-sm text-muted-foreground">{subscribed ? t('search.unlimited') : `${usageLeft} / 5 ${t('profile.remaining')}`}</span>
           </div>
           {!subscribed && (
             <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-500 ${usageLeft <= 1 ? 'bg-overseez-red' : usageLeft <= 2 ? 'bg-overseez-gold' : 'bg-overseez-blue'}`}
-                style={{ width: `${(usageLeft / 5) * 100}%` }} />
+              <div className={`h-full rounded-full transition-all duration-500 ${usageLeft <= 1 ? 'bg-overseez-red' : usageLeft <= 2 ? 'bg-overseez-gold' : 'bg-overseez-blue'}`} style={{ width: `${(usageLeft / 5) * 100}%` }} />
             </div>
           )}
-          <p className="text-xs text-muted-foreground mt-2">
-            {subscribed ? 'Premium subscribers have unlimited AI access.' : 'Free questions reset every 24 hours.'}
-          </p>
+          <p className="text-xs text-muted-foreground mt-2">{subscribed ? t('profile.premiumUnlimited') : t('profile.freeReset')}</p>
         </div>
 
-        {/* Account */}
         <div className="bg-card border border-border rounded-xl p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Shield className="w-5 h-5 text-muted-foreground" />
-            <h3 className="font-display font-semibold">Account</h3>
-          </div>
+          <div className="flex items-center gap-3 mb-4"><Shield className="w-5 h-5 text-muted-foreground" /><h3 className="font-display font-semibold">{t('profile.account')}</h3></div>
           <div className="space-y-3">
             <Link to="/subscription" className="flex items-center justify-between bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-colors">
-              <span className="text-sm">Manage Subscription</span>
-              <span className="text-xs text-muted-foreground">{subscribed ? 'Premium' : 'Free Plan'} →</span>
+              <span className="text-sm">{t('profile.manageSubscription')}</span>
+              <span className="text-xs text-muted-foreground">{subscribed ? t('profile.premium') : t('profile.freePlan')} →</span>
             </Link>
             <Link to="/terms" className="flex items-center justify-between bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-colors">
-              <span className="text-sm">Terms & Conditions</span>
-              <span className="text-xs text-muted-foreground">View →</span>
+              <span className="text-sm">{t('profile.termsConditions')}</span>
+              <span className="text-xs text-muted-foreground">{t('profile.view')}</span>
             </Link>
           </div>
         </div>
@@ -175,10 +144,7 @@ export default function Profile() {
 function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="bg-muted/30 rounded-lg p-3">
-      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
-        {icon}
-        <span className="text-xs uppercase tracking-wider font-medium">{label}</span>
-      </div>
+      <div className="flex items-center gap-1.5 text-muted-foreground mb-1">{icon}<span className="text-xs uppercase tracking-wider font-medium">{label}</span></div>
       <p className="text-sm font-medium truncate">{value}</p>
     </div>
   );
