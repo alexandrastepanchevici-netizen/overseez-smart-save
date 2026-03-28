@@ -65,9 +65,15 @@ const TESTIMONIAL_IMAGES = [
   "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=100&h=100&fit=crop",
 ];
 
-const testimonialsCol1 = TESTIMONIALS.slice(0, 3);
-const testimonialsCol2 = TESTIMONIALS.slice(3, 6);
-const testimonialsCol3 = TESTIMONIALS.slice(6, 9);
+function useTestimonials() {
+  const { t } = useTranslation();
+  return Array.from({ length: 9 }, (_, i) => ({
+    text: t(`testimonials.items.${i}.text`),
+    image: TESTIMONIAL_IMAGES[i],
+    name: t(`testimonials.items.${i}.name`),
+    role: t(`testimonials.items.${i}.role`),
+  }));
+}
 
 export default function Index() {
   const { user } = useAuth();
