@@ -348,7 +348,26 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ─── FEEDBACK ─── */}
+      {/* ─── TESTIMONIALS ─── */}
+      <section className="py-24 px-4 sm:px-6 relative overflow-hidden bg-overseez-mid">
+        <div className="max-w-6xl mx-auto relative z-10">
+          <RevealSection className="text-center mb-12">
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Testimonials</p>
+            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
+              What our users say
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
+              Real stories from people saving real money abroad.
+            </p>
+          </RevealSection>
+          <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[600px] overflow-hidden">
+            <TestimonialsColumn testimonials={testimonialsCol1} duration={15} className="hidden md:block" />
+            <TestimonialsColumn testimonials={testimonialsCol2} duration={19} />
+            <TestimonialsColumn testimonials={testimonialsCol3} duration={17} className="hidden lg:block" />
+          </div>
+        </div>
+      </section>
+
       <section id="reviews" className="py-20 px-4 sm:px-6 relative overflow-hidden">
         <div className="max-w-6xl mx-auto relative z-10">
           <RevealSection className="text-center mb-10">
