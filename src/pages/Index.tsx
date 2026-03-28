@@ -140,27 +140,27 @@ export default function Index() {
           <div className="animate-fade-in-up">
             <div className="inline-flex items-center gap-2 bg-muted/20 border border-border/50 rounded-full px-4 py-1.5 mb-8 text-xs text-muted-foreground">
               <div className="w-1.5 h-1.5 rounded-full bg-overseez-green animate-pulse" />
-              AI-powered price intelligence
+              {t('hero.badge')}
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight leading-[1.05] mb-6">
-              Stop paying the{' '}
-              <span className="overseez-text-gradient">foreigner tax.</span>
+              {t('hero.title1')}{' '}
+              <span className="overseez-text-gradient">{t('hero.titleHighlight')}</span>
               <br className="hidden sm:block" />
-              Start saving instantly.
+              {t('hero.title2')}
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10 px-2">
-              Every day you overpay for groceries, coffee, and transport — simply because you don't know the local prices. Overseez uses AI to find the cheapest options near you, in your currency, so you stop guessing and start keeping your money.
+              {t('hero.subtitle')}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
-                Try AI Now
+                {t('hero.tryAI')}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goSub}>
-                See Cheaper Options
+                {t('hero.seeOptions')}
               </Button>
             </div>
           </div>
