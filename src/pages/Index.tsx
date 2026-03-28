@@ -6,6 +6,7 @@ import OverseezLogo from '@/components/OverseezLogo';
 import FloatingOvals from '@/components/FloatingOvals';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, ChevronRight, Instagram } from 'lucide-react';
+import ReviewSection from '@/components/ReviewSection';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -31,14 +32,6 @@ function RevealSection({ children, className = '', delay = 0 }: { children: Reac
   );
 }
 
-const REVIEWS = [
-  { name: 'Amara K.', loc: 'London, UK', text: 'Overseez helped me find groceries 30% cheaper just two streets away. I save about $58 a week now.', stars: 5 },
-  { name: 'Daniel M.', loc: 'Berlin, DE', text: 'As an exchange student, the bank fee calculator alone is worth it. I avoided $220 in hidden charges.', stars: 5 },
-  { name: 'Sofia R.', loc: 'Barcelona, ES', text: 'The AI comparison is surprisingly accurate. I use it every time I travel to find the best local prices.', stars: 5 },
-  { name: 'Kwame A.', loc: 'Accra, GH', text: 'Finally a finance tool that actually works for everyday shopping. The savings tracker keeps me motivated.', stars: 4 },
-  { name: 'Yuki T.', loc: 'Tokyo, JP', text: 'The location-based search changed how I shop abroad. Clean UI, fast results, and real savings.', stars: 5 },
-  { name: 'Liam O.', loc: 'Dublin, IE', text: 'I was sceptical at first, but in three months I\'ve tracked over $420 in savings. The data doesn\'t lie.', stars: 5 },
-];
 
 const FEATURES = [
   { icon: <Search className="w-5 h-5" />, title: 'AI Price Comparison', desc: 'Get the top 5 cheapest options near you for anything — groceries, petrol, coffee, hotels.' },
@@ -349,29 +342,7 @@ export default function Index() {
             </h2>
           </RevealSection>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {REVIEWS.map((r, i) => (
-              <RevealSection key={r.name} delay={i * 80}>
-                <div className="bg-card border border-border rounded-xl p-6 overseez-card-hover h-full flex flex-col">
-                  <div className="flex gap-0.5 mb-4">
-                    {Array.from({ length: 5 }).map((_, si) => (
-                      <Star key={si} className={`w-4 h-4 ${si < r.stars ? 'text-overseez-gold fill-overseez-gold' : 'text-muted-foreground/20'}`} />
-                    ))}
-                  </div>
-                  <p className="text-sm text-foreground/85 leading-relaxed flex-1 mb-4">"{r.text}"</p>
-                  <div className="flex items-center gap-3 pt-3 border-t border-border/50">
-                    <div className="w-9 h-9 rounded-full bg-overseez-blue/15 flex items-center justify-center text-xs font-bold text-overseez-blue">
-                      {r.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{r.name}</p>
-                      <p className="text-xs text-muted-foreground">{r.loc}</p>
-                    </div>
-                  </div>
-                </div>
-              </RevealSection>
-            ))}
-          </div>
+          <ReviewSection />
         </div>
       </section>
 
