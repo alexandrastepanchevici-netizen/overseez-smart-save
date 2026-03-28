@@ -53,27 +53,37 @@ const COMPARISONS = [
   { key: 'monthlyTransport', before: '175.00', after: '109.00' },
 ];
 
-const TESTIMONIALS = [
-  { text: "I came to Berlin on a FLEX exchange program and was shocked at grocery prices. Overseez showed me stores 40% cheaper just two blocks from my dorm.", image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop", name: "Sofia M.", role: "FLEX Exchange Student, Berlin" },
-  { text: "As a uni student in London, every pound matters. This tool helped me find cheaper food, transport, and even my gym membership.", image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop", name: "Daniel K.", role: "Exchange Student, King's College London" },
-  { text: "Did Work and Travel in the US last summer. Overseez saved me from tourist traps and found local prices in every city I visited.", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&h=100&fit=crop", name: "Mia L.", role: "Work & Travel, USA" },
-  { text: "The savings tracker is addictive. Watching my monthly savings climb past $200 during my YES program year was incredibly motivating.", image: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=100&h=100&fit=crop", name: "James R.", role: "YES Program, Portland" },
-  { text: "I recommend Overseez to every international student. The AI is surprisingly accurate and the Google Maps links are a lifesaver on campus.", image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=100&h=100&fit=crop", name: "Aisha T.", role: "Int'l Student, University of Melbourne" },
-  { text: "As an Au Pair in France, my budget was tight. Overseez helped me plan every purchase smarter and avoid hidden bank fees.", image: "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&h=100&fit=crop", name: "Luca B.", role: "Au Pair, Paris" },
-  { text: "The currency conversion feature is seamless. During my Erasmus semester I always knew exactly what I was paying in my home currency.", image: "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=100&h=100&fit=crop", name: "Elena V.", role: "Erasmus Student, Barcelona" },
-  { text: "Honestly didn't expect much, but the first search saved me €15 on weekly groceries. Been hooked since my first week abroad.", image: "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&h=100&fit=crop", name: "Marco P.", role: "Exchange Student, Amsterdam" },
-  { text: "The location-based search is brilliant. It finds deals I would never discover on my own, even after a full semester at Waseda.", image: "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=100&h=100&fit=crop", name: "Yuki S.", role: "Int'l Student, Waseda University" },
+const TESTIMONIAL_IMAGES = [
+  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=100&h=100&fit=crop",
 ];
 
-const testimonialsCol1 = TESTIMONIALS.slice(0, 3);
-const testimonialsCol2 = TESTIMONIALS.slice(3, 6);
-const testimonialsCol3 = TESTIMONIALS.slice(6, 9);
+function useTestimonials() {
+  const { t } = useTranslation();
+  return Array.from({ length: 9 }, (_, i) => ({
+    text: t(`testimonials.items.${i}.text`),
+    image: TESTIMONIAL_IMAGES[i],
+    name: t(`testimonials.items.${i}.name`),
+    role: t(`testimonials.items.${i}.role`),
+  }));
+}
 
 export default function Index() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const testimonials = useTestimonials();
+  const testimonialsCol1 = testimonials.slice(0, 3);
+  const testimonialsCol2 = testimonials.slice(3, 6);
+  const testimonialsCol3 = testimonials.slice(6, 9);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40);

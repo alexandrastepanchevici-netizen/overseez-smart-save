@@ -78,7 +78,18 @@
   "testimonials": {
     "label": "用户评价",
     "title": "用户怎么说",
-    "subtitle": "在海外省下真金白银的真实故事。"
+    "subtitle": "在海外省下真金白银的真实故事。",
+    "items": [
+      { "text": "我通过 FLEX 交换项目来到柏林，超市价格让我震惊。Overseez 告诉我离宿舍两条街就有便宜 40% 的商店。", "name": "Sofia M.", "role": "FLEX 交换生，柏林" },
+      { "text": "作为伦敦的大学生，每一英镑都很重要。这个工具帮我找到了更便宜的食物、交通，甚至健身房会员。", "name": "Daniel K.", "role": "交换生，伦敦国王学院" },
+      { "text": "去年夏天我在美国参加了 Work and Travel。Overseez 让我避开了旅游陷阱，在每个城市都找到了当地价格。", "name": "Mia L.", "role": "Work & Travel，美国" },
+      { "text": "省钱追踪器让人上瘾。看着我在 YES 项目那年的月度节省超过 200 美元，真的很有成就感。", "name": "James R.", "role": "YES 项目，波特兰" },
+      { "text": "我向每一位留学生推荐 Overseez。AI 出奇地准确，Google Maps 链接在校园里简直是救星。", "name": "Aisha T.", "role": "留学生，墨尔本大学" },
+      { "text": "作为法国的互惠生，我的预算很紧。Overseez 帮我精打细算，避免了隐藏的银行手续费。", "name": "Luca B.", "role": "互惠生，巴黎" },
+      { "text": "货币转换功能非常流畅。在我的 Erasmus 学期中，我总是清楚地知道自己用本国货币付了多少。", "name": "Elena V.", "role": "Erasmus 学生，巴塞罗那" },
+      { "text": "老实说没抱太大期望，但第一次搜索就帮我每周的杂货省了 15 欧元。从出国第一周就离不开了。", "name": "Marco P.", "role": "交换生，阿姆斯特丹" },
+      { "text": "基于位置的搜索太棒了。它能找到我自己绝对发现不了的优惠，即使在早稻田读了一整个学期也是如此。", "name": "Yuki S.", "role": "留学生，早稻田大学" }
+    ]
   },
   "feedback": {
     "label": "反馈",
