@@ -9,6 +9,8 @@ import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, Che
 import ReviewSection from '@/components/ReviewSection';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import GlobeComponent from '@/components/ui/globe';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
