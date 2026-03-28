@@ -84,6 +84,7 @@ export default function AppNav() {
               </div>
             </>
           )}
+          </div>
         </div>
       </div>
     </nav>
