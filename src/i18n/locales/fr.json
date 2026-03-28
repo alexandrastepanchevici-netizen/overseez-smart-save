@@ -78,7 +78,18 @@
   "testimonials": {
     "label": "Témoignages",
     "title": "Ce que disent nos utilisateurs",
-    "subtitle": "De vraies histoires de personnes qui économisent à l'étranger."
+    "subtitle": "De vraies histoires de personnes qui économisent à l'étranger.",
+    "items": [
+      { "text": "Je suis arrivée à Berlin avec le programme d'échange FLEX et j'ai été choquée par les prix des courses. Overseez m'a montré des magasins 40 % moins chers à deux rues de ma résidence.", "name": "Sofia M.", "role": "Étudiante FLEX, Berlin" },
+      { "text": "En tant qu'étudiant à Londres, chaque livre compte. Cet outil m'a aidé à trouver de la nourriture, des transports et même un abonnement de salle de sport moins chers.", "name": "Daniel K.", "role": "Étudiant en échange, King's College London" },
+      { "text": "J'ai fait Work and Travel aux États-Unis l'été dernier. Overseez m'a sauvée des pièges à touristes et m'a trouvé les prix locaux dans chaque ville.", "name": "Mia L.", "role": "Work & Travel, États-Unis" },
+      { "text": "Le suivi des économies est addictif. Voir mes économies mensuelles dépasser 200 $ pendant mon année YES était incroyablement motivant.", "name": "James R.", "role": "Programme YES, Portland" },
+      { "text": "Je recommande Overseez à tous les étudiants internationaux. L'IA est étonnamment précise et les liens Google Maps sont indispensables sur le campus.", "name": "Aisha T.", "role": "Étudiante int., Université de Melbourne" },
+      { "text": "En tant qu'Au Pair en France, mon budget était serré. Overseez m'a aidé à planifier chaque achat et à éviter les frais bancaires cachés.", "name": "Luca B.", "role": "Au Pair, Paris" },
+      { "text": "La conversion de devises est fluide. Pendant mon semestre Erasmus, je savais toujours exactement ce que je payais dans ma monnaie.", "name": "Elena V.", "role": "Étudiante Erasmus, Barcelone" },
+      { "text": "Honnêtement, je n'attendais pas grand-chose, mais la première recherche m'a fait économiser 15 € sur les courses hebdomadaires. Accro depuis ma première semaine.", "name": "Marco P.", "role": "Étudiant en échange, Amsterdam" },
+      { "text": "La recherche par localisation est géniale. Elle trouve des offres que je n'aurais jamais découvertes seul, même après un semestre entier à Waseda.", "name": "Yuki S.", "role": "Étudiant int., Université Waseda" }
+    ]
   },
   "feedback": {
     "label": "Retours",

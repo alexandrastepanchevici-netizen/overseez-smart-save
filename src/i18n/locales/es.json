@@ -78,7 +78,18 @@
   "testimonials": {
     "label": "Testimonios",
     "title": "Lo que dicen nuestros usuarios",
-    "subtitle": "Historias reales de personas ahorrando dinero real en el extranjero."
+    "subtitle": "Historias reales de personas ahorrando dinero real en el extranjero.",
+    "items": [
+      { "text": "Llegué a Berlín con el programa de intercambio FLEX y me sorprendieron los precios del supermercado. Overseez me mostró tiendas un 40 % más baratas a dos cuadras de mi residencia.", "name": "Sofia M.", "role": "Estudiante FLEX, Berlín" },
+      { "text": "Como estudiante en Londres, cada libra cuenta. Esta herramienta me ayudó a encontrar comida, transporte e incluso mi membresía de gimnasio más baratos.", "name": "Daniel K.", "role": "Estudiante de intercambio, King's College London" },
+      { "text": "Hice Work and Travel en EE. UU. el verano pasado. Overseez me salvó de las trampas para turistas y encontró precios locales en cada ciudad.", "name": "Mia L.", "role": "Work & Travel, EE. UU." },
+      { "text": "El seguimiento de ahorros es adictivo. Ver mis ahorros mensuales superar los $200 durante mi año en el programa YES fue increíblemente motivador.", "name": "James R.", "role": "Programa YES, Portland" },
+      { "text": "Recomiendo Overseez a todos los estudiantes internacionales. La IA es sorprendentemente precisa y los enlaces de Google Maps son imprescindibles en el campus.", "name": "Aisha T.", "role": "Estudiante int., Universidad de Melbourne" },
+      { "text": "Como Au Pair en Francia, mi presupuesto era ajustado. Overseez me ayudó a planificar cada compra y evitar comisiones bancarias ocultas.", "name": "Luca B.", "role": "Au Pair, París" },
+      { "text": "La conversión de divisas es impecable. Durante mi semestre Erasmus siempre supe exactamente lo que pagaba en mi moneda.", "name": "Elena V.", "role": "Estudiante Erasmus, Barcelona" },
+      { "text": "Sinceramente no esperaba mucho, pero la primera búsqueda me ahorró 15 € en las compras semanales. Enganchado desde mi primera semana.", "name": "Marco P.", "role": "Estudiante de intercambio, Ámsterdam" },
+      { "text": "La búsqueda por ubicación es genial. Encuentra ofertas que nunca descubriría solo, incluso después de un semestre completo en Waseda.", "name": "Yuki S.", "role": "Estudiante int., Universidad Waseda" }
+    ]
   },
   "feedback": {
     "label": "Comentarios",
