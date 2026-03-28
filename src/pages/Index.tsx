@@ -105,24 +105,25 @@ export default function Index() {
             <span className="font-display text-lg font-bold tracking-tight leading-none -ml-3">Overseez</span>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-foreground transition-colors">How it works</a>
-            <a href="#reviews" className="hover:text-foreground transition-colors">Reviews</a>
-            {user && <Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>}
-            {user && <Link to="/search" className="hover:text-foreground transition-colors">AI Assistant</Link>}
+            <a href="#features" className="hover:text-foreground transition-colors">{t('footer.features')}</a>
+            <a href="#how-it-works" className="hover:text-foreground transition-colors">{t('footer.howItWorks')}</a>
+            <a href="#reviews" className="hover:text-foreground transition-colors">{t('footer.reviews')}</a>
+            {user && <Link to="/dashboard" className="hover:text-foreground transition-colors">{t('nav.dashboard')}</Link>}
+            {user && <Link to="/search" className="hover:text-foreground transition-colors">{t('nav.aiAssistant')}</Link>}
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher compact />
             {user ? (
               <Link to="/dashboard">
-                <Button variant="hero" size="sm">Dashboard</Button>
+                <Button variant="hero" size="sm">{t('nav.dashboard')}</Button>
               </Link>
             ) : (
               <>
                 <Link to="/login">
-                  <Button variant="ghost" size="sm">Log in</Button>
+                  <Button variant="ghost" size="sm">{t('login.loginBtn')}</Button>
                 </Link>
                 <Link to="/register">
-                  <Button variant="hero" size="sm">Sign Up Free</Button>
+                  <Button variant="hero" size="sm">{t('footer.signUp')}</Button>
                 </Link>
               </>
             )}
