@@ -73,13 +73,13 @@ export default function AppNav() {
                   {NAV_LINKS.map(link => (
                     <Link key={link.to} to={link.to} onClick={() => setOpen(false)}
                       className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors">
-                      <link.icon className="w-4 h-4 text-muted-foreground" /> {link.label}
+                      <link.icon className="w-4 h-4 text-muted-foreground" /> {t(link.labelKey)}
                     </Link>
                   ))}
                 </div>
                 <button onClick={handleLogout}
                   className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted transition-colors w-full text-left text-overseez-red">
-                  <LogOut className="w-4 h-4" /> Logout
+                  <LogOut className="w-4 h-4" /> {t('nav.logout')}
                 </button>
               </div>
             </>
