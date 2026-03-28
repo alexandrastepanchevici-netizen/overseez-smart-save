@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AppNav from '@/components/AppNav';
+import FloatingOvals from '@/components/FloatingOvals';
 import { Button } from '@/components/ui/button';
 import { Check, Zap, Loader2, ArrowRight, Coffee } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
