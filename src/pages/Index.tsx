@@ -350,29 +350,7 @@ export default function Index() {
             </h2>
           </RevealSection>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {REVIEWS.map((r, i) => (
-              <RevealSection key={r.name} delay={i * 80}>
-                <div className="bg-card border border-border rounded-xl p-6 overseez-card-hover h-full flex flex-col">
-                  <div className="flex gap-0.5 mb-4">
-                    {Array.from({ length: 5 }).map((_, si) => (
-                      <Star key={si} className={`w-4 h-4 ${si < r.stars ? 'text-overseez-gold fill-overseez-gold' : 'text-muted-foreground/20'}`} />
-                    ))}
-                  </div>
-                  <p className="text-sm text-foreground/85 leading-relaxed flex-1 mb-4">"{r.text}"</p>
-                  <div className="flex items-center gap-3 pt-3 border-t border-border/50">
-                    <div className="w-9 h-9 rounded-full bg-overseez-blue/15 flex items-center justify-center text-xs font-bold text-overseez-blue">
-                      {r.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{r.name}</p>
-                      <p className="text-xs text-muted-foreground">{r.loc}</p>
-                    </div>
-                  </div>
-                </div>
-              </RevealSection>
-            ))}
-          </div>
+          <ReviewSection />
         </div>
       </section>
 
