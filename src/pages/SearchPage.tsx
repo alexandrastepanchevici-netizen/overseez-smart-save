@@ -279,7 +279,8 @@ export default function SearchPage() {
   const bankFeeRate = bankInfo ? (bankInfo.overseasFeePercent || 0) / 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <FloatingOvals />
       <AppNav />
 
       {/* Search Header */}

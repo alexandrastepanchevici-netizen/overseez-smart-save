@@ -55,7 +55,8 @@ export default function Subscription() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <FloatingOvals />
       <AppNav />
       <div className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-display font-bold tracking-tight mb-2">Subscription</h1>
