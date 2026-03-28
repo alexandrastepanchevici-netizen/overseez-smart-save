@@ -9,7 +9,6 @@ import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, Che
 import ReviewSection from '@/components/ReviewSection';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import GlobeComponent from '@/components/ui/globe';
-import WavyBackground from '@/components/ui/blue-meshy-background';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -129,7 +128,8 @@ export default function Index() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <WavyBackground className="min-h-[92vh] flex items-center justify-center">
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 overseez-gradient-hero" />
         <FloatingOvals />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 pb-16">
@@ -202,7 +202,7 @@ export default function Index() {
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-10">
           <OverseezLogo size={128} color="white" />
         </div>
-      </WavyBackground>
+      </section>
 
 
       {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
