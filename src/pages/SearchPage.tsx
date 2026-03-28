@@ -8,6 +8,7 @@ import { Search, MapPin, Building2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface Place {
   rank: number;
@@ -36,15 +37,6 @@ interface SearchResult {
   sales: any[];
 }
 
-const QUICK_SEARCHES = [
-  { label: '🛒 Groceries', q: 'Groceries & supermarkets' },
-  { label: '⛽ Petrol', q: 'Petrol & fuel stations' },
-  { label: '☕ Coffee', q: 'Coffee shops & cafés' },
-  { label: '🏨 Hotels', q: 'Budget hotels & accommodation' },
-  { label: '💊 Pharmacy', q: 'Pharmacies & medicines' },
-  { label: '🍔 Takeaway', q: 'Takeaway & fast food' },
-];
-
 function getCategoryEmoji(type: string): string {
   if (!type) return '📍';
   const t = type.toLowerCase();
@@ -71,6 +63,7 @@ function formatCountdown(ms: number): string {
 export default function SearchPage() {
   const { user, subscribed, profile } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [bankName, setBankName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -79,7 +72,7 @@ export default function SearchPage() {
   const [combinedPlaces, setCombinedPlaces] = useState<Place[]>([]);
   const [error, setError] = useState('');
   const [loc, setLoc] = useState<{ lat: number; lng: number; city: string; cc: string } | null>(null);
-  const [locStatus, setLocStatus] = useState('Location not set');
+  const [locStatus, setLocStatus] = useState(t('search.locationNotSet'));
   const [customLocation, setCustomLocation] = useState('');
   const [useCustomLoc, setUseCustomLoc] = useState(false);
   const [usageLeft, setUsageLeft] = useState(FREE_LIMIT);
@@ -107,6 +100,15 @@ export default function SearchPage() {
   const formatDisplay = (amount: number, fromCode: string = resultCurrencyCode) =>
     `${currencySymbol}${toDisplay(amount, fromCode).toFixed(2)}`;
 
+  const QUICK_SEARCHES = [
+    { label: t('search.groceries'), q: 'Groceries & supermarkets' },
+    { label: t('search.petrol'), q: 'Petrol & fuel stations' },
+    { label: t('search.coffee'), q: 'Coffee shops & cafés' },
+    { label: t('search.hotels'), q: 'Budget hotels & accommodation' },
+    { label: t('search.pharmacy'), q: 'Pharmacies & medicines' },
+    { label: t('search.takeaway'), q: 'Takeaway & fast food' },
+  ];
+
   // Check usage and get oldest usage timestamp for timer
   useEffect(() => {
     if (!user || subscribed) return;
@@ -118,7 +120,6 @@ export default function SearchPage() {
         const used = count || 0;
         setUsageLeft(Math.max(0, FREE_LIMIT - used));
         if (data && data.length > 0) {
-          // The oldest usage in the last 24h — that's when the first credit resets
           setOldestUsageTime(new Date(data[0].created_at).getTime());
         } else {
           setOldestUsageTime(null);
@@ -137,7 +138,6 @@ export default function SearchPage() {
       const remaining = resetAt - Date.now();
       if (remaining <= 0) {
         setResetCountdown('');
-        // Refresh usage
         setUsageLeft(prev => Math.min(FREE_LIMIT, prev + 1));
         setOldestUsageTime(null);
         return;
@@ -152,7 +152,7 @@ export default function SearchPage() {
   // Request location
   const requestLocation = useCallback(() => {
     if (!navigator.geolocation) return;
-    setLocStatus('Detecting…');
+    setLocStatus(t('search.detecting'));
     navigator.geolocation.getCurrentPosition(async pos => {
       const { latitude: lat, longitude: lng } = pos.coords;
       try {
@@ -166,8 +166,8 @@ export default function SearchPage() {
         setLoc({ lat, lng, city: `${lat.toFixed(2)}, ${lng.toFixed(2)}`, cc: 'GB' });
         setLocStatus(`${lat.toFixed(2)}, ${lng.toFixed(2)}`);
       }
-    }, () => setLocStatus('Location unavailable'));
-  }, []);
+    }, () => setLocStatus(t('search.locationUnavailable')));
+  }, [t]);
 
   useEffect(() => {
     navigator.permissions?.query({ name: 'geolocation' as PermissionName }).then(p => {
@@ -179,8 +179,8 @@ export default function SearchPage() {
     const searchQ = q || query;
     if (!searchQ.trim()) return;
     if (!subscribed && usageLeft <= 0) {
-      toast.error('Free questions used up! Upgrade to Premium for unlimited access.', {
-        action: { label: 'Upgrade', onClick: () => navigate('/subscription') },
+      toast.error(t('search.usedUp'), {
+        action: { label: t('search.upgrade'), onClick: () => navigate('/subscription') },
       });
       return;
     }
@@ -267,9 +267,9 @@ export default function SearchPage() {
           total_saved: Number(prof.total_saved) + savedInProfileCurrency,
         }).eq('user_id', user.id);
       }
-      toast.success(`🎉 You saved ${currencySymbol}${saved.toFixed(2)}!`);
+      toast.success(t('search.youSaved', { amount: `${currencySymbol}${saved.toFixed(2)}` }));
     } else {
-      toast.info('Logged!');
+      toast.info(t('search.logged'));
     }
 
     setSpendModal({ open: false, place: null, avgVal: 0 });
@@ -290,7 +290,7 @@ export default function SearchPage() {
             <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <input ref={inputRef} type="text" value={query} onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && doSearch()}
-              placeholder="Search groceries, hotels, petrol…"
+              placeholder={t('search.placeholder')}
               className="bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground flex-1" />
             {query && (
               <button onClick={() => { setQuery(''); setResult(null); setCombinedPlaces([]); }}>
@@ -301,11 +301,11 @@ export default function SearchPage() {
           <div className="flex items-center gap-2 bg-muted/30 border border-border rounded-full px-3 py-2 min-w-[130px]">
             <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
             <input type="text" value={bankName} onChange={e => setBankName(e.target.value)}
-              placeholder="Your bank"
+              placeholder={t('search.yourBank')}
               className="bg-transparent border-none outline-none text-xs text-foreground placeholder:text-muted-foreground w-20" />
           </div>
           <Button onClick={() => doSearch()} variant="hero" size="sm" disabled={loading || !query.trim()}>
-            Search
+            {t('search.searchBtn')}
           </Button>
         </div>
       </div>
@@ -331,10 +331,10 @@ export default function SearchPage() {
                 <div className={`w-2 h-2 rounded-full ${loc ? 'bg-foreground' : 'bg-muted-foreground/30'}`} />
                 <span>{locStatus}</span>
                 <button onClick={requestLocation} className="text-overseez-blue hover:underline">
-                  📍 {loc ? 'Refresh' : 'Enable location'}
+                  📍 {loc ? t('search.refresh') : t('search.enableLocation')}
                 </button>
                 <button onClick={() => setUseCustomLoc(true)} className="text-overseez-blue hover:underline ml-1">
-                  🌍 Search another city
+                  🌍 {t('search.searchCity')}
                 </button>
               </>
             ) : (
@@ -344,11 +344,11 @@ export default function SearchPage() {
                   type="text"
                   value={customLocation}
                   onChange={e => setCustomLocation(e.target.value)}
-                  placeholder="e.g. Paris, France"
+                  placeholder={t('search.cityPlaceholder')}
                   className="bg-muted/50 border border-border rounded-md px-2 py-1 text-xs text-foreground outline-none w-40 focus:border-foreground/30"
                 />
                 <button onClick={() => { setUseCustomLoc(false); setCustomLocation(''); }} className="text-overseez-blue hover:underline">
-                  📍 Use my location
+                  📍 {t('search.useMyLocation')}
                 </button>
               </div>
             )}
@@ -358,15 +358,15 @@ export default function SearchPage() {
               <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} compact />
             </div>
             {subscribed ? (
-              <span className="text-overseez-green font-semibold">Unlimited</span>
+              <span className="text-overseez-green font-semibold">{t('search.unlimited')}</span>
             ) : (
               <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                 <span>
-                  Free questions left: <span className="font-semibold text-foreground">{usageLeft}</span> / {FREE_LIMIT}
+                  {t('search.freeLeft')} <span className="font-semibold text-foreground">{usageLeft}</span> / {FREE_LIMIT}
                 </span>
                 {resetCountdown && (
                   <span className="text-overseez-blue font-mono text-[11px] bg-overseez-blue/10 border border-overseez-blue/20 rounded-full px-2.5 py-0.5">
-                    Next credit in {resetCountdown}
+                    {t('search.nextCredit')} {resetCountdown}
                   </span>
                 )}
               </div>
@@ -385,19 +385,19 @@ export default function SearchPage() {
         {/* Bank Notice */}
         {bankInfo && (
           <div className="bg-overseez-gold/10 border border-overseez-gold/25 rounded-lg px-4 py-2.5 mb-4 text-xs text-overseez-gold">
-            🏦 <strong>{bankInfo.bankName}</strong> overseas fee: <strong>{bankInfo.overseasFeePercent}%</strong> — {bankInfo.feeDescription}
+            🏦 <strong>{bankInfo.bankName}</strong> {t('search.overseasFee')}: <strong>{bankInfo.overseasFeePercent}%</strong> — {bankInfo.feeDescription}
           </div>
         )}
 
         {/* Welcome State */}
         {!loading && !result && !error && (
           <div className="text-center py-16 animate-fade-in-up">
-            <h2 className="text-4xl font-display font-bold tracking-tight mb-3 overseez-text-gradient">Overseez AI</h2>
+            <h2 className="text-4xl font-display font-bold tracking-tight mb-3 overseez-text-gradient">{t('search.overseezAI')}</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-              Find the top 5 cheapest options near you for anything — with live sales merged into the ranking, savings vs average, and Google Maps links. All prices shown in your selected currency ({displayCurrency}).
+              {t('search.welcomeDesc', { currency: displayCurrency })}
             </p>
             <div className="inline-flex items-center gap-2 bg-muted/30 border border-border rounded-full px-4 py-2 mt-4 text-xs text-muted-foreground">
-              🏦 Enter your bank to see overseas fees · 🏷 Sales automatically merged into rankings
+              {t('search.bankSalesNote')}
             </div>
           </div>
         )}
@@ -415,7 +415,7 @@ export default function SearchPage() {
                   }} />
               ))}
             </div>
-            <p className="text-sm text-muted-foreground">Searching for cheapest "{query}" near you…</p>
+            <p className="text-sm text-muted-foreground">{t('search.searching', { query })}</p>
           </div>
         )}
 
@@ -430,23 +430,24 @@ export default function SearchPage() {
         {result && combinedPlaces.length > 0 && (
           <div className="animate-fade-in-up">
             <p className="text-xs text-muted-foreground mb-3">
-              About {combinedPlaces.length} cheapest results for "{query}"{loc ? ` near ${loc.city}` : ''}
+              {t('search.results', { count: combinedPlaces.length, query })}
+              {loc ? t('search.nearCity', { city: loc.city }) : ''}
             </p>
 
             <div className="flex flex-wrap gap-2 mb-4">
               <span className="text-xs bg-overseez-gold/10 text-overseez-gold border border-overseez-gold/25 rounded-full px-3 py-1">
-                📊 Area average: {formatDisplay(result.averageValue)}
+                📊 {t('search.areaAverage')} {formatDisplay(result.averageValue)}
               </span>
               {result.sales?.length > 0 && (
                 <span className="text-xs bg-overseez-red/10 text-overseez-red border border-overseez-red/25 rounded-full px-3 py-1">
-                  🏷 {result.sales.length} sale{result.sales.length > 1 ? 's' : ''} found
+                  🏷 {t('search.salesFound', { count: result.sales.length })}
                 </span>
               )}
             </div>
 
             {result.insight && (
               <div className="bg-overseez-blue/10 border border-overseez-blue/20 rounded-lg px-4 py-3 mb-4">
-                <p className="text-[11px] font-bold text-overseez-blue uppercase tracking-wider mb-1">⚡ AI Insight</p>
+                <p className="text-[11px] font-bold text-overseez-blue uppercase tracking-wider mb-1">⚡ {t('search.aiInsight')}</p>
                 <p className="text-sm text-foreground/85 leading-relaxed">{result.insight}</p>
               </div>
             )}
@@ -482,10 +483,10 @@ export default function SearchPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-sm">{place.name}</span>
-                          {i === 0 && <span className="text-[10px] bg-foreground/10 text-foreground px-2 py-0.5 rounded-full font-semibold">Cheapest</span>}
+                          {i === 0 && <span className="text-[10px] bg-foreground/10 text-foreground px-2 py-0.5 rounded-full font-semibold">{t('search.cheapest')}</span>}
                           {place.isSale && (
                             <span className="text-[10px] bg-overseez-red/15 text-overseez-red border border-overseez-red/30 px-2 py-0.5 rounded-full font-bold">
-                              🏷 SALE
+                              🏷 {t('search.sale')}
                             </span>
                           )}
                         </div>
@@ -501,7 +502,7 @@ export default function SearchPage() {
                           {saving > 0 && (
                             <>
                               <span className="text-muted-foreground/30">·</span>
-                              <span className="font-semibold text-foreground">Save {currencySymbol}{saving.toFixed(2)} vs avg</span>
+                              <span className="font-semibold text-foreground">{t('search.saveVsAvg', { amount: `${currencySymbol}${saving.toFixed(2)}` })}</span>
                             </>
                           )}
                         </div>
@@ -514,7 +515,7 @@ export default function SearchPage() {
                         )}
                         {bankFeeRate > 0 && (
                           <div className="text-[11px] text-overseez-gold bg-overseez-gold/8 rounded px-2 py-1 mt-1.5 border border-overseez-gold/15">
-                            + {currencySymbol}{feeAmount.toFixed(2)} overseas fee = <strong>{currencySymbol}{effectivePrice.toFixed(2)} true cost</strong>
+                            + {currencySymbol}{feeAmount.toFixed(2)} {t('search.overseasFee')} = <strong>{currencySymbol}{effectivePrice.toFixed(2)} {t('search.trueCost')}</strong>
                           </div>
                         )}
                       </div>
@@ -525,9 +526,9 @@ export default function SearchPage() {
                           <p className="text-xs text-muted-foreground/40 line-through">{currencySymbol}{displayedOriginalPrice.toFixed(2)}</p>
                         )}
                         {bankFeeRate > 0 && (
-                          <p className="text-xs text-overseez-gold font-semibold">+ fee: {currencySymbol}{effectivePrice.toFixed(2)}</p>
+                          <p className="text-xs text-overseez-gold font-semibold">{t('search.bankFee')} {currencySymbol}{effectivePrice.toFixed(2)}</p>
                         )}
-                        <p className="text-[11px] text-muted-foreground mt-0.5">avg: {currencySymbol}{displayedAverage.toFixed(2)}</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">{t('search.avg')} {currencySymbol}{displayedAverage.toFixed(2)}</p>
                         {saving > 0 && <p className="text-xs font-semibold mt-0.5">▼ {currencySymbol}{saving.toFixed(2)}</p>}
                       </div>
                     </div>
@@ -535,14 +536,14 @@ export default function SearchPage() {
                     <div className="flex items-center justify-end gap-2 mt-3 pt-2 border-t border-border/50">
                       <a href={mapsUrl} target="_blank" rel="noopener"
                         className="text-xs text-overseez-blue hover:underline flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> View on Maps
+                        <MapPin className="w-3 h-3" /> {t('search.viewOnMaps')}
                       </a>
                       <button onClick={() => {
                         setSpendModal({ open: true, place, avgVal: displayedAverage });
                         setSpendInput(displayedPrice.toFixed(2));
                       }}
                         className="text-xs bg-muted/50 border border-border rounded-md px-3 py-1.5 hover:bg-muted transition-colors">
-                        🏷 I saved here
+                        🏷 {t('search.iSavedHere')}
                       </button>
                     </div>
                   </div>
@@ -559,18 +560,18 @@ export default function SearchPage() {
           onClick={() => setSpendModal({ open: false, place: null, avgVal: 0 })}>
           <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full"
             onClick={e => e.stopPropagation()}>
-            <h3 className="font-display font-semibold mb-1">How much did you spend?</h3>
+            <h3 className="font-display font-semibold mb-1">{t('search.spendTitle')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Enter what you spent at {spendModal.place?.name} — we'll calculate your real saving.
+              {t('search.spendDesc', { name: spendModal.place?.name })}
             </p>
             <input type="number" min="0" step="0.01" value={spendInput}
               onChange={e => setSpendInput(e.target.value)}
               className="w-full bg-muted/50 border border-border rounded-lg px-4 py-3 text-foreground outline-none focus:border-foreground/30 mb-4" />
             <div className="flex gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => setSpendModal({ open: false, place: null, avgVal: 0 })}>
-                Cancel
+                {t('search.cancel')}
               </Button>
-              <Button variant="hero" size="sm" onClick={logSaving}>Log Saving</Button>
+              <Button variant="hero" size="sm" onClick={logSaving}>{t('search.logSaving')}</Button>
             </div>
           </div>
         </div>
