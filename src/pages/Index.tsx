@@ -36,32 +36,21 @@ function RevealSection({ children, className = '', delay = 0 }: { children: Reac
   );
 }
 
-
-const FEATURES = [
-  { icon: <Search className="w-5 h-5" />, title: 'AI Price Comparison', desc: 'Get the top 5 cheapest options near you for anything — groceries, petrol, coffee, hotels.' },
-  { icon: <MapPin className="w-5 h-5" />, title: 'Location-Aware', desc: 'Results adjust to your exact location with Google Maps links to every recommendation.' },
-  { icon: <TrendingDown className="w-5 h-5" />, title: 'Savings Tracker', desc: 'Log what you spend and watch your savings grow with milestone rewards and analytics.' },
-  { icon: <Shield className="w-5 h-5" />, title: 'Bank Fee Calculator', desc: 'Enter your bank and see the true cost of purchases abroad with overseas fee breakdowns.' },
-  { icon: <Zap className="w-5 h-5" />, title: 'Sale Alerts', desc: 'Active sales and promotions are merged into your search results automatically.' },
-  { icon: <Globe className="w-5 h-5" />, title: 'Works Globally', desc: 'From London to Tokyo — Overseez adapts to local currencies, stores, and pricing.' },
+const FEATURE_ICONS = [
+  <Search className="w-5 h-5" />,
+  <MapPin className="w-5 h-5" />,
+  <TrendingDown className="w-5 h-5" />,
+  <Shield className="w-5 h-5" />,
+  <Zap className="w-5 h-5" />,
+  <Globe className="w-5 h-5" />,
 ];
 
-const STEPS = [
-  { num: '01', title: 'Search anything', desc: 'Type what you need — groceries, petrol, a hotel room. Our AI processes your query instantly.' },
-  { num: '02', title: 'Compare prices', desc: 'See the top 5 cheapest options ranked by real price, with distance, sales, and bank fees factored in.' },
-  { num: '03', title: 'Save & track', desc: 'Log your purchase and we calculate your saving vs the average. Watch your total grow over time.' },
-];
-
-const PAIN_QUOTES = [
-  "You're not overspending. You're being overcharged.",
-  "Most people lose money before they even realize it.",
-  "The 'foreigner tax' is real — and it costs you hundreds every month.",
-];
+const FEATURE_KEYS = ['aiPrice', 'locationAware', 'savingsTracker', 'bankFee', 'saleAlerts', 'worksGlobally'];
 
 const COMPARISONS = [
-  { item: 'Morning Coffee', before: '5.90', after: '2.60' },
-  { item: 'Weekly Groceries', before: '97.50', after: '64.30' },
-  { item: 'Monthly Transport', before: '175.00', after: '109.00' },
+  { key: 'morningCoffee', before: '5.90', after: '2.60' },
+  { key: 'weeklyGroceries', before: '97.50', after: '64.30' },
+  { key: 'monthlyTransport', before: '175.00', after: '109.00' },
 ];
 
 const TESTIMONIALS = [
@@ -192,7 +181,6 @@ export default function Index() {
           </div>
         </div>
 
-        {/* Decorative brand mark at bottom */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 opacity-10">
           <OverseezLogo size={128} color="white" />
         </div>
@@ -204,12 +192,12 @@ export default function Index() {
         <FloatingOvals className="opacity-50" />
         <div className="max-w-5xl mx-auto relative z-10">
           <RevealSection className="text-center mb-12">
-            <p className="text-xs uppercase tracking-widest text-overseez-gold font-medium mb-3">Real savings</p>
+            <p className="text-xs uppercase tracking-widest text-overseez-gold font-medium mb-3">{t('beforeAfter.label')}</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              Before vs. After Overseez
+              {t('beforeAfter.title')}
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
-              These are real price differences our users found — in their first week.
+              {t('beforeAfter.subtitle')}
             </p>
           </RevealSection>
 
@@ -217,25 +205,25 @@ export default function Index() {
             {COMPARISONS.map((c, i) => {
               const saved = (parseFloat(c.before) - parseFloat(c.after)).toFixed(2);
               return (
-                <RevealSection key={c.item} delay={i * 120}>
+                <RevealSection key={c.key} delay={i * 120}>
                   <div className="bg-card border border-border rounded-2xl p-6 overseez-card-hover text-center relative overflow-hidden group">
                     <svg className="absolute -top-8 -right-8 w-32 h-32 opacity-[0.04] group-hover:opacity-[0.08] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
                       <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
                     </svg>
-                    <h3 className="font-display font-semibold text-sm mb-4">{c.item}</h3>
+                    <h3 className="font-display font-semibold text-sm mb-4">{t(`beforeAfter.${c.key}`)}</h3>
                     <div className="flex items-center justify-center gap-4 mb-4">
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">Before</p>
+                        <p className="text-xs text-muted-foreground mb-1">{t('beforeAfter.before')}</p>
                         <p className="text-lg font-display font-bold text-overseez-red line-through opacity-70">${c.before}</p>
                       </div>
                       <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
                       <div>
-                        <p className="text-xs text-muted-foreground mb-1">After</p>
+                        <p className="text-xs text-muted-foreground mb-1">{t('beforeAfter.after')}</p>
                         <p className="text-lg font-display font-bold text-overseez-green">${c.after}</p>
                       </div>
                     </div>
                     <div className="bg-overseez-green/10 border border-overseez-green/20 rounded-full px-4 py-1.5 inline-block">
-                      <span className="text-xs font-semibold text-overseez-green">Save ${saved} every time</span>
+                      <span className="text-xs font-semibold text-overseez-green">{t('beforeAfter.saveEveryTime', { amount: saved })}</span>
                     </div>
                   </div>
                 </RevealSection>
@@ -249,21 +237,21 @@ export default function Index() {
       <section className="py-20 px-4 sm:px-6 relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10">
           <RevealSection className="text-center mb-12">
-            <p className="text-xs uppercase tracking-widest text-overseez-red font-medium mb-3">The problem</p>
+            <p className="text-xs uppercase tracking-widest text-overseez-red font-medium mb-3">{t('pain.label')}</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              Living abroad costs more than it should.
+              {t('pain.title')}
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
-              You pay more for the same products. You get hit with hidden bank fees. You don't know what a fair price looks like. That uncertainty costs real money — every single day.
+              {t('pain.subtitle')}
             </p>
           </RevealSection>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {PAIN_QUOTES.map((q, i) => (
-              <RevealSection key={i} delay={i * 100}>
+            {[1, 2, 3].map((i) => (
+              <RevealSection key={i} delay={(i - 1) * 100}>
                 <div className="bg-card border border-overseez-red/15 rounded-xl p-6 text-center relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-overseez-red/30 to-transparent" />
-                  <p className="text-base sm:text-lg font-display font-bold leading-snug">"{q}"</p>
+                  <p className="text-base sm:text-lg font-display font-bold leading-snug">"{t(`pain.q${i}`)}"</p>
                 </div>
               </RevealSection>
             ))}
@@ -271,7 +259,7 @@ export default function Index() {
 
           <RevealSection delay={300} className="text-center mt-10">
             <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
-              Start Saving <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              {t('pain.startSaving')} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </RevealSection>
         </div>
@@ -282,27 +270,27 @@ export default function Index() {
         <FloatingOvals className="opacity-30" />
         <div className="max-w-6xl mx-auto relative z-10">
           <RevealSection className="text-center mb-16">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Features</p>
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('features.label')}</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              Built for people who refuse to overpay
+              {t('features.title')}
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
-              AI-powered price comparison, overseas bank fee tracking, and savings analytics — all adjusted to your currency.
+              {t('features.subtitle')}
             </p>
           </RevealSection>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map((f, i) => (
-              <RevealSection key={f.title} delay={i * 80}>
+            {FEATURE_KEYS.map((key, i) => (
+              <RevealSection key={key} delay={i * 80}>
                 <div className="bg-card border border-border rounded-xl p-6 overseez-card-hover h-full relative overflow-hidden group">
                   <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
                     <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
                   </svg>
                   <div className="w-10 h-10 rounded-lg bg-overseez-blue/10 border border-overseez-blue/15 flex items-center justify-center text-overseez-blue mb-4">
-                    {f.icon}
+                    {FEATURE_ICONS[i]}
                   </div>
-                  <h3 className="font-display font-semibold mb-2">{f.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                  <h3 className="font-display font-semibold mb-2">{t(`features.${key}`)}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{t(`features.${key}Desc`)}</p>
                 </div>
               </RevealSection>
             ))}
@@ -310,7 +298,7 @@ export default function Index() {
 
           <RevealSection delay={500} className="text-center mt-10">
             <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goAI}>
-              Try AI Assistant <ChevronRight className="w-4 h-4" />
+              {t('features.tryAssistant')} <ChevronRight className="w-4 h-4" />
             </Button>
           </RevealSection>
         </div>
@@ -320,12 +308,12 @@ export default function Index() {
       <section className="py-24 px-4 sm:px-6 relative overflow-hidden">
         <div className="max-w-6xl mx-auto relative z-10">
           <RevealSection className="text-center mb-12">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Global reach</p>
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('globe.label')}</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              Active in 25+ countries worldwide
+              {t('globe.title')}
             </h2>
             <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
-              From exchange students in Europe to remote workers in Asia — Overseez helps people save money across every continent.
+              {t('globe.subtitle')}
             </p>
           </RevealSection>
           <RevealSection delay={200}>
@@ -340,21 +328,21 @@ export default function Index() {
       <section id="how-it-works" className="py-24 px-4 sm:px-6 relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10">
           <RevealSection className="text-center mb-16">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">How it works</p>
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('howItWorks.label')}</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              Three steps to smarter spending
+              {t('howItWorks.title')}
             </h2>
           </RevealSection>
 
           <div className="space-y-6">
-            {STEPS.map((s, i) => (
-              <RevealSection key={s.num} delay={i * 120}>
+            {[1, 2, 3].map((step, i) => (
+              <RevealSection key={step} delay={i * 120}>
                 <div className="flex gap-4 sm:gap-6 items-start bg-card border border-border rounded-xl p-5 sm:p-6 overseez-card-hover relative overflow-hidden group">
                   <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-overseez-blue/40 to-transparent rounded-l-xl" />
-                  <span className="text-3xl sm:text-4xl font-display font-bold text-overseez-blue/20 flex-shrink-0 w-12 sm:w-16">{s.num}</span>
+                  <span className="text-3xl sm:text-4xl font-display font-bold text-overseez-blue/20 flex-shrink-0 w-12 sm:w-16">{String(step).padStart(2, '0')}</span>
                   <div>
-                    <h3 className="font-display font-semibold text-base sm:text-lg mb-1">{s.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                    <h3 className="font-display font-semibold text-base sm:text-lg mb-1">{t(`howItWorks.step${step}Title`)}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{t(`howItWorks.step${step}Desc`)}</p>
                   </div>
                 </div>
               </RevealSection>
@@ -367,12 +355,12 @@ export default function Index() {
       <section className="py-24 px-4 sm:px-6 relative overflow-hidden bg-overseez-mid">
         <div className="max-w-6xl mx-auto relative z-10">
           <RevealSection className="text-center mb-12">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Testimonials</p>
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('testimonials.label')}</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              What our users say
+              {t('testimonials.title')}
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
-              Real stories from people saving real money abroad.
+              {t('testimonials.subtitle')}
             </p>
           </RevealSection>
           <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[600px] overflow-hidden">
@@ -386,9 +374,9 @@ export default function Index() {
       <section id="reviews" className="py-20 px-4 sm:px-6 relative overflow-hidden">
         <div className="max-w-6xl mx-auto relative z-10">
           <RevealSection className="text-center mb-10">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Feedback</p>
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('feedback.label')}</p>
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              Help us improve
+              {t('feedback.title')}
             </h2>
           </RevealSection>
           <ReviewSection />
@@ -405,18 +393,18 @@ export default function Index() {
             </svg>
             <OverseezLogo size={112} className="mx-auto mb-6 opacity-30" color="white" />
             <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              Your money deserves better.
+              {t('cta.title')}
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm sm:text-base">
-              Stop overpaying. Stop guessing. Start using AI to find cheaper options in seconds — in your currency, near your location. Free to start.
+              {t('cta.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
-                Try AI Now
+                {t('hero.tryAI')}
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goSub}>
-                View Plans
+                {t('cta.viewPlans')}
               </Button>
             </div>
           </div>
@@ -427,9 +415,9 @@ export default function Index() {
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid">
         <div className="max-w-4xl mx-auto text-center">
           <RevealSection>
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Community</p>
-            <h2 className="text-3xl font-display font-bold tracking-tight mb-4">Join the movement</h2>
-            <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm sm:text-base">Follow us for savings tips, real user stories, and product updates.</p>
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('community.label')}</p>
+            <h2 className="text-3xl font-display font-bold tracking-tight mb-4">{t('community.title')}</h2>
+            <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm sm:text-base">{t('community.subtitle')}</p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
               <a href="https://www.instagram.com/overseez.co" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-card border border-border rounded-full px-5 py-2.5 hover:border-overseez-blue/40 transition-colors group">
@@ -455,15 +443,15 @@ export default function Index() {
               <span className="font-display font-bold -ml-3">Overseez</span>
             </Link>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-muted-foreground">
-              <a href="#features" className="hover:text-foreground transition-colors">Features</a>
-              <a href="#how-it-works" className="hover:text-foreground transition-colors">How it works</a>
-              <a href="#reviews" className="hover:text-foreground transition-colors">Reviews</a>
-              <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-              <Link to="/register" className="hover:text-foreground transition-colors">Sign Up</Link>
+              <a href="#features" className="hover:text-foreground transition-colors">{t('footer.features')}</a>
+              <a href="#how-it-works" className="hover:text-foreground transition-colors">{t('footer.howItWorks')}</a>
+              <a href="#reviews" className="hover:text-foreground transition-colors">{t('footer.reviews')}</a>
+              <Link to="/terms" className="hover:text-foreground transition-colors">{t('footer.terms')}</Link>
+              <Link to="/register" className="hover:text-foreground transition-colors">{t('footer.signUp')}</Link>
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-border/50 text-xs text-muted-foreground/60">
-            © 2026 Overseez. All rights reserved.
+            {t('footer.copyright')}
           </div>
         </div>
       </footer>
