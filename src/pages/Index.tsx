@@ -82,6 +82,7 @@ const testimonialsCol3 = TESTIMONIALS.slice(6, 9);
 
 export default function Index() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
 
