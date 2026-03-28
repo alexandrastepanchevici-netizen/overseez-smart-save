@@ -67,10 +67,24 @@ export default function Dashboard() {
     requestAnimationFrame(step);
   }, [totalSaved]);
 
-  const MILESTONES = getMilestones(totalSaved);
+const MILESTONES = getMilestones(totalSaved);
   const goalMax = MILESTONES[MILESTONES.length - 1];
   const pct = Math.min((totalSaved / goalMax) * 100, 100);
   const milestonesHit = MILESTONES.filter(m => totalSaved >= m).length;
+
+  // Filter milestones to prevent text overlap (min 8% gap)
+  const visibleMilestones = MILESTONES.reduce<number[]>((acc, m) => {
+    const pos = (m / goalMax) * 100;
+    const lastPos = acc.length > 0 ? (acc[acc.length - 1] / goalMax) * 100 : -20;
+    if (pos - lastPos >= 8) acc.push(m);
+    return acc;
+  }, []);
+
+  const formatMilestone = (m: number): string => {
+    if (m >= 1_000_000) return `${sym}${(m / 1_000_000).toFixed(m % 1_000_000 === 0 ? 0 : 1)}M`;
+    if (m >= 1_000) return `${sym}${(m / 1_000).toFixed(m % 1_000 === 0 ? 0 : 1)}k`;
+    return `${sym}${m}`;
+  };
 
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 3600000);
