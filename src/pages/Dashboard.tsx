@@ -67,10 +67,24 @@ export default function Dashboard() {
     requestAnimationFrame(step);
   }, [totalSaved]);
 
-  const MILESTONES = getMilestones(totalSaved);
+const MILESTONES = getMilestones(totalSaved);
   const goalMax = MILESTONES[MILESTONES.length - 1];
   const pct = Math.min((totalSaved / goalMax) * 100, 100);
   const milestonesHit = MILESTONES.filter(m => totalSaved >= m).length;
+
+  // Filter milestones to prevent text overlap (min 8% gap)
+  const visibleMilestones = MILESTONES.reduce<number[]>((acc, m) => {
+    const pos = (m / goalMax) * 100;
+    const lastPos = acc.length > 0 ? (acc[acc.length - 1] / goalMax) * 100 : -20;
+    if (pos - lastPos >= 8) acc.push(m);
+    return acc;
+  }, []);
+
+  const formatMilestone = (m: number): string => {
+    if (m >= 1_000_000) return `${sym}${(m / 1_000_000).toFixed(m % 1_000_000 === 0 ? 0 : 1)}M`;
+    if (m >= 1_000) return `${sym}${(m / 1_000).toFixed(m % 1_000 === 0 ? 0 : 1)}k`;
+    return `${sym}${m}`;
+  };
 
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 3600000);
@@ -105,7 +119,7 @@ export default function Dashboard() {
               style={{ width: `${pct}%` }} />
           </div>
           <div className="hidden sm:block relative mt-1.5 h-6">
-            {MILESTONES.map(m => (
+            {visibleMilestones.map(m => (
               <div
                 key={m}
                 className="absolute top-0 flex flex-col items-center gap-0.5"
@@ -113,7 +127,7 @@ export default function Dashboard() {
               >
                 <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
                 <span className={`text-[10px] whitespace-nowrap ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>
-                  {m >= 1000000 ? `${sym}${(m/1000000).toFixed(m % 1000000 === 0 ? 0 : 1)}M` : m >= 1000 ? `${sym}${(m/1000).toFixed(m % 1000 === 0 ? 0 : 1)}k` : `${sym}${m}`}
+                  {formatMilestone(m)}
                 </span>
               </div>
             ))}
