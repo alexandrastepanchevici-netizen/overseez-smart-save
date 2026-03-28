@@ -8,6 +8,7 @@ import AnimatedCounter from '@/components/AnimatedCounter';
 import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, ChevronRight, Instagram } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
+import GlobeComponent from '@/components/ui/globe';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
