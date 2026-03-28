@@ -322,6 +322,26 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ─── GLOBE ─── */}
+      <section className="py-24 px-4 sm:px-6 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto relative z-10">
+          <RevealSection className="text-center mb-12">
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Global reach</p>
+            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
+              Active in 25+ countries worldwide
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
+              From exchange students in Europe to remote workers in Asia — Overseez helps people save money across every continent.
+            </p>
+          </RevealSection>
+          <RevealSection delay={200}>
+            <div className="w-full h-[400px] sm:h-[500px] lg:h-[550px] rounded-2xl border border-border bg-card/30 overflow-hidden">
+              <GlobeComponent />
+            </div>
+          </RevealSection>
+        </div>
+      </section>
+
       {/* ─── HOW IT WORKS ─── */}
       <section id="how-it-works" className="py-24 px-4 sm:px-6 relative overflow-hidden">
         <div className="max-w-4xl mx-auto relative z-10">
