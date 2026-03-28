@@ -331,20 +331,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ─── REVIEWS ─── */}
-      <section id="reviews" className="py-24 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
-        <FloatingOvals className="opacity-30" />
-        <div className="max-w-6xl mx-auto relative z-10">
-          <RevealSection className="text-center mb-16">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Reviews</p>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              Real people. Real savings. No fluff.
-            </h2>
-          </RevealSection>
-
-          <ReviewSection />
-        </div>
-      </section>
 
       {/* ─── CTA ─── */}
       <section className="py-24 px-4 sm:px-6 relative overflow-hidden">
