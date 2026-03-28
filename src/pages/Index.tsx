@@ -6,6 +6,7 @@ import OverseezLogo from '@/components/OverseezLogo';
 import FloatingOvals from '@/components/FloatingOvals';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, ChevronRight, Instagram } from 'lucide-react';
+import ReviewSection from '@/components/ReviewSection';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
