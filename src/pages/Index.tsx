@@ -8,6 +8,7 @@ import AnimatedCounter from '@/components/AnimatedCounter';
 import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, ChevronRight, Instagram } from 'lucide-react';
 import ReviewSection from '@/components/ReviewSection';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
+import GlobeComponent from '@/components/ui/globe';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -317,6 +318,26 @@ export default function Index() {
             <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goAI}>
               Try AI Assistant <ChevronRight className="w-4 h-4" />
             </Button>
+          </RevealSection>
+        </div>
+      </section>
+
+      {/* ─── GLOBE ─── */}
+      <section className="py-24 px-4 sm:px-6 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto relative z-10">
+          <RevealSection className="text-center mb-12">
+            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">Global reach</p>
+            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
+              Active in 25+ countries worldwide
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
+              From exchange students in Europe to remote workers in Asia — Overseez helps people save money across every continent.
+            </p>
+          </RevealSection>
+          <RevealSection delay={200}>
+            <div className="w-full h-[400px] sm:h-[500px] lg:h-[550px] rounded-2xl border border-border bg-card/30 overflow-hidden">
+              <GlobeComponent />
+            </div>
           </RevealSection>
         </div>
       </section>
