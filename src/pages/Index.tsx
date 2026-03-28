@@ -61,6 +61,22 @@ const COMPARISONS = [
   { item: 'Monthly Transport', before: '175.00', after: '109.00' },
 ];
 
+const TESTIMONIALS = [
+  { text: "I moved to Berlin and was shocked at how much I was overpaying for groceries. Overseez showed me stores 40% cheaper just two blocks away.", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop", name: "Sofia M.", role: "Expat in Germany" },
+  { text: "As a student in London, every pound matters. This tool helped me find cheaper food, transport, and even my gym membership.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop", name: "Daniel K.", role: "Student in UK" },
+  { text: "Traveling through Southeast Asia, I used Overseez daily. It saved me from tourist traps and found local prices everywhere.", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop", name: "Mia L.", role: "Digital Nomad" },
+  { text: "The savings tracker is addictive. Watching my monthly savings climb past $200 was incredibly motivating.", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop", name: "James R.", role: "Freelancer in Portugal" },
+  { text: "I recommend Overseez to every international colleague. The AI is surprisingly accurate and the Google Maps links are a lifesaver.", image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop", name: "Aisha T.", role: "Engineer in Dubai" },
+  { text: "Before Overseez, I had no idea how much I was losing to bank fees alone. Now I plan every purchase smarter.", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop", name: "Luca B.", role: "Expat in Australia" },
+  { text: "The currency conversion feature is seamless. I always know exactly what I'm paying in my home currency.", image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&h=100&fit=crop", name: "Elena V.", role: "Remote Worker in Spain" },
+  { text: "Honestly didn't expect much, but the first search saved me €15 on weekly groceries. I've been hooked since.", image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop", name: "Marco P.", role: "Expat in Netherlands" },
+  { text: "The location-based search is brilliant. It finds deals I would never discover on my own, even in a city I've lived in for years.", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop", name: "Yuki S.", role: "Professional in Tokyo" },
+];
+
+const testimonialsCol1 = TESTIMONIALS.slice(0, 3);
+const testimonialsCol2 = TESTIMONIALS.slice(3, 6);
+const testimonialsCol3 = TESTIMONIALS.slice(6, 9);
+
 export default function Index() {
   const { user } = useAuth();
   const navigate = useNavigate();
