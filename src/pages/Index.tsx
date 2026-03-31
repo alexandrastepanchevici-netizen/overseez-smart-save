@@ -177,7 +177,7 @@ export default function Index() {
                 <p className="text-xs text-muted-foreground mt-0.5">{t('hero.savedPerUser')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={200} decimals={0} suffix="+" /></p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={400} decimals={0} suffix="+" /></p></p>
                 <p className="text-xs text-muted-foreground mt-0.5">{t('hero.activeUsers')}</p>
               </div>
               <div className="text-center">
