@@ -320,29 +320,9 @@
     "badge": "Watch Demo",
     "title": "See Overseez in Action",
     "subtitle": "Watch how our AI finds you the cheapest prices in seconds — with real locations, real savings, and real results.",
-    "playCaptions": "Play Captions",
-    "pauseCaptions": "Pause Captions",
     "captionLanguage": "Caption Language",
     "normal": "Normal",
-    "captions": {
-      "c1": "Hey everyone! Welcome to Overseez — let me show you how it works.",
-      "c2": "So the first thing you do is search for whatever you need — like apple juice.",
-      "c3": "You can set your location and currency so results are personalized to you.",
-      "c4": "The AI instantly finds the top 5 cheapest options near your location.",
-      "c5": "Each result shows the real price, the store name, and distance from you.",
-      "c6": "You can click on Google Maps to get directions to the exact store.",
-      "c7": "Notice how it also shows active sales and promotions automatically.",
-      "c8": "The savings compared to the area average are calculated in real time.",
-      "c9": "If you have a bank set up, it shows overseas fees on each purchase too.",
-      "c10": "Now let me show you the savings tracker — this is where it gets cool.",
-      "c11": "When you find a cheaper option, you can log your saving with one click.",
-      "c12": "It calculates exactly how much you saved versus the average price.",
-      "c13": "Your total savings accumulate over time — weekly, monthly, and all-time.",
-      "c14": "You can see your savings progress and hit milestones as you save more.",
-      "c15": "The dashboard gives you a clear overview of all your savings activity.",
-      "c16": "Premium users get unlimited AI searches and advanced analytics.",
-      "c17": "It works for groceries, coffee, petrol, hotels — basically anything.",
-      "c18": "That's Overseez — stop overpaying, start saving. Try it now!"
-    }
+    "voiceTranslation": "Voice Translation",
+    "autoVoice": "Non-English languages include AI voice translation"
   }
 }
