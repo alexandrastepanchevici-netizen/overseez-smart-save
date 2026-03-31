@@ -23,15 +23,15 @@ type PendingSourceSwap = {
   volume: number;
 };
 
-const VIDEO_ASSET_VERSION = '20260331-audio-fix-1';
+const VIDEO_ASSET_VERSION = '20260331-audio-fix-2';
 
 const VIDEO_SOURCES: Record<SupportedLanguage, string> = {
   en: `${STORAGE_BASE}/demo.mp4?v=${VIDEO_ASSET_VERSION}`,
-  fr: `${STORAGE_BASE}/demo_fr.mp4?v=${VIDEO_ASSET_VERSION}`,
-  es: `${STORAGE_BASE}/demo_es.mp4?v=${VIDEO_ASSET_VERSION}`,
-  ru: `${STORAGE_BASE}/demo_ru.mp4?v=${VIDEO_ASSET_VERSION}`,
-  zh: `${STORAGE_BASE}/demo_zh.mp4?v=${VIDEO_ASSET_VERSION}`,
-  hi: `${STORAGE_BASE}/demo_hi.mp4?v=${VIDEO_ASSET_VERSION}`,
+  fr: `${STORAGE_BASE}/demo_fr_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
+  es: `${STORAGE_BASE}/demo_es_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
+  ru: `${STORAGE_BASE}/demo_ru_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
+  zh: `${STORAGE_BASE}/demo_zh_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
+  hi: `${STORAGE_BASE}/demo_hi_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
 };
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -364,7 +364,6 @@ export default function VideoSection() {
                 onPause={() => setIsPlaying(false)}
                 onEnded={() => setIsPlaying(false)}
                 onVolumeChange={() => setIsMuted(videoRef.current?.muted ?? false)}
-                defaultMuted={false}
                 playsInline
                 preload="auto"
               />
