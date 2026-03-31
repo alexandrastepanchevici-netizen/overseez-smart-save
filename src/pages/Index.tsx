@@ -197,6 +197,8 @@ export default function Index() {
         </div>
       </section>
 
+      {/* ─── VIDEO DEMO ─── */}
+      <VideoSection />
 
       {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
