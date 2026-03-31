@@ -6,12 +6,12 @@ const STORAGE_BASE = 'https://vcjiiynnziranklnnqon.supabase.co/storage/v1/object
 const VIDEO_URL = `${STORAGE_BASE}/demo.mp4`;
 
 const CAPTION_LANGUAGES = [
-  { code: 'en', label: 'English', flag: '🇬🇧', speechLang: 'en-US' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷', speechLang: 'fr-FR' },
-  { code: 'es', label: 'Español', flag: '🇪🇸', speechLang: 'es-ES' },
-  { code: 'ru', label: 'Русский', flag: '🇷🇺', speechLang: 'ru-RU' },
-  { code: 'zh', label: '中文', flag: '🇨🇳', speechLang: 'zh-CN' },
-  { code: 'hi', label: 'हिन्दी', flag: '🇮🇳', speechLang: 'hi-IN' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
+  { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
 ];
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -37,19 +37,6 @@ function parseVTT(text: string): Cue[] {
   return cues;
 }
 
-// Get best matching voice for a language
-function getVoiceForLang(lang: string): SpeechSynthesisVoice | null {
-  const voices = window.speechSynthesis.getVoices();
-  // Try exact match first
-  let voice = voices.find(v => v.lang === lang);
-  // Then prefix match (e.g. "fr" matches "fr-FR")
-  if (!voice) {
-    const prefix = lang.split('-')[0];
-    voice = voices.find(v => v.lang.startsWith(prefix));
-  }
-  return voice || null;
-}
-
 export default function VideoSection() {
   const { t, i18n } = useTranslation();
   const [captionLang, setCaptionLang] = useState(i18n.language || 'en');
@@ -63,32 +50,12 @@ export default function VideoSection() {
   const [currentCaption, setCurrentCaption] = useState('');
   const [isMuted, setIsMuted] = useState(false);
   const [captions, setCaptions] = useState<Record<string, Cue[]>>({});
-  const [isTTSActive, setIsTTSActive] = useState(false);
-  const [voicesReady, setVoicesReady] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const voiceAudioRef = useRef<HTMLAudioElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const speedRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const lastSpokenCueRef = useRef<number>(-1);
-  const keepAliveRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // Preload SpeechSynthesis voices (they load async in Chrome)
-  useEffect(() => {
-    const synth = window.speechSynthesis;
-    if (!synth) return;
-
-    const loadVoices = () => {
-      const voices = synth.getVoices();
-      if (voices.length > 0) {
-        setVoicesReady(true);
-      }
-    };
-
-    loadVoices();
-    synth.addEventListener('voiceschanged', loadVoices);
-    return () => synth.removeEventListener('voiceschanged', loadVoices);
-  }, []);
 
   // Load captions for all languages
   useEffect(() => {
@@ -114,8 +81,6 @@ export default function VideoSection() {
   // Sync caption language with site language
   useEffect(() => {
     setCaptionLang(i18n.language);
-    lastSpokenCueRef.current = -1;
-    window.speechSynthesis?.cancel();
   }, [i18n.language]);
 
   // Close dropdowns on outside click
@@ -128,64 +93,45 @@ export default function VideoSection() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Chrome bug: speechSynthesis stops after ~15s. Keep-alive workaround.
+  // Manage voice audio track when language changes
   useEffect(() => {
-    if (isTTSActive && isPlaying) {
-      keepAliveRef.current = setInterval(() => {
-        if (window.speechSynthesis.speaking) {
-          window.speechSynthesis.pause();
-          window.speechSynthesis.resume();
-        }
-      }, 10000);
-    } else {
-      if (keepAliveRef.current) {
-        clearInterval(keepAliveRef.current);
-        keepAliveRef.current = null;
+    const voiceAudio = voiceAudioRef.current;
+    const video = videoRef.current;
+    if (!voiceAudio || !video) return;
+
+    if (captionLang !== 'en') {
+      voiceAudio.src = `${STORAGE_BASE}/voice_${captionLang}.mp3`;
+      voiceAudio.load();
+      video.muted = true;
+      setIsMuted(true);
+
+      // If video is playing, sync and play voice audio
+      if (isPlaying) {
+        voiceAudio.currentTime = video.currentTime;
+        voiceAudio.playbackRate = speed;
+        voiceAudio.play().catch(() => {});
       }
+    } else {
+      voiceAudio.pause();
+      voiceAudio.src = '';
+      video.muted = false;
+      setIsMuted(false);
     }
-    return () => {
-      if (keepAliveRef.current) clearInterval(keepAliveRef.current);
-    };
-  }, [isTTSActive, isPlaying]);
+  }, [captionLang]);
 
-  // Speak a caption cue
-  const speakCue = useCallback((text: string, langCode: string) => {
-    const synth = window.speechSynthesis;
-    if (!synth) return;
+  // Keep voice audio in sync with video
+  useEffect(() => {
+    const voiceAudio = voiceAudioRef.current;
+    if (!voiceAudio || captionLang === 'en') return;
+    voiceAudio.playbackRate = speed;
+  }, [speed, captionLang]);
 
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    const langConfig = CAPTION_LANGUAGES.find(l => l.code === langCode);
-    const speechLang = langConfig?.speechLang || 'en-US';
-    utterance.lang = speechLang;
-
-    // Set a specific voice if available
-    const voice = getVoiceForLang(speechLang);
-    if (voice) utterance.voice = voice;
-
-    utterance.rate = Math.min(speed * 1.1, 2); // Slightly faster to keep pace
-    utterance.volume = 1.0;
-    utterance.pitch = 1.0;
-
-    synth.speak(utterance);
-  }, [speed]);
-
-  // Update current caption and trigger TTS
+  // Update current caption
   useEffect(() => {
     const langCues = captions[captionLang] || [];
-    const cueIdx = langCues.findIndex(c => currentTime >= c.start && currentTime < c.end);
-    const cue = cueIdx >= 0 ? langCues[cueIdx] : null;
-
+    const cue = langCues.find(c => currentTime >= c.start && currentTime < c.end);
     setCurrentCaption(cue?.text || '');
-
-    // TTS for non-English languages
-    if (captionLang !== 'en' && isTTSActive && cue && isPlaying && voicesReady) {
-      if (cueIdx !== lastSpokenCueRef.current) {
-        lastSpokenCueRef.current = cueIdx;
-        speakCue(cue.text, captionLang);
-      }
-    }
-  }, [currentTime, captionLang, captions, isTTSActive, isPlaying, voicesReady, speakCue]);
+  }, [currentTime, captionLang, captions]);
 
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current) setCurrentTime(videoRef.current.currentTime);
@@ -196,55 +142,64 @@ export default function VideoSection() {
   }, []);
 
   const togglePlay = useCallback(() => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      videoRef.current.play();
+    const video = videoRef.current;
+    const voiceAudio = voiceAudioRef.current;
+    if (!video) return;
+
+    if (video.paused) {
+      video.play();
       setIsPlaying(true);
+      if (captionLang !== 'en' && voiceAudio && voiceAudio.src) {
+        voiceAudio.currentTime = video.currentTime;
+        voiceAudio.playbackRate = speed;
+        voiceAudio.play().catch(() => {});
+      }
     } else {
-      videoRef.current.pause();
+      video.pause();
       setIsPlaying(false);
-      window.speechSynthesis?.cancel();
+      voiceAudio?.pause();
     }
-  }, []);
+  }, [captionLang, speed]);
 
   const handleSpeedChange = useCallback((s: number) => {
     setSpeed(s);
     if (videoRef.current) videoRef.current.playbackRate = s;
+    if (voiceAudioRef.current) voiceAudioRef.current.playbackRate = s;
     setShowSpeedMenu(false);
   }, []);
 
   const handleLangChange = useCallback((code: string) => {
     setCaptionLang(code);
-    lastSpokenCueRef.current = -1;
-    window.speechSynthesis?.cancel();
-
-    if (code !== 'en') {
-      setIsTTSActive(true);
-      setIsMuted(true);
-      if (videoRef.current) videoRef.current.muted = true;
-    } else {
-      setIsTTSActive(false);
-      setIsMuted(false);
-      if (videoRef.current) videoRef.current.muted = false;
-    }
     setShowLangMenu(false);
   }, []);
 
   const toggleMute = useCallback(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-      setIsMuted(!isMuted);
+    const video = videoRef.current;
+    const voiceAudio = voiceAudioRef.current;
+    if (!video) return;
+
+    if (captionLang !== 'en') {
+      // For translated audio, mute/unmute the voice track
+      if (voiceAudio) {
+        voiceAudio.muted = !voiceAudio.muted;
+        setIsMuted(voiceAudio.muted);
+      }
+    } else {
+      video.muted = !video.muted;
+      setIsMuted(video.muted);
     }
-  }, [isMuted]);
+  }, [captionLang]);
 
   const handleProgressClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!progressRef.current || !videoRef.current) return;
     const rect = progressRef.current.getBoundingClientRect();
     const ratio = (e.clientX - rect.left) / rect.width;
-    videoRef.current.currentTime = ratio * duration;
-    lastSpokenCueRef.current = -1;
-    window.speechSynthesis?.cancel();
-  }, [duration]);
+    const newTime = ratio * duration;
+    videoRef.current.currentTime = newTime;
+    if (voiceAudioRef.current && captionLang !== 'en') {
+      voiceAudioRef.current.currentTime = newTime;
+    }
+  }, [duration, captionLang]);
 
   const handleFullscreen = useCallback(() => {
     const container = videoRef.current?.parentElement?.parentElement;
@@ -261,6 +216,9 @@ export default function VideoSection() {
 
   return (
     <section className="py-24 px-4 sm:px-6 relative overflow-hidden bg-gradient-to-b from-background via-overseez-mid/50 to-background">
+      {/* Hidden audio element for translated voice tracks */}
+      <audio ref={voiceAudioRef} preload="none" />
+
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-overseez-blue/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-overseez-gold/5 rounded-full blur-3xl" />
@@ -292,8 +250,8 @@ export default function VideoSection() {
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onPlay={() => setIsPlaying(true)}
-                onPause={() => { setIsPlaying(false); window.speechSynthesis?.cancel(); }}
-                onEnded={() => { setIsPlaying(false); window.speechSynthesis?.cancel(); }}
+                onPause={() => { setIsPlaying(false); voiceAudioRef.current?.pause(); }}
+                onEnded={() => { setIsPlaying(false); voiceAudioRef.current?.pause(); }}
                 playsInline
                 preload="metadata"
               />
@@ -316,7 +274,7 @@ export default function VideoSection() {
                 </div>
               )}
 
-              {isTTSActive && isPlaying && captionLang !== 'en' && (
+              {captionLang !== 'en' && isPlaying && (
                 <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-overseez-blue/90 text-white text-xs px-3 py-1.5 rounded-full z-20">
                   <Volume2 className="w-3.5 h-3.5 animate-pulse" />
                   {CAPTION_LANGUAGES.find(l => l.code === captionLang)?.flag} {t('video.voiceTranslation')}
