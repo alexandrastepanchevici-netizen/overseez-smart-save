@@ -16,9 +16,10 @@ const CAPTION_LANGUAGES = [
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
-// Parse VTT text into cue objects
-function parseVTT(text: string): { start: number; end: number; text: string }[] {
-  const cues: { start: number; end: number; text: string }[] = [];
+type Cue = { start: number; end: number; text: string };
+
+function parseVTT(text: string): Cue[] {
+  const cues: Cue[] = [];
   const blocks = text.split('\n\n');
   for (const block of blocks) {
     const lines = block.trim().split('\n');
@@ -36,6 +37,19 @@ function parseVTT(text: string): { start: number; end: number; text: string }[] 
   return cues;
 }
 
+// Get best matching voice for a language
+function getVoiceForLang(lang: string): SpeechSynthesisVoice | null {
+  const voices = window.speechSynthesis.getVoices();
+  // Try exact match first
+  let voice = voices.find(v => v.lang === lang);
+  // Then prefix match (e.g. "fr" matches "fr-FR")
+  if (!voice) {
+    const prefix = lang.split('-')[0];
+    voice = voices.find(v => v.lang.startsWith(prefix));
+  }
+  return voice || null;
+}
+
 export default function VideoSection() {
   const { t, i18n } = useTranslation();
   const [captionLang, setCaptionLang] = useState(i18n.language || 'en');
@@ -48,20 +62,39 @@ export default function VideoSection() {
   const [duration, setDuration] = useState(0);
   const [currentCaption, setCurrentCaption] = useState('');
   const [isMuted, setIsMuted] = useState(false);
-  const [captions, setCaptions] = useState<Record<string, { start: number; end: number; text: string }[]>>({});
+  const [captions, setCaptions] = useState<Record<string, Cue[]>>({});
   const [isTTSActive, setIsTTSActive] = useState(false);
+  const [voicesReady, setVoicesReady] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const speedRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const lastSpokenCueRef = useRef<number>(-1);
+  const keepAliveRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Preload SpeechSynthesis voices (they load async in Chrome)
+  useEffect(() => {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+
+    const loadVoices = () => {
+      const voices = synth.getVoices();
+      if (voices.length > 0) {
+        setVoicesReady(true);
+      }
+    };
+
+    loadVoices();
+    synth.addEventListener('voiceschanged', loadVoices);
+    return () => synth.removeEventListener('voiceschanged', loadVoices);
+  }, []);
 
   // Load captions for all languages
   useEffect(() => {
     const loadCaptions = async () => {
-      const loaded: Record<string, { start: number; end: number; text: string }[]> = {};
-      for (const lang of CAPTION_LANGUAGES) {
+      const loaded: Record<string, Cue[]> = {};
+      const promises = CAPTION_LANGUAGES.map(async (lang) => {
         try {
           const resp = await fetch(`${STORAGE_BASE}/captions_${lang.code}.vtt`);
           if (resp.ok) {
@@ -71,7 +104,8 @@ export default function VideoSection() {
         } catch (e) {
           console.warn(`Failed to load captions for ${lang.code}`);
         }
-      }
+      });
+      await Promise.all(promises);
       setCaptions(loaded);
     };
     loadCaptions();
@@ -94,29 +128,65 @@ export default function VideoSection() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Update current caption based on video time
+  // Chrome bug: speechSynthesis stops after ~15s. Keep-alive workaround.
+  useEffect(() => {
+    if (isTTSActive && isPlaying) {
+      keepAliveRef.current = setInterval(() => {
+        if (window.speechSynthesis.speaking) {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        }
+      }, 10000);
+    } else {
+      if (keepAliveRef.current) {
+        clearInterval(keepAliveRef.current);
+        keepAliveRef.current = null;
+      }
+    }
+    return () => {
+      if (keepAliveRef.current) clearInterval(keepAliveRef.current);
+    };
+  }, [isTTSActive, isPlaying]);
+
+  // Speak a caption cue
+  const speakCue = useCallback((text: string, langCode: string) => {
+    const synth = window.speechSynthesis;
+    if (!synth) return;
+
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const langConfig = CAPTION_LANGUAGES.find(l => l.code === langCode);
+    const speechLang = langConfig?.speechLang || 'en-US';
+    utterance.lang = speechLang;
+
+    // Set a specific voice if available
+    const voice = getVoiceForLang(speechLang);
+    if (voice) utterance.voice = voice;
+
+    utterance.rate = Math.min(speed * 1.1, 2); // Slightly faster to keep pace
+    utterance.volume = 1.0;
+    utterance.pitch = 1.0;
+
+    synth.speak(utterance);
+  }, [speed]);
+
+  // Update current caption and trigger TTS
   useEffect(() => {
     const langCues = captions[captionLang] || [];
-    const cue = langCues.find(c => currentTime >= c.start && currentTime < c.end);
+    const cueIdx = langCues.findIndex(c => currentTime >= c.start && currentTime < c.end);
+    const cue = cueIdx >= 0 ? langCues[cueIdx] : null;
+
     setCurrentCaption(cue?.text || '');
 
     // TTS for non-English languages
-    if (captionLang !== 'en' && isTTSActive && cue && isPlaying) {
-      const cueIdx = langCues.indexOf(cue);
-      if (cueIdx !== lastSpokenCueRef.current && window.speechSynthesis) {
+    if (captionLang !== 'en' && isTTSActive && cue && isPlaying && voicesReady) {
+      if (cueIdx !== lastSpokenCueRef.current) {
         lastSpokenCueRef.current = cueIdx;
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(cue.text);
-        const langConfig = CAPTION_LANGUAGES.find(l => l.code === captionLang);
-        utterance.lang = langConfig?.speechLang || 'en-US';
-        utterance.rate = speed;
-        utterance.volume = 0.9;
-        window.speechSynthesis.speak(utterance);
+        speakCue(cue.text, captionLang);
       }
     }
-  }, [currentTime, captionLang, captions, isTTSActive, isPlaying, speed]);
+  }, [currentTime, captionLang, captions, isTTSActive, isPlaying, voicesReady, speakCue]);
 
-  // Video event handlers
   const handleTimeUpdate = useCallback(() => {
     if (videoRef.current) setCurrentTime(videoRef.current.currentTime);
   }, []);
@@ -148,7 +218,6 @@ export default function VideoSection() {
     lastSpokenCueRef.current = -1;
     window.speechSynthesis?.cancel();
 
-    // For non-English, activate TTS and mute original audio
     if (code !== 'en') {
       setIsTTSActive(true);
       setIsMuted(true);
@@ -198,7 +267,6 @@ export default function VideoSection() {
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 bg-overseez-blue/10 border border-overseez-blue/20 rounded-full px-4 py-1.5 mb-6 text-xs font-medium text-overseez-blue">
             <Play className="w-3.5 h-3.5" />
@@ -212,12 +280,10 @@ export default function VideoSection() {
           </p>
         </div>
 
-        {/* Video Player */}
         <div className="relative max-w-5xl mx-auto">
           <div className="absolute -inset-4 bg-gradient-to-r from-overseez-blue/20 via-overseez-gold/10 to-overseez-blue/20 rounded-3xl blur-2xl opacity-40" />
 
           <div className="relative rounded-2xl overflow-hidden border border-border/50 bg-card shadow-2xl shadow-overseez-blue/10">
-            {/* Video with caption overlay */}
             <div className="relative w-full bg-black cursor-pointer" onClick={togglePlay}>
               <video
                 ref={videoRef}
@@ -232,7 +298,6 @@ export default function VideoSection() {
                 preload="metadata"
               />
 
-              {/* Play button overlay when paused */}
               {!isPlaying && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity">
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-overseez-blue/90 flex items-center justify-center shadow-2xl backdrop-blur-sm">
@@ -241,7 +306,6 @@ export default function VideoSection() {
                 </div>
               )}
 
-              {/* Caption overlay */}
               {showCaptions && currentCaption && (
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-2xl pointer-events-none z-20">
                   <div className="bg-black/80 backdrop-blur-sm rounded-lg px-4 py-2.5 text-center">
@@ -252,7 +316,6 @@ export default function VideoSection() {
                 </div>
               )}
 
-              {/* TTS indicator */}
               {isTTSActive && isPlaying && captionLang !== 'en' && (
                 <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-overseez-blue/90 text-white text-xs px-3 py-1.5 rounded-full z-20">
                   <Volume2 className="w-3.5 h-3.5 animate-pulse" />
@@ -275,64 +338,37 @@ export default function VideoSection() {
               </div>
             </div>
 
-            {/* Controls bar */}
+            {/* Controls */}
             <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2.5 bg-card/95 border-t border-border/50">
-              {/* Left controls */}
               <div className="flex items-center gap-2 sm:gap-3">
-                <button
-                  onClick={togglePlay}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-overseez-blue/10 hover:bg-overseez-blue/20 text-overseez-blue transition-colors"
-                >
+                <button onClick={togglePlay} className="flex items-center justify-center w-8 h-8 rounded-lg bg-overseez-blue/10 hover:bg-overseez-blue/20 text-overseez-blue transition-colors">
                   {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                 </button>
-
-                <button
-                  onClick={toggleMute}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground transition-colors"
-                >
+                <button onClick={toggleMute} className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground transition-colors">
                   {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                 </button>
-
                 <span className="text-xs text-muted-foreground font-mono hidden sm:block">
                   {formatTime(currentTime)} / {formatTime(duration)}
                 </span>
               </div>
 
-              {/* Right controls */}
               <div className="flex items-center gap-1.5 sm:gap-2">
-                {/* CC toggle */}
                 <button
                   onClick={() => setShowCaptions(!showCaptions)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    showCaptions
-                      ? 'bg-overseez-blue/10 text-overseez-blue'
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                  }`}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${showCaptions ? 'bg-overseez-blue/10 text-overseez-blue' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}`}
                 >
                   <Captions className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">CC</span>
                 </button>
 
-                {/* Speed control */}
                 <div ref={speedRef} className="relative">
-                  <button
-                    onClick={() => { setShowSpeedMenu(!showSpeedMenu); setShowLangMenu(false); }}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted/50 hover:bg-muted text-xs font-medium transition-colors"
-                  >
-                    <Gauge className="w-3.5 h-3.5" />
-                    {speed}x
-                    <ChevronDown className="w-3 h-3" />
+                  <button onClick={() => { setShowSpeedMenu(!showSpeedMenu); setShowLangMenu(false); }} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted/50 hover:bg-muted text-xs font-medium transition-colors">
+                    <Gauge className="w-3.5 h-3.5" />{speed}x<ChevronDown className="w-3 h-3" />
                   </button>
                   {showSpeedMenu && (
                     <div className="absolute bottom-full mb-2 right-0 w-28 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in">
                       {SPEEDS.map(s => (
-                        <button
-                          key={s}
-                          onClick={() => handleSpeedChange(s)}
-                          className={`w-full px-3 py-2 text-sm text-left hover:bg-muted transition-colors ${
-                            s === speed ? 'text-overseez-blue font-medium bg-overseez-blue/5' : 'text-muted-foreground'
-                          }`}
-                        >
+                        <button key={s} onClick={() => handleSpeedChange(s)} className={`w-full px-3 py-2 text-sm text-left hover:bg-muted transition-colors ${s === speed ? 'text-overseez-blue font-medium bg-overseez-blue/5' : 'text-muted-foreground'}`}>
                           {s}x {s === 1 ? `(${t('video.normal')})` : ''}
                         </button>
                       ))}
@@ -340,15 +376,9 @@ export default function VideoSection() {
                   )}
                 </div>
 
-                {/* Language selector */}
                 <div ref={langRef} className="relative">
-                  <button
-                    onClick={() => { setShowLangMenu(!showLangMenu); setShowSpeedMenu(false); }}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-muted/50 hover:bg-muted text-xs font-medium transition-colors"
-                  >
-                    <Globe className="w-3.5 h-3.5" />
-                    {CAPTION_LANGUAGES.find(l => l.code === captionLang)?.flag}
-                    <ChevronDown className="w-3 h-3" />
+                  <button onClick={() => { setShowLangMenu(!showLangMenu); setShowSpeedMenu(false); }} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-muted/50 hover:bg-muted text-xs font-medium transition-colors">
+                    <Globe className="w-3.5 h-3.5" />{CAPTION_LANGUAGES.find(l => l.code === captionLang)?.flag}<ChevronDown className="w-3 h-3" />
                   </button>
                   {showLangMenu && (
                     <div className="absolute bottom-full mb-2 right-0 w-48 bg-card border border-border rounded-xl shadow-lg z-50 py-1 animate-fade-in">
@@ -356,18 +386,10 @@ export default function VideoSection() {
                         {t('video.captionLanguage')}
                       </div>
                       {CAPTION_LANGUAGES.map(lang => (
-                        <button
-                          key={lang.code}
-                          onClick={() => handleLangChange(lang.code)}
-                          className={`flex items-center gap-2.5 w-full px-3 py-2 text-sm hover:bg-muted transition-colors ${
-                            lang.code === captionLang ? 'text-overseez-blue font-medium bg-overseez-blue/5' : 'text-muted-foreground'
-                          }`}
-                        >
+                        <button key={lang.code} onClick={() => handleLangChange(lang.code)} className={`flex items-center gap-2.5 w-full px-3 py-2 text-sm hover:bg-muted transition-colors ${lang.code === captionLang ? 'text-overseez-blue font-medium bg-overseez-blue/5' : 'text-muted-foreground'}`}>
                           <span>{lang.flag}</span>
                           <span className="flex-1 text-left">{lang.label}</span>
-                          {lang.code !== 'en' && lang.code === captionLang && (
-                            <Volume2 className="w-3 h-3 text-overseez-blue" />
-                          )}
+                          {lang.code !== 'en' && lang.code === captionLang && <Volume2 className="w-3 h-3 text-overseez-blue" />}
                         </button>
                       ))}
                       <div className="px-3 py-1.5 text-[10px] text-muted-foreground/50 border-t border-border/50 mt-1">
@@ -377,11 +399,7 @@ export default function VideoSection() {
                   )}
                 </div>
 
-                {/* Fullscreen */}
-                <button
-                  onClick={handleFullscreen}
-                  className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground transition-colors"
-                >
+                <button onClick={handleFullscreen} className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted/50 hover:bg-muted text-muted-foreground transition-colors">
                   <Maximize className="w-3.5 h-3.5" />
                 </button>
               </div>
