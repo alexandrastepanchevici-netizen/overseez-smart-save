@@ -315,5 +315,34 @@
     "title": "404",
     "message": "Oups ! Page non trouvée.",
     "back": "Retour à l'accueil"
+  },
+  "video": {
+    "badge": "Voir la démo",
+    "title": "Découvrez Overseez en action",
+    "subtitle": "Regardez comment notre IA trouve les prix les moins chers en quelques secondes — avec de vrais lieux, de vraies économies et de vrais résultats.",
+    "playCaptions": "Lire les sous-titres",
+    "pauseCaptions": "Pause sous-titres",
+    "captionLanguage": "Langue des sous-titres",
+    "normal": "Normal",
+    "captions": {
+      "c1": "Salut tout le monde ! Bienvenue sur Overseez — laissez-moi vous montrer comment ça marche.",
+      "c2": "La première chose à faire est de chercher ce dont vous avez besoin — comme du jus de pomme.",
+      "c3": "Vous pouvez définir votre emplacement et votre devise pour des résultats personnalisés.",
+      "c4": "L'IA trouve instantanément les 5 options les moins chères près de chez vous.",
+      "c5": "Chaque résultat montre le vrai prix, le nom du magasin et la distance.",
+      "c6": "Vous pouvez cliquer sur Google Maps pour obtenir l'itinéraire exact.",
+      "c7": "Remarquez comment les promotions actives sont affichées automatiquement.",
+      "c8": "Les économies par rapport à la moyenne locale sont calculées en temps réel.",
+      "c9": "Si vous avez configuré votre banque, les frais à l'étranger sont aussi affichés.",
+      "c10": "Maintenant, laissez-moi vous montrer le suivi des économies — c'est là que ça devient intéressant.",
+      "c11": "Quand vous trouvez une option moins chère, vous pouvez enregistrer votre économie en un clic.",
+      "c12": "Le montant exact économisé par rapport au prix moyen est calculé automatiquement.",
+      "c13": "Vos économies totales s'accumulent au fil du temps — par semaine, par mois et au total.",
+      "c14": "Vous pouvez voir votre progression et atteindre des objectifs à mesure que vous économisez.",
+      "c15": "Le tableau de bord vous donne un aperçu clair de toute votre activité d'économies.",
+      "c16": "Les utilisateurs Premium ont des recherches IA illimitées et des analyses avancées.",
+      "c17": "Ça marche pour l'épicerie, le café, l'essence, les hôtels — pratiquement tout.",
+      "c18": "Voilà Overseez — arrêtez de trop payer, commencez à économiser. Essayez maintenant !"
+    }
   }
 }
