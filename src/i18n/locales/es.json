@@ -320,29 +320,9 @@
     "badge": "Ver demostración",
     "title": "Mira Overseez en acción",
     "subtitle": "Observa cómo nuestra IA encuentra los precios más baratos en segundos — con ubicaciones reales, ahorros reales y resultados reales.",
-    "playCaptions": "Reproducir subtítulos",
-    "pauseCaptions": "Pausar subtítulos",
     "captionLanguage": "Idioma de subtítulos",
     "normal": "Normal",
-    "captions": {
-      "c1": "¡Hola a todos! Bienvenidos a Overseez — déjenme mostrarles cómo funciona.",
-      "c2": "Lo primero es buscar lo que necesitas — como jugo de manzana.",
-      "c3": "Puedes configurar tu ubicación y moneda para resultados personalizados.",
-      "c4": "La IA encuentra al instante las 5 opciones más baratas cerca de ti.",
-      "c5": "Cada resultado muestra el precio real, el nombre de la tienda y la distancia.",
-      "c6": "Puedes hacer clic en Google Maps para obtener indicaciones exactas.",
-      "c7": "Observa cómo también muestra las promociones activas automáticamente.",
-      "c8": "Los ahorros en comparación con el promedio local se calculan en tiempo real.",
-      "c9": "Si tienes un banco configurado, también muestra las comisiones en el extranjero.",
-      "c10": "Ahora déjenme mostrarles el seguimiento de ahorros — aquí es donde se pone interesante.",
-      "c11": "Cuando encuentras una opción más barata, puedes registrar tu ahorro con un clic.",
-      "c12": "Calcula exactamente cuánto ahorraste en comparación con el precio promedio.",
-      "c13": "Tus ahorros totales se acumulan con el tiempo — semanal, mensual y total.",
-      "c14": "Puedes ver tu progreso de ahorro y alcanzar hitos a medida que ahorras más.",
-      "c15": "El panel te da una visión clara de toda tu actividad de ahorro.",
-      "c16": "Los usuarios Premium tienen búsquedas de IA ilimitadas y análisis avanzados.",
-      "c17": "Funciona para comestibles, café, gasolina, hoteles — básicamente cualquier cosa.",
-      "c18": "Eso es Overseez — deja de pagar de más, empieza a ahorrar. ¡Pruébalo ahora!"
-    }
+    "voiceTranslation": "Traducción de voz",
+    "autoVoice": "Los idiomas no ingleses incluyen traducción de voz con IA"
   }
 }
