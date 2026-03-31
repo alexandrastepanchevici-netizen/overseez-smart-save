@@ -169,11 +169,11 @@ export default function Index() {
           <div className="mt-14 sm:mt-16 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             <div className="inline-flex flex-wrap justify-center gap-6 sm:gap-12 border border-border/30 bg-card/20 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-5">
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={47.2} suffix="%" decimals={1} /></p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={26.2} suffix="%" decimals={1} /></p>
                 <p className="text-xs text-muted-foreground mt-0.5">{t('hero.avgSavings')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">$<AnimatedCounter end={2340} decimals={0} /></p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight">$<AnimatedCounter end={657} decimals={0} /></p>
                 <p className="text-xs text-muted-foreground mt-0.5">{t('hero.savedPerUser')}</p>
               </div>
               <div className="text-center">
