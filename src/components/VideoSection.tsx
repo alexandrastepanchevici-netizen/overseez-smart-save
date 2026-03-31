@@ -16,14 +16,22 @@ const SUPPORTED_LANGUAGES = CAPTION_LANGUAGES.map(({ code }) => code);
 type SupportedLanguage = (typeof CAPTION_LANGUAGES)[number]['code'];
 
 type Cue = { start: number; end: number; text: string };
+type PendingSourceSwap = {
+  time: number;
+  shouldResume: boolean;
+  muted: boolean;
+  volume: number;
+};
+
+const VIDEO_ASSET_VERSION = '20260331-audio-fix-1';
 
 const VIDEO_SOURCES: Record<SupportedLanguage, string> = {
-  en: `${STORAGE_BASE}/demo.mp4`,
-  fr: `${STORAGE_BASE}/demo_fr.mp4`,
-  es: `${STORAGE_BASE}/demo_es.mp4`,
-  ru: `${STORAGE_BASE}/demo_ru.mp4`,
-  zh: `${STORAGE_BASE}/demo_zh.mp4`,
-  hi: `${STORAGE_BASE}/demo_hi.mp4`,
+  en: `${STORAGE_BASE}/demo.mp4?v=${VIDEO_ASSET_VERSION}`,
+  fr: `${STORAGE_BASE}/demo_fr.mp4?v=${VIDEO_ASSET_VERSION}`,
+  es: `${STORAGE_BASE}/demo_es.mp4?v=${VIDEO_ASSET_VERSION}`,
+  ru: `${STORAGE_BASE}/demo_ru.mp4?v=${VIDEO_ASSET_VERSION}`,
+  zh: `${STORAGE_BASE}/demo_zh.mp4?v=${VIDEO_ASSET_VERSION}`,
+  hi: `${STORAGE_BASE}/demo_hi.mp4?v=${VIDEO_ASSET_VERSION}`,
 };
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -81,7 +89,7 @@ export default function VideoSection() {
   const langRef = useRef<HTMLDivElement>(null);
   const speedRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
-  const pendingSourceSwapRef = useRef<{ time: number; shouldResume: boolean } | null>(null);
+  const pendingSourceSwapRef = useRef<PendingSourceSwap | null>(null);
 
   useEffect(() => {
     const loadCaptions = async () => {
@@ -121,9 +129,14 @@ export default function VideoSection() {
       pendingSourceSwapRef.current = {
         time: video.currentTime,
         shouldResume: !video.paused && !video.ended,
+        muted: video.muted,
+        volume: video.volume,
       };
+
+      video.pause();
     }
 
+    setIsPlaying(false);
     setVideoSource(nextSource);
     setCurrentCaption('');
   }, [captionLang, videoSource]);
@@ -150,6 +163,25 @@ export default function VideoSection() {
   }, [speed, videoSource]);
 
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.defaultMuted = false;
+    video.muted = isMuted;
+
+    if (!isMuted) {
+      video.volume = 1;
+    }
+  }, [isMuted, videoSource]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.load();
+  }, [videoSource]);
+
+  useEffect(() => {
     const languageCues = captions[captionLang] ?? [];
     const cue = languageCues.find(({ start, end }) => currentTime >= start && currentTime < end);
     setCurrentCaption(cue?.text ?? '');
@@ -164,11 +196,21 @@ export default function VideoSection() {
     const video = videoRef.current;
     if (!video) return;
 
+    const pendingSwap = pendingSourceSwapRef.current;
+    const nextMuted = pendingSwap?.muted ?? isMuted;
+    const nextVolume = pendingSwap?.volume ?? 1;
+
     setDuration(video.duration);
     video.playbackRate = speed;
-    video.muted = isMuted;
+    video.defaultMuted = false;
+    video.muted = nextMuted;
 
-    const pendingSwap = pendingSourceSwapRef.current;
+    if (!nextMuted) {
+      video.volume = nextVolume > 0 ? nextVolume : 1;
+    }
+
+    setIsMuted(nextMuted);
+
     if (!pendingSwap) return;
 
     pendingSourceSwapRef.current = null;
@@ -181,7 +223,17 @@ export default function VideoSection() {
     if (!pendingSwap.shouldResume) return;
 
     void video.play()
-      .then(() => setIsPlaying(true))
+      .then(() => {
+        video.defaultMuted = false;
+        video.muted = pendingSwap.muted;
+
+        if (!pendingSwap.muted) {
+          video.volume = pendingSwap.volume > 0 ? pendingSwap.volume : 1;
+        }
+
+        setIsMuted(pendingSwap.muted);
+        setIsPlaying(true);
+      })
       .catch((error) => {
         console.warn('Translated video playback failed to resume', error);
         setIsPlaying(false);
@@ -193,8 +245,18 @@ export default function VideoSection() {
     if (!video) return;
 
     if (video.paused) {
+      video.defaultMuted = false;
+      video.muted = isMuted;
+
+      if (!isMuted) {
+        video.volume = 1;
+      }
+
       void video.play()
-        .then(() => setIsPlaying(true))
+        .then(() => {
+          setIsMuted(video.muted);
+          setIsPlaying(true);
+        })
         .catch((error) => {
           console.warn('Video playback failed', error);
           setIsPlaying(false);
@@ -227,7 +289,13 @@ export default function VideoSection() {
     if (!video) return;
 
     const nextMuted = !video.muted;
+    video.defaultMuted = nextMuted;
     video.muted = nextMuted;
+
+    if (!nextMuted) {
+      video.volume = 1;
+    }
+
     setIsMuted(nextMuted);
   }, []);
 
@@ -287,7 +355,6 @@ export default function VideoSection() {
           <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-2xl shadow-overseez-blue/10">
             <div className="relative w-full cursor-pointer bg-foreground" onClick={togglePlay}>
               <video
-                key={videoSource}
                 ref={videoRef}
                 src={videoSource}
                 className="block h-auto w-full"
@@ -296,8 +363,10 @@ export default function VideoSection() {
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 onEnded={() => setIsPlaying(false)}
+                onVolumeChange={() => setIsMuted(videoRef.current?.muted ?? false)}
+                defaultMuted={false}
                 playsInline
-                preload="metadata"
+                preload="auto"
               />
 
               {!isPlaying && (
