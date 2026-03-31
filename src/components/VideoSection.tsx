@@ -25,13 +25,15 @@ type PendingSourceSwap = {
 
 const VIDEO_ASSET_VERSION = '20260331-audio-fix-2';
 
+const ENGLISH_VIDEO_SOURCE = `${STORAGE_BASE}/demo.mp4?v=${VIDEO_ASSET_VERSION}`;
+
 const VIDEO_SOURCES: Record<SupportedLanguage, string> = {
-  en: `${STORAGE_BASE}/demo.mp4?v=${VIDEO_ASSET_VERSION}`,
-  fr: `${STORAGE_BASE}/demo_fr_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
-  es: `${STORAGE_BASE}/demo_es_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
-  ru: `${STORAGE_BASE}/demo_ru_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
-  zh: `${STORAGE_BASE}/demo_zh_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
-  hi: `${STORAGE_BASE}/demo_hi_v2.mp4?v=${VIDEO_ASSET_VERSION}`,
+  en: ENGLISH_VIDEO_SOURCE,
+  fr: ENGLISH_VIDEO_SOURCE,
+  es: ENGLISH_VIDEO_SOURCE,
+  ru: ENGLISH_VIDEO_SOURCE,
+  zh: ENGLISH_VIDEO_SOURCE,
+  hi: ENGLISH_VIDEO_SOURCE,
 };
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -386,12 +388,6 @@ export default function VideoSection() {
                 </div>
               )}
 
-              {captionLang !== 'en' && isPlaying && (
-                <div className="absolute right-3 top-3 z-20 flex items-center gap-1.5 rounded-full bg-overseez-blue/90 px-3 py-1.5 text-xs text-background">
-                  <Volume2 className="h-3.5 w-3.5 animate-pulse" />
-                  {currentLanguage.flag} {t('video.voiceTranslation')}
-                </div>
-              )}
             </div>
 
             <div ref={progressRef} className="group relative h-1.5 cursor-pointer bg-muted/30" onClick={handleProgressClick}>
@@ -476,12 +472,9 @@ export default function VideoSection() {
                         >
                           <span>{language.flag}</span>
                           <span className="flex-1 text-left">{language.label}</span>
-                          {language.code !== 'en' && language.code === captionLang && <Volume2 className="h-3 w-3 text-overseez-blue" />}
+                          {language.code === captionLang && <Captions className="h-3 w-3 text-overseez-blue" />}
                         </button>
                       ))}
-                      <div className="mt-1 border-t border-border/50 px-3 py-1.5 text-[10px] text-muted-foreground/50">
-                        {t('video.autoVoice')}
-                      </div>
                     </div>
                   )}
                 </div>
