@@ -315,9 +315,19 @@ export default function VideoSection() {
   }, [duration]);
 
   const handleFullscreen = useCallback(() => {
-    const container = videoRef.current?.parentElement?.parentElement;
-    if (container?.requestFullscreen) {
-      void container.requestFullscreen();
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Try native video fullscreen first (works best on mobile)
+    if ((video as any).webkitEnterFullscreen) {
+      (video as any).webkitEnterFullscreen();
+    } else if (video.requestFullscreen) {
+      void video.requestFullscreen();
+    } else {
+      const container = video.parentElement?.parentElement;
+      if (container?.requestFullscreen) {
+        void container.requestFullscreen();
+      }
     }
   }, []);
 
@@ -460,7 +470,7 @@ export default function VideoSection() {
                   </button>
 
                   {showLangMenu && (
-                    <div className="absolute bottom-full right-0 z-50 mb-2 w-48 animate-fade-in rounded-xl border border-border bg-card py-1 shadow-lg">
+                    <div className="absolute bottom-full right-0 z-50 mb-2 w-48 max-h-[50vh] overflow-y-auto animate-fade-in rounded-xl border border-border bg-card py-1 shadow-lg">
                       <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">
                         {t('video.captionLanguage')}
                       </div>

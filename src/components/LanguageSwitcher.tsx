@@ -44,7 +44,7 @@ export default function LanguageSwitcher({ compact }: { compact?: boolean }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-40 bg-card border border-border rounded-xl shadow-lg z-[100] py-1 animate-fade-in">
+        <div className="absolute right-0 top-full mt-1.5 w-40 max-h-[60vh] overflow-y-auto bg-card border border-border rounded-xl shadow-lg z-[100] py-1 animate-fade-in">
           {LANGUAGES.map(lang => (
             <button
               key={lang.code}

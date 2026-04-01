@@ -94,7 +94,7 @@ export default function CurrencySwitcher({ value, onChange, compact = false }: C
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1.5 w-48 bg-card border border-border rounded-xl shadow-lg z-[130] py-1 animate-fade-in">
+        <div className="absolute right-0 top-full mt-1.5 w-48 max-h-[60vh] overflow-y-auto bg-card border border-border rounded-xl shadow-lg z-[130] py-1 animate-fade-in">
           {CURRENCIES.map(c => (
             <button
               key={c.code}
