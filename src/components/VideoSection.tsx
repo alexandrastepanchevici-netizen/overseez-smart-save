@@ -315,9 +315,19 @@ export default function VideoSection() {
   }, [duration]);
 
   const handleFullscreen = useCallback(() => {
-    const container = videoRef.current?.parentElement?.parentElement;
-    if (container?.requestFullscreen) {
-      void container.requestFullscreen();
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Try native video fullscreen first (works best on mobile)
+    if ((video as any).webkitEnterFullscreen) {
+      (video as any).webkitEnterFullscreen();
+    } else if (video.requestFullscreen) {
+      void video.requestFullscreen();
+    } else {
+      const container = video.parentElement?.parentElement;
+      if (container?.requestFullscreen) {
+        void container.requestFullscreen();
+      }
     }
   }, []);
 
