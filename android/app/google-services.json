@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "324398647022",
+    "project_id": "overseez-prod",
+    "storage_bucket": "overseez-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:324398647022:android:560f2afe70ac2ecaacd5ff",
+        "android_client_info": {
+          "package_name": "co.overseez.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHF0C6-k-gtb0YP4IgsNZVbkY7v_hjxZ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
