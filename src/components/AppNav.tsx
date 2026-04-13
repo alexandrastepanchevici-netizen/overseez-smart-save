@@ -29,7 +29,7 @@ export default function AppNav() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-14">
         <Link to="/dashboard" className="flex items-center gap-0">
           <OverseezLogo size={96} color="white" />
