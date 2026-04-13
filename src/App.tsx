@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { HashRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { DeepLinkHandler } from "@/components/DeepLinkHandler";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import Index from "./pages/Index";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -14,6 +16,11 @@ import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+function AppInner() {
+  usePushNotifications();
+  return null;
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -43,7 +50,9 @@ const App = () => (
     <TooltipProvider>
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
+        <HashRouter>
+          <DeepLinkHandler />
+          <AppInner />
           <Routes>
             {/* First screen for unauthenticated users is register */}
             <Route path="/" element={<AuthGate />} />
@@ -57,7 +66,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

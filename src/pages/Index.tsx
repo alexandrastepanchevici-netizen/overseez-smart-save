@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { openExternalUrl } from '@/lib/openExternalUrl';
 import OverseezLogo from '@/components/OverseezLogo';
 import FloatingOvals from '@/components/FloatingOvals';
 import AnimatedCounter from '@/components/AnimatedCounter';
@@ -432,16 +433,16 @@ export default function Index() {
             <h2 className="text-3xl font-display font-bold tracking-tight mb-4">{t('community.title')}</h2>
             <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm sm:text-base">{t('community.subtitle')}</p>
             <div className="flex items-center justify-center gap-4 flex-wrap">
-              <a href="https://www.instagram.com/overseez.co" target="_blank" rel="noopener noreferrer"
+              <button onClick={() => openExternalUrl('https://www.instagram.com/overseez.co')}
                 className="flex items-center gap-2 bg-card border border-border rounded-full px-5 py-2.5 hover:border-overseez-blue/40 transition-colors group">
                 <Instagram className="w-5 h-5 text-overseez-blue" />
                 <span className="text-sm font-medium">@overseez.co</span>
-              </a>
-              <a href="https://www.tiktok.com/@overseez.co" target="_blank" rel="noopener noreferrer"
+              </button>
+              <button onClick={() => openExternalUrl('https://www.tiktok.com/@overseez.co')}
                 className="flex items-center gap-2 bg-card border border-border rounded-full px-5 py-2.5 hover:border-overseez-blue/40 transition-colors group">
                 <svg className="w-5 h-5 text-overseez-blue" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.88-2.88 2.89 2.89 0 012.88-2.88c.28 0 .56.04.82.12V9.01a6.37 6.37 0 00-.82-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.05a8.26 8.26 0 004.77 1.51V7.12a4.83 4.83 0 01-1.01-.43z"/></svg>
                 <span className="text-sm font-medium">@overseez.co</span>
-              </a>
+              </button>
             </div>
           </RevealSection>
         </div>

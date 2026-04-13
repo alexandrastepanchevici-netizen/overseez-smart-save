@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Check, Zap, Loader2, ArrowRight, Coffee } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { openExternalUrl } from '@/lib/openExternalUrl';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +27,7 @@ export default function Subscription() {
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout');
       if (error) throw error;
-      if (data?.url) window.open(data.url, '_blank');
+      if (data?.url) await openExternalUrl(data.url);
     } catch (e: any) { toast.error(e.message || 'Failed to start checkout'); }
     finally { setLoading(false); }
   };
@@ -36,7 +37,7 @@ export default function Subscription() {
     try {
       const { data, error } = await supabase.functions.invoke('customer-portal');
       if (error) throw error;
-      if (data?.url) window.open(data.url, '_blank');
+      if (data?.url) await openExternalUrl(data.url);
     } catch (e: any) { toast.error(e.message || 'Failed to open portal'); }
     finally { setPortalLoading(false); }
   };

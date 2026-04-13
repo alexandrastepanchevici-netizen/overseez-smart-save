@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, getRedirectUrl } from '@/integrations/supabase/client';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: metadata },
+      options: { data: metadata, emailRedirectTo: getRedirectUrl() },
     });
     return { error };
   };

@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
@@ -149,12 +151,23 @@ export default function SearchPage() {
     return () => clearInterval(id);
   }, [oldestUsageTime, subscribed, usageLeft]);
 
-  // Request location
-  const requestLocation = useCallback(() => {
-    if (!navigator.geolocation) return;
+  // Request location — uses Capacitor plugin on Android, browser API on web
+  const requestLocation = useCallback(async () => {
     setLocStatus(t('search.detecting'));
-    navigator.geolocation.getCurrentPosition(async pos => {
-      const { latitude: lat, longitude: lng } = pos.coords;
+    try {
+      let lat: number, lng: number;
+      if (Capacitor.isNativePlatform()) {
+        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      } else {
+        if (!navigator.geolocation) { setLocStatus(t('search.locationUnavailable')); return; }
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 })
+        );
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      }
       try {
         const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
         const d = await r.json();
@@ -166,13 +179,21 @@ export default function SearchPage() {
         setLoc({ lat, lng, city: `${lat.toFixed(2)}, ${lng.toFixed(2)}`, cc: 'GB' });
         setLocStatus(`${lat.toFixed(2)}, ${lng.toFixed(2)}`);
       }
-    }, () => setLocStatus(t('search.locationUnavailable')));
+    } catch {
+      setLocStatus(t('search.locationUnavailable'));
+    }
   }, [t]);
 
   useEffect(() => {
-    navigator.permissions?.query({ name: 'geolocation' as PermissionName }).then(p => {
-      if (p.state === 'granted') requestLocation();
-    }).catch(() => {});
+    if (Capacitor.isNativePlatform()) {
+      Geolocation.checkPermissions().then(p => {
+        if (p.location === 'granted') requestLocation();
+      }).catch(() => {});
+    } else {
+      navigator.permissions?.query({ name: 'geolocation' as PermissionName }).then(p => {
+        if (p.state === 'granted') requestLocation();
+      }).catch(() => {});
+    }
   }, [requestLocation]);
 
   const doSearch = async (q?: string) => {
