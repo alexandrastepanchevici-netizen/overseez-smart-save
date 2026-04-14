@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          badge_key: string
+          id: string
+          unlocked_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          badge_key: string
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          badge_key?: string
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ai_usage: {
         Row: {
           created_at: string
@@ -71,6 +92,8 @@ export type Database = {
           longest_streak: number | null
           monthly_saved: number
           nickname: string
+          referral_count: number | null
+          referred_by: string | null
           total_saved: number
           updated_at: string
           user_id: string
@@ -87,6 +110,8 @@ export type Database = {
           longest_streak?: number | null
           monthly_saved?: number
           nickname: string
+          referral_count?: number | null
+          referred_by?: string | null
           total_saved?: number
           updated_at?: string
           user_id: string
@@ -103,6 +128,8 @@ export type Database = {
           longest_streak?: number | null
           monthly_saved?: number
           nickname?: string
+          referral_count?: number | null
+          referred_by?: string | null
           total_saved?: number
           updated_at?: string
           user_id?: string
