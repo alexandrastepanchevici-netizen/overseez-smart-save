@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useHaptics } from '@/hooks/useHaptics';
 
 export interface Badge {
   key: string;
@@ -47,6 +48,7 @@ interface CheckContext {
 
 export function useAchievements() {
   const { user } = useAuth();
+  const { tapSuccess } = useHaptics();
 
   const unlockBadge = useCallback(async (badgeKey: string) => {
     if (!user) return;
@@ -59,12 +61,13 @@ export function useAchievements() {
       .upsert({ user_id: user.id, badge_key: badgeKey }, { onConflict: 'user_id,badge_key', ignoreDuplicates: true });
 
     if (!error) {
+      tapSuccess();
       toast.success(`${badge.emoji} Badge unlocked: ${badge.name}!`, {
         description: badge.description,
         duration: 4000,
       });
     }
-  }, [user]);
+  }, [user, tapSuccess]);
 
   const checkAchievements = useCallback(async (ctx: CheckContext) => {
     if (!user) return;

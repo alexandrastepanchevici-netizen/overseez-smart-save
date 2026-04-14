@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStreak } from '@/hooks/useStreak';
 import { useAchievements } from '@/hooks/useAchievements';
+import { useHaptics } from '@/hooks/useHaptics';
 import { openExternalUrl } from '@/lib/openExternalUrl';
 
 interface Place {
@@ -71,6 +72,7 @@ export default function SearchPage() {
   const { t } = useTranslation();
   const { recordActivity } = useStreak();
   const { checkAchievements } = useAchievements();
+  const { tapMedium, tapSuccess } = useHaptics();
   const [query, setQuery] = useState('');
   const [bankName, setBankName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -261,6 +263,7 @@ export default function SearchPage() {
 
       setCombinedPlaces(combined);
       if (!subscribed) setUsageLeft(prev => Math.max(0, prev - 1));
+      tapMedium();
 
       // Record streak and check achievements after successful search
       if (user) {
@@ -312,6 +315,7 @@ export default function SearchPage() {
           total_saved: Number(prof.total_saved) + savedInProfileCurrency,
         }).eq('user_id', user.id);
       }
+      tapSuccess();
       toast.success(t('search.youSaved', { amount: `${currencySymbol}${saved.toFixed(2)}` }));
     } else {
       toast.info(t('search.logged'));

@@ -107,6 +107,10 @@ export default {
           from: { opacity: "0", transform: "translateY(8px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "page-enter": {
+          from: { opacity: "0", transform: "translateX(16px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -116,6 +120,7 @@ export default {
         "pulse-dot": "pulse-dot 1.2s ease-in-out infinite",
         "card-in": "card-in 0.3s ease both",
         "counter-up": "counter-up 0.5s ease-out forwards",
+        "page-enter": "page-enter 220ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both",
       },
     },
   },

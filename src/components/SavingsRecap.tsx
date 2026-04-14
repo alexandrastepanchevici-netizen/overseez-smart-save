@@ -140,14 +140,15 @@ export default function SavingsRecap({ displayCurrency, profileCurrency }: Props
               <BarChart data={weekData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
                 <Tooltip
                   formatter={(value: number) => [`${sym}${value.toFixed(2)}`, 'Saved']}
-                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }}
-                  labelStyle={{ color: 'hsl(var(--muted-foreground))' }}
+                  contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px', color: '#fff' }}
+                  labelStyle={{ color: '#fff' }}
+                  itemStyle={{ color: '#fff' }}
                 />
                 <Bar dataKey="total" radius={[3, 3, 0, 0]}>
                   {weekData.map((entry, index) => (
                     <Cell
                       key={entry.week}
-                      fill={index === weekData.length - 1 ? 'hsl(var(--overseez-blue))' : 'hsl(var(--muted))'}
+                      fill={index === weekData.length - 1 ? 'hsl(200 80% 65%)' : 'hsl(200 80% 45%)'}
                     />
                   ))}
                 </Bar>

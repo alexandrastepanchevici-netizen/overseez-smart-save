@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { User, LayoutDashboard, CreditCard, LogOut, ChevronDown, Search, Home } from 'lucide-react';
 import OverseezLogo from '@/components/OverseezLogo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { useHaptics } from '@/hooks/useHaptics';
 
 const NAV_LINKS = [
   { to: '/home', labelKey: 'nav.home', icon: Home },
@@ -20,6 +21,8 @@ export default function AppNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+
+  const { tapLight } = useHaptics();
 
   if (!user) return null;
 
@@ -89,7 +92,7 @@ export default function AppNav() {
           {NAV_LINKS.map(link => {
             const active = location.pathname === link.to;
             return (
-              <Link key={link.to} to={link.to}
+              <Link key={link.to} to={link.to} onClick={() => tapLight()}
                 className={`flex flex-col items-center gap-1 px-3 py-2 transition-colors ${active ? 'text-overseez-blue' : 'text-muted-foreground'}`}>
                 <link.icon className="w-5 h-5" />
                 <span className="text-[10px] font-medium">{t(link.labelKey)}</span>
