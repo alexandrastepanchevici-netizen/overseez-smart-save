@@ -90,9 +90,9 @@ export default function Dashboard() {
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{t('dashboard.totalSaved')}</p>
               <div className="flex items-center gap-3">
                 <p className="text-2xl font-display font-bold tracking-tight tabular-nums">{sym}{animatedTotal.toFixed(2)}</p>
-                {((profile as any)?.current_streak || 0) > 0 && (
-                  <span className="text-sm font-semibold text-orange-400">🔥 {(profile as any).current_streak} day{(profile as any).current_streak !== 1 ? 's' : ''}</span>
-                )}
+                <span className="text-sm font-semibold text-orange-400">
+                  🔥 {(profile as any)?.current_streak || 0} day{((profile as any)?.current_streak || 0) !== 1 ? 's' : ''}
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-3">
