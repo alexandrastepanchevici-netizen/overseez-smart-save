@@ -43,7 +43,7 @@ export default function Subscription() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
       <FloatingOvals />
       <AppNav />
       <div className="max-w-3xl mx-auto px-4 py-8">

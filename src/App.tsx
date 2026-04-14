@@ -5,6 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
+
+// Capture referral param from ?ref=NICKNAME (before the #) and persist to localStorage
+const refParam = new URLSearchParams(window.location.search).get('ref');
+if (refParam) localStorage.setItem('overseez_ref', refParam);
 import Index from "./pages/Index";
 import Register from "./pages/Register";
 import Login from "./pages/Login";

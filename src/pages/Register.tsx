@@ -64,9 +64,13 @@ export default function Register() {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
-    const { error } = await signUp(form.email, form.password, {
+    const referredBy = localStorage.getItem('overseez_ref') || '';
+    const metadata: Record<string, string> = {
       full_name: form.fullName, nickname: form.nickname, birth_date: form.birthDate, currency: selectedCurrency?.symbol || '£',
-    });
+    };
+    if (referredBy) metadata.referred_by = referredBy;
+    const { error } = await signUp(form.email, form.password, metadata);
+    if (!error) localStorage.removeItem('overseez_ref');
     setLoading(false);
     if (error) { setErrors({ submit: error.message }); } else { setSuccess(true); }
   };

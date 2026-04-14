@@ -4,6 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
 import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
+import SavingsRecap from '@/components/SavingsRecap';
+import ShareCard from '@/components/ShareCard';
+import NewUserWelcome from '@/components/NewUserWelcome';
 import { TrendingUp, Calendar, Wallet, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -76,7 +79,8 @@ export default function Dashboard() {
   const monthlySaved = savings.filter(s => new Date(s.created_at) >= monthAgo).reduce((a, s) => a + convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency), 0);
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
+      <NewUserWelcome />
       <FloatingOvals />
       <AppNav />
       <div className="border-b border-border bg-overseez-mid px-4 sm:px-6 py-3 relative z-[60]">
@@ -84,7 +88,12 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
             <div>
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{t('dashboard.totalSaved')}</p>
-              <p className="text-2xl font-display font-bold tracking-tight tabular-nums">{sym}{animatedTotal.toFixed(2)}</p>
+              <div className="flex items-center gap-3">
+                <p className="text-2xl font-display font-bold tracking-tight tabular-nums">{sym}{animatedTotal.toFixed(2)}</p>
+                {((profile as any)?.current_streak || 0) > 0 && (
+                  <span className="text-sm font-semibold text-orange-400">🔥 {(profile as any).current_streak} day{(profile as any).current_streak !== 1 ? 's' : ''}</span>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <CurrencySwitcher value={displayCurrency} onChange={(c) => { setDisplayCurrency(c); localStorage.setItem('overseez_display_currency', c); }} />
@@ -106,11 +115,21 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <StatCard icon={<Wallet className="w-5 h-5" />} label={t('dashboard.totalSavedLabel')} value={`${sym}${totalSaved.toFixed(2)}`} />
           <StatCard icon={<Calendar className="w-5 h-5" />} label={t('dashboard.thisWeek')} value={`${sym}${weeklySaved.toFixed(2)}`} />
           <StatCard icon={<TrendingUp className="w-5 h-5" />} label={t('dashboard.thisMonth')} value={`${sym}${monthlySaved.toFixed(2)}`} />
         </div>
+
+        <div className="flex justify-end mb-4">
+          <ShareCard
+            totalSaved={totalSaved}
+            displayCurrency={displayCurrency}
+            streak={(profile as any)?.current_streak || 0}
+          />
+        </div>
+
+        <SavingsRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           <button onClick={() => navigate('/search')} className="bg-card border border-border rounded-xl p-5 text-left overseez-card-hover group relative overflow-hidden">

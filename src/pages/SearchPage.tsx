@@ -11,6 +11,9 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useStreak } from '@/hooks/useStreak';
+import { useAchievements } from '@/hooks/useAchievements';
+import { openExternalUrl } from '@/lib/openExternalUrl';
 
 interface Place {
   rank: number;
@@ -66,6 +69,8 @@ export default function SearchPage() {
   const { user, subscribed, profile } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { recordActivity } = useStreak();
+  const { checkAchievements } = useAchievements();
   const [query, setQuery] = useState('');
   const [bankName, setBankName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -256,6 +261,25 @@ export default function SearchPage() {
 
       setCombinedPlaces(combined);
       if (!subscribed) setUsageLeft(prev => Math.max(0, prev - 1));
+
+      // Record streak and check achievements after successful search
+      if (user) {
+        recordActivity();
+        const isStudentSearch = searchQ.toLowerCase().includes('student');
+        const isAfterMidnight = new Date().getHours() === 0 || new Date().getHours() < 4;
+        const { count: searchCountData } = await supabase
+          .from('ai_usage')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        checkAchievements({
+          totalSavedUSD: profile?.total_saved || 0,
+          searchCount: searchCountData || 0,
+          streakDays: (profile as any)?.current_streak || 0,
+          isStudentSearch,
+          isSubscribed: subscribed,
+          isAfterMidnight,
+        });
+      }
     } catch (e: any) {
       setError(e.message || 'Something went wrong');
     } finally {
@@ -300,7 +324,7 @@ export default function SearchPage() {
   const bankFeeRate = bankInfo ? (bankInfo.overseasFeePercent || 0) / 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
       <FloatingOvals />
       <AppNav />
 
@@ -337,6 +361,26 @@ export default function SearchPage() {
           {QUICK_SEARCHES.map(c => (
             <button key={c.q} onClick={() => doSearch(c.q)}
               className="text-xs text-foreground/80 bg-muted/30 border border-border rounded-full px-3 py-1.5 whitespace-nowrap hover:bg-muted/60 transition-colors flex-shrink-0">
+              {c.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Student Discount Chips */}
+      <div className="border-b border-border bg-overseez-mid/60 px-4 py-2">
+        <div className="max-w-3xl mx-auto flex gap-2 overflow-x-auto items-center">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium flex-shrink-0">🎓 Student</span>
+          {[
+            { label: 'Transport pass', q: 'Student transport pass & discount travel cards' },
+            { label: 'Meal deals', q: 'Student meal deals & cheap restaurants near campus' },
+            { label: 'Gym', q: 'Student gym membership & fitness centres' },
+            { label: 'Phone plans', q: 'Student phone plans & SIM deals' },
+            { label: 'Software & tech', q: 'Student software deals & tech discounts' },
+            { label: 'Textbooks', q: 'Cheap textbooks & second-hand books' },
+          ].map(c => (
+            <button key={c.q} onClick={() => doSearch(c.q)}
+              className="text-xs text-overseez-blue bg-overseez-blue/10 border border-overseez-blue/30 rounded-full px-3 py-1.5 whitespace-nowrap hover:bg-overseez-blue/20 transition-colors flex-shrink-0">
               {c.label}
             </button>
           ))}
@@ -482,7 +526,9 @@ export default function SearchPage() {
                 const effectivePrice = displayedPrice + feeAmount;
                 const saving = displayedAverage - effectivePrice;
                 const mapsQuery = place.searchQuery || place.name;
-                const mapsUrl = `https://www.google.com/maps/place/${encodeURIComponent(mapsQuery)}`;
+                const mapsUrl = loc
+                  ? `https://www.google.com/maps/dir/?api=1&origin=${loc.lat},${loc.lng}&destination=${encodeURIComponent(mapsQuery + (loc.city ? ' ' + loc.city : ''))}&travelmode=walking`
+                  : `https://www.google.com/maps/search/${encodeURIComponent(mapsQuery)}`;
 
                 return (
                   <div key={i}
@@ -555,10 +601,10 @@ export default function SearchPage() {
                     </div>
 
                     <div className="flex items-center justify-end gap-2 mt-3 pt-2 border-t border-border/50">
-                      <a href={mapsUrl} target="_blank" rel="noopener"
+                      <button onClick={() => openExternalUrl(mapsUrl)}
                         className="text-xs text-overseez-blue hover:underline flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {t('search.viewOnMaps')}
-                      </a>
+                        <MapPin className="w-3 h-3" /> {loc ? '📍 Get Directions' : t('search.viewOnMaps')}
+                      </button>
                       <button onClick={() => {
                         setSpendModal({ open: true, place, avgVal: displayedAverage });
                         setSpendInput(displayedPrice.toFixed(2));

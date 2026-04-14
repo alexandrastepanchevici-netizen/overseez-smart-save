@@ -377,7 +377,7 @@ export default function VideoSection() {
                 onEnded={() => setIsPlaying(false)}
                 onVolumeChange={() => setIsMuted(videoRef.current?.muted ?? false)}
                 playsInline
-                preload="auto"
+                preload="metadata"
               />
 
               {!isPlaying && (

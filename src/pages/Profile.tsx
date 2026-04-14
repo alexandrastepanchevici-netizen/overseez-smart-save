@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
 import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
+import BadgeShelf from '@/components/BadgeShelf';
 import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -66,7 +67,7 @@ export default function Profile() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative">
+    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
       <FloatingOvals />
       <AppNav />
       <div className="max-w-2xl mx-auto px-4 py-8">
@@ -90,6 +91,8 @@ export default function Profile() {
             <InfoItem icon={<Star className="w-4 h-4" />} label={t('profile.subscriptionLabel')} value={subscribed ? t('profile.premium') : t('profile.freePlan')} />
           </div>
         </div>
+
+        <BadgeShelf />
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-4"><TrendingUp className="w-5 h-5 text-overseez-blue" /><h3 className="font-display font-semibold">{t('profile.savingsProgress')}</h3></div>
@@ -126,6 +129,24 @@ export default function Profile() {
         <div className="bg-card border border-border rounded-xl p-6">
           <div className="flex items-center gap-3 mb-4"><Shield className="w-5 h-5 text-muted-foreground" /><h3 className="font-display font-semibold">{t('profile.account')}</h3></div>
           <div className="space-y-3">
+            <button
+              onClick={async () => {
+                const nick = profile?.nickname;
+                if (!nick) return;
+                const link = `https://overseez.co/?ref=${encodeURIComponent(nick)}#/register`;
+                const text = `Join me on Overseez — the app that finds you the best prices near you!\n${link}`;
+                if (navigator.share) {
+                  try { await navigator.share({ title: 'Join Overseez', text, url: link }); } catch {}
+                } else {
+                  await navigator.clipboard.writeText(link);
+                  const { toast } = await import('sonner');
+                  toast.success('Invite link copied!');
+                }
+              }}
+              className="flex items-center justify-between w-full bg-overseez-blue/10 border border-overseez-blue/30 rounded-lg p-3 hover:bg-overseez-blue/20 transition-colors">
+              <span className="text-sm text-overseez-blue font-medium">🤝 Invite a Friend</span>
+              <span className="text-xs text-muted-foreground">Share your link →</span>
+            </button>
             <Link to="/subscription" className="flex items-center justify-between bg-muted/30 rounded-lg p-3 hover:bg-muted/50 transition-colors">
               <span className="text-sm">{t('profile.manageSubscription')}</span>
               <span className="text-xs text-muted-foreground">{subscribed ? t('profile.premium') : t('profile.freePlan')} →</span>
