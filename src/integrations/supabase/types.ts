@@ -40,8 +40,11 @@ export type Database = {
           birth_date: string
           created_at: string
           currency: string
+          current_streak: number | null
           full_name: string
           id: string
+          last_active_date: string | null
+          longest_streak: number | null
           monthly_saved: number
           nickname: string
           total_saved: number
@@ -53,8 +56,11 @@ export type Database = {
           birth_date: string
           created_at?: string
           currency?: string
+          current_streak?: number | null
           full_name: string
           id?: string
+          last_active_date?: string | null
+          longest_streak?: number | null
           monthly_saved?: number
           nickname: string
           total_saved?: number
@@ -66,8 +72,11 @@ export type Database = {
           birth_date?: string
           created_at?: string
           currency?: string
+          current_streak?: number | null
           full_name?: string
           id?: string
+          last_active_date?: string | null
+          longest_streak?: number | null
           monthly_saved?: number
           nickname?: string
           total_saved?: number
