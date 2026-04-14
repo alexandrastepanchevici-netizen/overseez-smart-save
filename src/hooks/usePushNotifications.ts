@@ -28,7 +28,8 @@ export function usePushNotifications() {
     const actionListenerPromise = FirebaseMessaging.addListener(
       'notificationActionPerformed',
       (event) => {
-        const route = event.notification.data?.route as string | undefined;
+        const data = event.notification.data as Record<string, string> | undefined;
+        const route = data?.route;
         if (route) window.location.hash = route;
       }
     );
