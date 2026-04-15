@@ -139,8 +139,8 @@
 
 /* Page transition */
 @keyframes page-enter {
-  from { opacity: 0; transform: translateX(16px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* Float animations */

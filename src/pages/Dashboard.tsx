@@ -5,6 +5,7 @@ import AppNav from '@/components/AppNav';
 import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
 import SavingsRecap from '@/components/SavingsRecap';
+import MonthlyRecap from '@/components/MonthlyRecap';
 import ShareCard from '@/components/ShareCard';
 import NewUserWelcome from '@/components/NewUserWelcome';
 import { TrendingUp, Calendar, Wallet, Target } from 'lucide-react';
@@ -31,6 +32,7 @@ export default function Dashboard() {
   const [savings, setSavings] = useState<any[]>([]);
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || 'USD');
+  const [percentileRank, setPercentileRank] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -39,6 +41,19 @@ export default function Dashboard() {
       .order('created_at', { ascending: false }).limit(20)
       .then(({ data }) => { if (data) setSavings(data); });
   }, [user]);
+
+  useEffect(() => {
+    if (!profile) return;
+    const myTotal = profile.total_saved || 0;
+    Promise.all([
+      supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('total_saved', myTotal),
+      supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('total_saved', 0),
+    ]).then(([above, total]) => {
+      const aboveCount = above.count || 0;
+      const totalCount = total.count || 1;
+      if (totalCount > 1) setPercentileRank(Math.round((1 - aboveCount / totalCount) * 100));
+    });
+  }, [profile?.total_saved]);
 
   const profileCurrency = profile?.currency || 'USD';
   const sym = getCurrencySymbol(displayCurrency);
@@ -94,6 +109,11 @@ export default function Dashboard() {
                 <span className="text-sm font-semibold text-orange-400">
                   🔥 {(profile as any)?.current_streak || 0} day{((profile as any)?.current_streak || 0) !== 1 ? 's' : ''}
                 </span>
+                {percentileRank !== null && percentileRank >= 50 && (
+                  <span className="text-xs font-semibold text-overseez-gold bg-overseez-gold/10 border border-overseez-gold/25 rounded-full px-2.5 py-0.5">
+                    🏆 Top {100 - percentileRank}%
+                  </span>
+                )}
               </div>
               {(() => {
                 const equivalents = getEquivalents(totalSaved, displayCurrency);
@@ -142,6 +162,7 @@ export default function Dashboard() {
         </div>
 
         <SavingsRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} />
+        <MonthlyRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           <button onClick={() => navigate('/search')} className="bg-card border border-border rounded-xl p-5 text-left overseez-card-hover group relative overflow-hidden">

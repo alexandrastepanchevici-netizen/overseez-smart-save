@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
 import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol, normalizeCurrencyCode } from '@/components/CurrencySwitcher';
-import { Search, MapPin, Building2, X } from 'lucide-react';
+import { Search, MapPin, Building2, X, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -96,6 +96,8 @@ export default function SearchPage() {
   const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
   const [userGoals, setUserGoals] = useState<{ id: string; name: string; emoji: string }[]>([]);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [voteEntryId, setVoteEntryId] = useState<string | null>(null);
+  const [voteStoreName, setVoteStoreName] = useState('');
 
   // Linger CTA: show "Did you shop here?" after 3 s on a result card
   const [lingerPlace, setLingerPlace] = useState<Place | null>(null);
@@ -211,6 +213,41 @@ export default function SearchPage() {
       if (lingerTimerRef.current) clearTimeout(lingerTimerRef.current);
     };
   }, [combinedPlaces]);
+
+  // Check for 24h price accuracy follow-ups on mount
+  useEffect(() => {
+    if (!user) return;
+    const pending: { entryId: string; savedAt: number; storeName: string }[] = JSON.parse(
+      localStorage.getItem('overseez_vote_pending') || '[]'
+    );
+    const now = Date.now();
+    const due = pending.find(p => now - p.savedAt >= 24 * 3600000);
+    if (due) {
+      toast('Was the price accurate?', {
+        description: `You saved at ${due.storeName} yesterday. Rate the price to help others.`,
+        action: {
+          label: '👍 Rate now',
+          onClick: () => setVoteEntryId(due.entryId),
+        },
+        duration: 8000,
+      });
+    }
+  }, [user]);
+
+  const submitVote = async (entryId: string, vote: 'accurate' | 'inaccurate') => {
+    if (!user) return;
+    await supabase.from('price_votes' as any).upsert(
+      { user_id: user.id, entry_id: entryId, vote },
+      { onConflict: 'user_id,entry_id' }
+    );
+    // Remove from pending
+    const pending: { entryId: string; savedAt: number; storeName: string }[] = JSON.parse(
+      localStorage.getItem('overseez_vote_pending') || '[]'
+    );
+    localStorage.setItem('overseez_vote_pending', JSON.stringify(pending.filter(p => p.entryId !== entryId)));
+    setVoteEntryId(null);
+    toast.success(vote === 'accurate' ? '👍 Thanks for confirming!' : '👎 Got it — we\'ll flag this price.');
+  };
 
   // Cycle loading step messages while search is in progress
   useEffect(() => {
@@ -364,7 +401,7 @@ export default function SearchPage() {
     if (isNaN(spent) || spent < 0) return;
     const saved = spendModal.avgVal - spent;
 
-    await supabase.from('savings_entries').insert({
+    const { data: entryData } = await supabase.from('savings_entries').insert({
       user_id: user.id,
       store_name: spendModal.place.name,
       amount_saved: Math.max(0, saved),
@@ -373,7 +410,7 @@ export default function SearchPage() {
       currency: displayCurrency,
       search_query: query,
       ...(selectedGoalId ? { goal_id: selectedGoalId } : {}),
-    } as any);
+    } as any).select('id').single();
 
     if (saved > 0) {
       const { data: prof } = await supabase.from('profiles').select('total_saved')
@@ -387,6 +424,16 @@ export default function SearchPage() {
       addXP(XP_EVENTS.SAVE);
       tapSuccess();
       toast.success(t('search.youSaved', { amount: `${currencySymbol}${saved.toFixed(2)}` }));
+      // Store for 24h accuracy follow-up
+      if (entryData?.id) {
+        const pending: { entryId: string; savedAt: number; storeName: string }[] = JSON.parse(
+          localStorage.getItem('overseez_vote_pending') || '[]'
+        );
+        pending.push({ entryId: entryData.id, savedAt: Date.now(), storeName: spendModal.place!.name });
+        localStorage.setItem('overseez_vote_pending', JSON.stringify(pending));
+        setVoteEntryId(entryData.id);
+        setVoteStoreName(spendModal.place!.name);
+      }
     } else {
       toast.info(t('search.logged'));
     }
@@ -757,6 +804,29 @@ export default function SearchPage() {
               }}>
                 Log Saving
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Price accuracy vote prompt */}
+      {voteEntryId && !spendModal.open && (
+        <div className="fixed bottom-20 md:bottom-4 left-4 right-4 z-30 animate-fade-in-up">
+          <div className="bg-card border border-overseez-green/30 rounded-xl px-4 py-3 flex items-center justify-between shadow-lg">
+            <div className="min-w-0 mr-3">
+              <p className="text-[11px] text-muted-foreground">Was the price accurate?</p>
+              <p className="text-sm font-semibold truncate">{voteStoreName}</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <button onClick={() => submitVote(voteEntryId, 'inaccurate')}
+                className="flex items-center gap-1.5 text-xs text-overseez-red bg-overseez-red/10 border border-overseez-red/30 rounded-full px-3 py-1.5 hover:bg-overseez-red/20 transition-colors">
+                <ThumbsDown className="w-3.5 h-3.5" /> No
+              </button>
+              <button onClick={() => submitVote(voteEntryId, 'accurate')}
+                className="flex items-center gap-1.5 text-xs text-overseez-green bg-overseez-green/10 border border-overseez-green/30 rounded-full px-3 py-1.5 hover:bg-overseez-green/20 transition-colors">
+                <ThumbsUp className="w-3.5 h-3.5" /> Yes
+              </button>
+              <button onClick={() => setVoteEntryId(null)} className="text-xs text-muted-foreground px-2 hover:text-foreground">✕</button>
             </div>
           </div>
         </div>
