@@ -5,9 +5,12 @@ import AppNav from '@/components/AppNav';
 import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
 import BadgeShelf from '@/components/BadgeShelf';
+import StreakCalendar from '@/components/StreakCalendar';
+import GoalCard from '@/components/GoalCard';
 import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useXP } from '@/hooks/useXP';
 
 function getMilestones(total: number): number[] {
   const base = [5, 25, 50, 100, 250, 500, 1000];
@@ -29,6 +32,7 @@ function formatMilestone(sym: string, m: number): string {
 export default function Profile() {
   const { t } = useTranslation();
   const { profile, user, subscribed } = useAuth();
+  const { xp, levelInfo } = useXP();
   const [usageLeft, setUsageLeft] = useState(5);
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [displayCurrency, setDisplayCurrency] = useState('USD');
@@ -78,10 +82,29 @@ export default function Profile() {
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 rounded-full bg-overseez-blue/20 flex items-center justify-center"><User className="w-8 h-8 text-overseez-blue" /></div>
-            <div>
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full bg-overseez-blue/20 flex items-center justify-center">
+                <User className="w-8 h-8 text-overseez-blue" />
+              </div>
+              <span className="absolute -bottom-1 -right-1 text-[10px] font-bold bg-overseez-blue text-white rounded-full px-1.5 py-0.5 leading-none">
+                {levelInfo.level}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
               <h2 className="text-xl font-display font-semibold">{profile?.full_name || 'User'}</h2>
               <p className="text-sm text-muted-foreground">@{profile?.nickname || 'user'}</p>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-xs font-semibold text-overseez-blue">{levelInfo.name}</span>
+                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-overseez-blue transition-all duration-700"
+                    style={{ width: `${levelInfo.progress}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                  {xp} XP{levelInfo.nextLevelXP ? ` / ${levelInfo.nextLevelXP}` : ''}
+                </span>
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -93,6 +116,10 @@ export default function Profile() {
         </div>
 
         <BadgeShelf />
+
+        <StreakCalendar />
+
+        <GoalCard />
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-4"><TrendingUp className="w-5 h-5 text-overseez-blue" /><h3 className="font-display font-semibold">{t('profile.savingsProgress')}</h3></div>

@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
 import { useHaptics } from '@/hooks/useHaptics';
 
 export interface Badge {
@@ -62,10 +61,8 @@ export function useAchievements() {
 
     if (!error) {
       tapSuccess();
-      toast.success(`${badge.emoji} Badge unlocked: ${badge.name}!`, {
-        description: badge.description,
-        duration: 4000,
-      });
+      // Fire custom event — BadgeUnlockCelebration listens at root level
+      window.dispatchEvent(new CustomEvent('overseez:badge-unlock', { detail: badge }));
     }
   }, [user, tapSuccess]);
 

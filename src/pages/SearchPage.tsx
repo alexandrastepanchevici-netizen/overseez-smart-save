@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useStreak } from '@/hooks/useStreak';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useHaptics } from '@/hooks/useHaptics';
+import { useXP, XP_EVENTS } from '@/hooks/useXP';
 import { openExternalUrl } from '@/lib/openExternalUrl';
 
 interface Place {
@@ -73,6 +74,7 @@ export default function SearchPage() {
   const { recordActivity } = useStreak();
   const { checkAchievements } = useAchievements();
   const { tapMedium, tapSuccess } = useHaptics();
+  const { addXP } = useXP();
   const [query, setQuery] = useState('');
   const [bankName, setBankName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -91,6 +93,16 @@ export default function SearchPage() {
     open: false, place: null, avgVal: 0,
   });
   const [spendInput, setSpendInput] = useState('');
+  const [selectedGoalId, setSelectedGoalId] = useState<string | null>(null);
+  const [userGoals, setUserGoals] = useState<{ id: string; name: string; emoji: string }[]>([]);
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  // Linger CTA: show "Did you shop here?" after 3 s on a result card
+  const [lingerPlace, setLingerPlace] = useState<Place | null>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const lingerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const profileCurrency = normalizeCurrencyCode(profile?.currency || 'USD');
@@ -158,6 +170,57 @@ export default function SearchPage() {
     return () => clearInterval(id);
   }, [oldestUsageTime, subscribed, usageLeft]);
 
+  // Load user goals when spend modal opens
+  useEffect(() => {
+    if (!spendModal.open || !user) return;
+    setSelectedGoalId(null);
+    supabase
+      .from('savings_goals' as any)
+      .select('id, name, emoji')
+      .eq('user_id', user.id)
+      .order('created_at')
+      .then(({ data }) => setUserGoals((data as any[]) ?? []));
+  }, [spendModal.open, user]);
+
+  // Linger detection via IntersectionObserver (works on mobile touch)
+  useEffect(() => {
+    if (!combinedPlaces.length) { setLingerPlace(null); return; }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const idx = parseInt((entry.target as HTMLElement).dataset.idx ?? '-1', 10);
+          if (idx < 0) continue;
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.75) {
+            if (lingerTimerRef.current) clearTimeout(lingerTimerRef.current);
+            lingerTimerRef.current = setTimeout(() => {
+              setLingerPlace(combinedPlaces[idx]);
+            }, 3000);
+          } else {
+            if (lingerTimerRef.current) clearTimeout(lingerTimerRef.current);
+          }
+        }
+      },
+      { threshold: 0.75 },
+    );
+
+    cardRefs.current.forEach(el => { if (el) observer.observe(el); });
+
+    return () => {
+      observer.disconnect();
+      if (lingerTimerRef.current) clearTimeout(lingerTimerRef.current);
+    };
+  }, [combinedPlaces]);
+
+  // Cycle loading step messages while search is in progress
+  useEffect(() => {
+    if (!loading) { setLoadingStep(0); return; }
+    setLoadingStep(0);
+    const t1 = setTimeout(() => setLoadingStep(1), 1200);
+    const t2 = setTimeout(() => setLoadingStep(2), 2400);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [loading]);
+
   // Request location — uses Capacitor plugin on Android, browser API on web
   const requestLocation = useCallback(async () => {
     setLocStatus(t('search.detecting'));
@@ -219,7 +282,11 @@ export default function SearchPage() {
 
     try {
       if (user) {
-        await supabase.from('ai_usage').insert({ user_id: user.id, question: searchQ });
+        await supabase.from('ai_usage').insert({
+          user_id: user.id,
+          question: searchQ,
+          ...(loc ? { city: loc.city, country_code: loc.cc } : {}),
+        } as any);
       }
 
       const searchBody: any = {
@@ -265,9 +332,10 @@ export default function SearchPage() {
       if (!subscribed) setUsageLeft(prev => Math.max(0, prev - 1));
       tapMedium();
 
-      // Record streak and check achievements after successful search
+      // Record streak, XP, and check achievements after successful search
       if (user) {
         recordActivity();
+        addXP(XP_EVENTS.SEARCH);
         const isStudentSearch = searchQ.toLowerCase().includes('student');
         const isAfterMidnight = new Date().getHours() === 0 || new Date().getHours() < 4;
         const { count: searchCountData } = await supabase
@@ -304,7 +372,8 @@ export default function SearchPage() {
       average_price: spendModal.avgVal,
       currency: displayCurrency,
       search_query: query,
-    });
+      ...(selectedGoalId ? { goal_id: selectedGoalId } : {}),
+    } as any);
 
     if (saved > 0) {
       const { data: prof } = await supabase.from('profiles').select('total_saved')
@@ -315,6 +384,7 @@ export default function SearchPage() {
           total_saved: Number(prof.total_saved) + savedInProfileCurrency,
         }).eq('user_id', user.id);
       }
+      addXP(XP_EVENTS.SAVE);
       tapSuccess();
       toast.success(t('search.youSaved', { amount: `${currencySymbol}${saved.toFixed(2)}` }));
     } else {
@@ -323,6 +393,7 @@ export default function SearchPage() {
 
     setSpendModal({ open: false, place: null, avgVal: 0 });
     setSpendInput('');
+    setSelectedGoalId(null);
   };
 
   const bankFeeRate = bankInfo ? (bankInfo.overseasFeePercent || 0) / 100 : 0;
@@ -339,6 +410,8 @@ export default function SearchPage() {
             <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <input ref={inputRef} type="text" value={query} onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && doSearch()}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
               placeholder={t('search.placeholder')}
               className="bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground flex-1" />
             {query && (
@@ -474,7 +547,7 @@ export default function SearchPage() {
         {/* Loading */}
         {loading && (
           <div className="text-center py-16">
-            <div className="flex justify-center gap-1.5 mb-3">
+            <div className="flex justify-center gap-1.5 mb-4">
               {[0, 1, 2, 3].map(i => (
                 <div key={i}
                   className="w-2.5 h-2.5 rounded-full animate-pulse-dot"
@@ -484,7 +557,9 @@ export default function SearchPage() {
                   }} />
               ))}
             </div>
-            <p className="text-sm text-muted-foreground">{t('search.searching', { query })}</p>
+            <p className="text-sm text-muted-foreground transition-all duration-300">
+              {[t('search.loadingStep0'), t('search.loadingStep1'), t('search.loadingStep2')][loadingStep]}
+            </p>
           </div>
         )}
 
@@ -534,8 +609,42 @@ export default function SearchPage() {
                   ? `https://www.google.com/maps/dir/?api=1&origin=${loc.lat},${loc.lng}&destination=${encodeURIComponent(mapsQuery + (loc.city ? ' ' + loc.city : ''))}&travelmode=walking`
                   : `https://www.google.com/maps/search/${encodeURIComponent(mapsQuery)}`;
 
+                // Blur the last result for free users when there are 5 results
+                const isBlurred = !subscribed && combinedPlaces.length === 5 && i === combinedPlaces.length - 1;
+
+                if (isBlurred) {
+                  return (
+                    <div key={i} className="relative animate-card-in" style={{ animationDelay: `${i * 0.06}s` }}>
+                      {/* Blurred card beneath */}
+                      <div className={`bg-card border rounded-xl p-4 pointer-events-none select-none blur-sm opacity-50 ${
+                        place.isSale ? 'border-overseez-red/30' : 'border-border'
+                      }`}>
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center text-xs font-bold">#{place.rank}</div>
+                          <div className="w-14 h-14 rounded-lg bg-muted/50 border border-border flex items-center justify-center text-2xl">{getCategoryEmoji(place.type)}</div>
+                          <div className="flex-1"><p className="text-sm font-semibold">{place.name}</p><p className="text-xs text-muted-foreground mt-1">{place.type} · ~{place.distance}</p></div>
+                          <div className="text-right flex-shrink-0"><p className="text-lg font-bold">{currencySymbol}{displayedPrice.toFixed(2)}</p></div>
+                        </div>
+                      </div>
+                      {/* Upgrade overlay */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-[2px] rounded-xl border border-overseez-gold/30">
+                        <p className="text-sm font-semibold text-overseez-gold">🔒 1 cheaper result hidden</p>
+                        <p className="text-xs text-muted-foreground mt-1">Upgrade to Premium to unlock</p>
+                        <button
+                          onClick={() => navigate('/subscription')}
+                          className="mt-3 text-xs bg-overseez-gold/20 border border-overseez-gold/40 text-overseez-gold rounded-full px-4 py-1.5 hover:bg-overseez-gold/30 transition-colors font-medium"
+                        >
+                          Unlock Now →
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div key={i}
+                    ref={el => { cardRefs.current[i] = el; }}
+                    data-idx={i}
                     className={`bg-card border rounded-xl p-4 animate-card-in overseez-card-hover ${
                       place.isSale ? 'border-overseez-red/30 bg-gradient-to-br from-card to-overseez-red/5' : 'border-border'
                     }`}
@@ -625,10 +734,38 @@ export default function SearchPage() {
         )}
       </div>
 
+      {/* Linger CTA — shown after 3 s on a result card, hidden when keyboard is up */}
+      {lingerPlace && !spendModal.open && !searchFocused && (
+        <div className="fixed bottom-20 md:bottom-4 left-4 right-4 z-30 animate-fade-in-up">
+          <div className="bg-card border border-overseez-blue/30 rounded-xl px-4 py-3 flex items-center justify-between shadow-lg">
+            <div className="min-w-0 mr-3">
+              <p className="text-[11px] text-muted-foreground">Did you shop here?</p>
+              <p className="text-sm font-semibold truncate">{lingerPlace.name}</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                onClick={() => setLingerPlace(null)}
+                className="text-xs text-muted-foreground px-3 py-1.5 rounded-md hover:bg-muted transition-colors"
+              >
+                Not now
+              </button>
+              <Button variant="hero" size="sm" onClick={() => {
+                const avg = toDisplay(result!.averageValue);
+                setSpendModal({ open: true, place: lingerPlace, avgVal: avg });
+                setSpendInput(toDisplay(lingerPlace.priceValue).toFixed(2));
+                setLingerPlace(null);
+              }}>
+                Log Saving
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Spend Modal */}
       {spendModal.open && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setSpendModal({ open: false, place: null, avgVal: 0 })}>
+          onClick={() => { setSpendModal({ open: false, place: null, avgVal: 0 }); setSelectedGoalId(null); }}>
           <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full"
             onClick={e => e.stopPropagation()}>
             <h3 className="font-display font-semibold mb-1">{t('search.spendTitle')}</h3>
@@ -637,9 +774,29 @@ export default function SearchPage() {
             </p>
             <input type="number" min="0" step="0.01" value={spendInput}
               onChange={e => setSpendInput(e.target.value)}
-              className="w-full bg-muted/50 border border-border rounded-lg px-4 py-3 text-foreground outline-none focus:border-foreground/30 mb-4" />
+              className="w-full bg-muted/50 border border-border rounded-lg px-4 py-3 text-foreground outline-none focus:border-foreground/30 mb-3" />
+            {userGoals.length > 0 && (
+              <div className="mb-4">
+                <p className="text-xs text-muted-foreground mb-1.5">Count toward a goal? (optional)</p>
+                <div className="flex flex-wrap gap-2">
+                  {userGoals.map(g => (
+                    <button
+                      key={g.id}
+                      onClick={() => setSelectedGoalId(selectedGoalId === g.id ? null : g.id)}
+                      className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                        selectedGoalId === g.id
+                          ? 'bg-overseez-blue/20 border-overseez-blue/50 text-overseez-blue font-medium'
+                          : 'bg-muted/40 border-border text-foreground/70 hover:bg-muted/70'
+                      }`}
+                    >
+                      {g.emoji} {g.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm" onClick={() => setSpendModal({ open: false, place: null, avgVal: 0 })}>
+              <Button variant="outline" size="sm" onClick={() => { setSpendModal({ open: false, place: null, avgVal: 0 }); setSelectedGoalId(null); }}>
                 {t('search.cancel')}
               </Button>
               <Button variant="hero" size="sm" onClick={logSaving}>{t('search.logSaving')}</Button>

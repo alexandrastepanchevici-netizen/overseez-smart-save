@@ -184,7 +184,10 @@
     "cancel": "Annuler",
     "logSaving": "Enregistrer l'économie",
     "youSaved": "Vous avez économisé {{amount}} !",
-    "logged": "Enregistré !"
+    "logged": "Enregistré !",
+    "loadingStep0": "🔍 Recherche de lieux près de vous...",
+    "loadingStep1": "💰 Comparaison des prix...",
+    "loadingStep2": "🏦 Vérification des frais bancaires..."
   },
   "profile": {
     "title": "Votre profil",

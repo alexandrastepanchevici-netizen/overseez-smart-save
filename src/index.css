@@ -165,6 +165,12 @@
   animation-delay: 3s;
 }
 
+/* Badge unlock confetti burst */
+@keyframes confetti-burst {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

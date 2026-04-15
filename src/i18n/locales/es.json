@@ -184,7 +184,10 @@
     "cancel": "Cancelar",
     "logSaving": "Registrar ahorro",
     "youSaved": "¡Ahorraste {{amount}}!",
-    "logged": "¡Registrado!"
+    "logged": "¡Registrado!",
+    "loadingStep0": "🔍 Buscando lugares cercanos...",
+    "loadingStep1": "💰 Comparando precios...",
+    "loadingStep2": "🏦 Verificando comisiones bancarias..."
   },
   "profile": {
     "title": "Tu perfil",

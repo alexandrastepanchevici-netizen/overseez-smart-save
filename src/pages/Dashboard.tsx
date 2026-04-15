@@ -8,6 +8,7 @@ import SavingsRecap from '@/components/SavingsRecap';
 import ShareCard from '@/components/ShareCard';
 import NewUserWelcome from '@/components/NewUserWelcome';
 import { TrendingUp, Calendar, Wallet, Target } from 'lucide-react';
+import { getEquivalents } from '@/lib/savingsEquivalents';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
@@ -94,6 +95,17 @@ export default function Dashboard() {
                   🔥 {(profile as any)?.current_streak || 0} day{((profile as any)?.current_streak || 0) !== 1 ? 's' : ''}
                 </span>
               </div>
+              {(() => {
+                const equivalents = getEquivalents(totalSaved, displayCurrency);
+                if (equivalents.length === 0) return null;
+                return (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    ✨ That&apos;s {equivalents.map((e, idx) => (
+                      <span key={idx}>{e.count} {e.emoji} {e.label}{idx < equivalents.length - 1 ? ' or ' : ''}</span>
+                    ))}
+                  </p>
+                );
+              })()}
             </div>
             <div className="flex items-center gap-3">
               <CurrencySwitcher value={displayCurrency} onChange={(c) => { setDisplayCurrency(c); localStorage.setItem('overseez_display_currency', c); }} />

@@ -26,6 +26,9 @@ interface Profile {
   weekly_saved: number;
   monthly_saved: number;
   currency: string;
+  xp: number;
+  current_streak: number;
+  longest_streak: number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

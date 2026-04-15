@@ -184,7 +184,10 @@
     "cancel": "Cancel",
     "logSaving": "Log Saving",
     "youSaved": "You saved {{amount}}!",
-    "logged": "Logged!"
+    "logged": "Logged!",
+    "loadingStep0": "🔍 Finding locations near you...",
+    "loadingStep1": "💰 Comparing prices...",
+    "loadingStep2": "🏦 Checking bank fees..."
   },
   "profile": {
     "title": "Your Profile",

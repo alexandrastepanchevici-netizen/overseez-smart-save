@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import PageTransition from "@/components/PageTransition";
+import BadgeUnlockCelebration from "@/components/BadgeUnlockCelebration";
 
 // Capture referral param from ?ref=NICKNAME (before the #) and persist to localStorage
 const refParam = new URLSearchParams(window.location.search).get('ref');
@@ -58,6 +59,7 @@ const App = () => (
         <HashRouter>
           <DeepLinkHandler />
           <AppInner />
+          <BadgeUnlockCelebration />
           <PageTransition>
           <Routes>
             {/* First screen for unauthenticated users is register */}

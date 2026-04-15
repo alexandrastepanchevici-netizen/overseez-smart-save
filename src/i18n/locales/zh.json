@@ -184,7 +184,10 @@
     "cancel": "取消",
     "logSaving": "记录节省",
     "youSaved": "你节省了 {{amount}}！",
-    "logged": "已记录！"
+    "logged": "已记录！",
+    "loadingStep0": "🔍 正在查找附近地点...",
+    "loadingStep1": "💰 正在比较价格...",
+    "loadingStep2": "🏦 正在检查银行费用..."
   },
   "profile": {
     "title": "你的个人资料",
