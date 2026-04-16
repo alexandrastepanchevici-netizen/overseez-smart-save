@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import AppNav from '@/components/AppNav';
-import FloatingOvals from '@/components/FloatingOvals';
 import { Button } from '@/components/ui/button';
 import { Check, Zap, Loader2, ArrowRight, Coffee } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,8 +60,7 @@ export default function Subscription() {
   };
 
   return (
-    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
-      <FloatingOvals />
+    <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
       <AppNav />
       <div className="max-w-3xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-display font-bold tracking-tight mb-2">{t('subscription.title')}</h1>

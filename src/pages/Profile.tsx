@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
-import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
 import BadgeShelf from '@/components/BadgeShelf';
 import GoalCard from '@/components/GoalCard';
@@ -64,8 +63,7 @@ export default function Profile() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
-      <FloatingOvals />
+    <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
       <AppNav />
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">

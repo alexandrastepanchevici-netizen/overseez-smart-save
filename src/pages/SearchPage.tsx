@@ -4,7 +4,6 @@ import { Geolocation } from '@capacitor/geolocation';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
-import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol, normalizeCurrencyCode } from '@/components/CurrencySwitcher';
 import { Search, MapPin, Building2, X, ThumbsUp, ThumbsDown, AlertTriangle, BarChart2, Tag, Lock, Clock, Globe, Zap, ShoppingCart, Fuel, Coffee, BedDouble, Pill, UtensilsCrossed, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -470,8 +469,7 @@ export default function SearchPage() {
   const bankFeeRate = bankInfo ? (bankInfo.overseasFeePercent || 0) / 100 : 0;
 
   return (
-    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
-      <FloatingOvals />
+    <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
       <AppNav />
 
       {/* Search Header */}

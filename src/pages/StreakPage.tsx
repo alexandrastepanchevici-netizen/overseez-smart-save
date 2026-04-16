@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Flame } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import AppNav from '@/components/AppNav';
-import FloatingOvals from '@/components/FloatingOvals';
 import StreakCalendar from '@/components/StreakCalendar';
 
 export default function StreakPage() {
@@ -13,8 +12,7 @@ export default function StreakPage() {
   const longestStreak = (profile as any)?.longest_streak || 0;
 
   return (
-    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
-      <FloatingOvals />
+    <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
       <AppNav />
       <div className="max-w-2xl mx-auto px-4 py-8">
 

@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import OverseezLogo from '@/components/OverseezLogo';
-import FloatingOvals from '@/components/FloatingOvals';
 import AnimatedCounter from '@/components/AnimatedCounter';
 import { ArrowRight } from 'lucide-react';
 import GlobeComponent from '@/components/ui/globe';
@@ -55,7 +54,7 @@ export default function Index() {
   const goAI = () => navigate(user ? '/search' : '/register');
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-transparent overflow-x-hidden">
       {/* Nav */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-card/90 backdrop-blur-xl border-b border-border' : 'bg-transparent'}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
@@ -90,7 +89,6 @@ export default function Index() {
       {/* ─── HERO ─── */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 overseez-gradient-hero" />
-        <FloatingOvals />
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center pt-24 pb-16">
           <div className="animate-fade-in-up">
@@ -159,7 +157,6 @@ export default function Index() {
 
       {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
-        <FloatingOvals className="opacity-50" />
         <div className="max-w-5xl mx-auto relative z-10">
           <RevealSection className="text-center mb-12">
             <p className="text-xs uppercase tracking-widest text-overseez-gold font-medium mb-3">{t('beforeAfter.label')}</p>

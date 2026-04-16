@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Instagram, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import FloatingOvals from '@/components/FloatingOvals';
 import OverseezLogo from '@/components/OverseezLogo';
 import { openExternalUrl } from '@/lib/openExternalUrl';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +13,7 @@ export default function Movement() {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-transparent overflow-x-hidden">
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-card/90 backdrop-blur-xl border-b border-border">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
@@ -27,8 +26,6 @@ export default function Movement() {
           </Link>
         </div>
       </nav>
-
-      <FloatingOvals />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 pt-32 pb-20 text-center">
         <motion.div

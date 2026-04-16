@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
-import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
 import SavingsRecap from '@/components/SavingsRecap';
 import MonthlyRecap from '@/components/MonthlyRecap';
@@ -141,9 +140,8 @@ export default function Dashboard() {
   const monthlySaved = savings.filter(s => new Date(s.created_at) >= monthAgo).reduce((a, s) => a + convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency), 0);
 
   return (
-    <div className="min-h-screen bg-background relative pb-20 md:pb-0">
+    <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
       <NewUserWelcome />
-      <FloatingOvals />
       <AppNav />
       <div className="border-b border-border bg-overseez-mid px-4 sm:px-6 py-3 relative z-[60]">
         <div className="max-w-4xl mx-auto">

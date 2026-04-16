@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 export default function Terms() {
   const { t } = useTranslation();
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent">
       <nav className="border-b border-border bg-card/80 backdrop-blur-xl">
         <div className="max-w-3xl mx-auto flex items-center justify-between px-4 h-14">
           <Link to="/" className="flex items-center gap-0">
