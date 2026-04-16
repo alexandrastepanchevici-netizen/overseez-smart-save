@@ -35,7 +35,7 @@ export default function NewUserWelcome() {
       <div className="w-full max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl animate-fade-in">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-xl font-display font-bold">Welcome to Overseez! 👋</h2>
+            <h2 className="text-xl font-display font-bold">Welcome to Overseez!</h2>
             <p className="text-sm text-muted-foreground mt-1">Here are some quick tips for saving in your area:</p>
           </div>
           <button onClick={handleDismiss} className="text-muted-foreground hover:text-foreground transition-colors ml-2 flex-shrink-0">

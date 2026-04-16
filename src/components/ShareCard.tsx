@@ -16,10 +16,10 @@ export default function ShareCard({ totalSaved, displayCurrency, streak = 0, bad
 
   const handleShare = async () => {
     const lines = [
-      `💰 I've saved ${sym}${totalSaved.toFixed(2)} using Overseez!`,
+      `I've saved ${sym}${totalSaved.toFixed(2)} using Overseez!`,
     ];
-    if (streak > 1) lines.push(`🔥 ${streak}-day saving streak`);
-    if (badgeCount > 0) lines.push(`🏆 ${badgeCount} badge${badgeCount !== 1 ? 's' : ''} earned`);
+    if (streak > 1) lines.push(`${streak}-day saving streak`);
+    if (badgeCount > 0) lines.push(`${badgeCount} badge${badgeCount !== 1 ? 's' : ''} earned`);
     lines.push('Find the best prices near you → https://overseez.co');
 
     const text = lines.join('\n');

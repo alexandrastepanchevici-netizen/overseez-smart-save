@@ -64,7 +64,7 @@ export function usePushNotifications() {
 export function notifySaved(storeName: string, amount: string) {
   // On web / during dev, show an in-app toast as a stand-in
   if (!Capacitor.isNativePlatform()) {
-    toast.success(`💰 Saved at ${storeName}`, { description: `You saved ${amount}` });
+    toast.success(`Saved at ${storeName}`, { description: `You saved ${amount}` });
   }
   // On native the FCM message sent by the Edge Function will display via the listener above
 }

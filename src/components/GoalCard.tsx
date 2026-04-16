@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCurrencySymbol, convertCurrency } from '@/components/CurrencySwitcher';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -133,7 +133,7 @@ export default function GoalCard() {
                 />
               </div>
               {done && (
-                <p className="text-xs text-overseez-green mt-1 font-medium">Goal reached! 🎉</p>
+                <p className="text-xs text-overseez-green mt-1 font-medium flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Goal reached!</p>
               )}
             </div>
           );

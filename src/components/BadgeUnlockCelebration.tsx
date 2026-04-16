@@ -3,38 +3,42 @@ import { motion, AnimatePresence } from 'motion/react';
 import type { Badge } from '@/hooks/useAchievements';
 
 const CONFETTI_COLORS = [
-  'hsl(200 80% 55%)',  // overseez-blue
-  'hsl(160 60% 45%)',  // overseez-green
-  'hsl(43 96% 56%)',   // overseez-gold
+  'hsl(200 80% 55%)',
+  'hsl(160 60% 45%)',
+  'hsl(43 96% 56%)',
+  'hsl(0 90% 65%)',
   '#ffffff',
+  'hsl(280 70% 65%)',
+  'hsl(340 80% 60%)',
 ];
 
-interface Particle {
-  tx: number;
-  ty: number;
+interface RainParticle {
+  x: number;
+  size: number;
   color: string;
+  duration: number;
   delay: number;
+  rotation: number;
+  shape: 'circle' | 'square' | 'diamond' | 'strip';
 }
 
-function generateParticles(): Particle[] {
-  return Array.from({ length: 24 }, (_, i) => {
-    const angle = (i / 24) * 360;
-    const distance = 70 + Math.random() * 50;
-    return {
-      tx: Math.cos((angle * Math.PI) / 180) * distance,
-      ty: Math.sin((angle * Math.PI) / 180) * distance,
-      color: CONFETTI_COLORS[i % 4],
-      delay: Math.random() * 0.15,
-    };
-  });
+function generateRain(): RainParticle[] {
+  return Array.from({ length: 90 }, (_, i) => ({
+    x: Math.random() * 100,
+    size: 4 + Math.random() * 10,
+    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+    duration: 1.8 + Math.random() * 2.4,
+    delay: Math.random() * 2.5,
+    rotation: Math.random() * 900,
+    shape: (['circle', 'square', 'diamond', 'strip'] as const)[i % 4],
+  }));
 }
 
 export default function BadgeUnlockCelebration() {
   const [queue, setQueue] = useState<Badge[]>([]);
   const [current, setCurrent] = useState<Badge | null>(null);
-  const particles = useMemo(() => generateParticles(), []);
+  const particles = useMemo(() => generateRain(), []);
 
-  // Listen for badge unlock events fired by useAchievements
   useEffect(() => {
     const handler = (e: Event) => {
       const badge = (e as CustomEvent<Badge>).detail;
@@ -44,7 +48,6 @@ export default function BadgeUnlockCelebration() {
     return () => window.removeEventListener('overseez:badge-unlock', handler);
   }, []);
 
-  // Dequeue one badge at a time — wait for current to clear before showing next
   useEffect(() => {
     if (!current && queue.length > 0) {
       const [next, ...rest] = queue;
@@ -55,10 +58,9 @@ export default function BadgeUnlockCelebration() {
 
   const dismiss = useCallback(() => setCurrent(null), []);
 
-  // Auto-dismiss after 3.5s
   useEffect(() => {
     if (!current) return;
-    const timer = setTimeout(dismiss, 3500);
+    const timer = setTimeout(dismiss, 5000);
     return () => clearTimeout(timer);
   }, [current, dismiss]);
 
@@ -67,69 +69,113 @@ export default function BadgeUnlockCelebration() {
       {current && (
         <motion.div
           key={current.key}
-          className="fixed inset-0 z-[200] flex flex-col items-center justify-center"
+          className="fixed inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.25 }}
           onClick={dismiss}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-background/90 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-background/95 backdrop-blur-md" />
 
-          {/* Confetti layer */}
-          <div className="absolute flex items-center justify-center pointer-events-none" style={{ inset: 0 }}>
+          {/* Radial glow — outer warm wash */}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: 'radial-gradient(ellipse 70% 55% at 50% 50%, hsl(43 96% 56% / 0.18) 0%, transparent 70%)',
+          }} />
+
+          {/* Confetti rain */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
             {particles.map((p, i) => (
-              <div
+              <motion.div
                 key={i}
-                className="absolute w-2 h-2 rounded-full"
+                className="absolute"
                 style={{
+                  left: `${p.x}%`,
+                  top: 0,
+                  width: p.shape === 'strip' ? p.size * 0.4 : p.size,
+                  height: p.shape === 'strip' ? p.size * 2.5 : p.size,
                   backgroundColor: p.color,
-                  '--tx': `${p.tx}px`,
-                  '--ty': `${p.ty}px`,
-                  animation: `confetti-burst 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${p.delay}s both`,
-                } as React.CSSProperties}
+                  borderRadius: p.shape === 'circle' ? '50%' : p.shape === 'diamond' ? '2px' : '1px',
+                  transform: p.shape === 'diamond' ? 'rotate(45deg)' : undefined,
+                }}
+                initial={{ y: -80, opacity: 1 }}
+                animate={{ y: '108vh', rotate: p.rotation, opacity: [1, 1, 0] }}
+                transition={{
+                  duration: p.duration,
+                  delay: p.delay,
+                  ease: 'easeIn',
+                  opacity: { times: [0, 0.78, 1], duration: p.duration, delay: p.delay },
+                }}
               />
             ))}
           </div>
 
-          {/* Main card */}
-          <div className="relative flex flex-col items-center gap-5 px-8 pointer-events-none select-none">
-            {/* Badge emoji — spring scale in */}
-            <motion.div
-              className="w-28 h-28 rounded-3xl bg-overseez-blue/20 border-2 border-overseez-blue/40 flex items-center justify-center shadow-lg"
-              style={{ fontSize: '4rem' }}
-              initial={{ scale: 0, rotate: -15 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: 'spring', stiffness: 280, damping: 18, delay: 0.1 }}
-            >
-              {current.emoji}
-            </motion.div>
+          {/* Main content */}
+          <div className="relative z-10 flex flex-col items-center gap-6 px-8 pointer-events-none select-none">
 
-            {/* Text block */}
+            {/* Multi-layer glow rings behind badge */}
+            <div className="relative flex items-center justify-center">
+              {/* Outermost slow pulse */}
+              <motion.div
+                className="absolute rounded-full"
+                style={{ width: 200, height: 200, background: 'radial-gradient(circle, hsl(43 96% 56% / 0.18) 0%, transparent 70%)' }}
+                animate={{ scale: [1, 1.25, 1] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+              {/* Mid ring */}
+              <motion.div
+                className="absolute rounded-full border border-overseez-gold/25"
+                style={{ width: 160, height: 160 }}
+                animate={{ scale: [1, 1.18, 1], opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+              />
+              {/* Inner glow ring */}
+              <motion.div
+                className="absolute rounded-full border-2 border-overseez-gold/40"
+                style={{ width: 124, height: 124 }}
+                animate={{ scale: [1, 1.12, 1], opacity: [0.8, 1, 0.8] }}
+                transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
+              />
+
+              {/* Badge tile */}
+              <motion.div
+                className="relative w-28 h-28 rounded-3xl flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(43 96% 56% / 0.25) 0%, hsl(200 80% 55% / 0.2) 100%)',
+                  border: '2px solid hsl(43 96% 56% / 0.55)',
+                  boxShadow: '0 0 40px hsl(43 96% 56% / 0.45), 0 0 80px hsl(43 96% 56% / 0.2), inset 0 1px 0 hsl(43 96% 56% / 0.3)',
+                  fontSize: '4rem',
+                }}
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 16, delay: 0.1 }}
+              >
+                {current.emoji}
+              </motion.div>
+            </div>
+
+            {/* Text */}
             <motion.div
               className="text-center"
-              initial={{ opacity: 0, y: 14 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.4, ease: 'easeOut' }}
+              transition={{ delay: 0.28, duration: 0.4, ease: 'easeOut' }}
             >
               <p className="text-xs uppercase tracking-widest text-overseez-gold font-semibold mb-2">
                 Badge Unlocked ✨
               </p>
-              <h2 className="text-2xl font-display font-bold text-foreground">
-                {current.name}
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1 max-w-[260px] mx-auto leading-relaxed">
+              <h2 className="text-2xl font-display font-bold text-foreground">{current.name}</h2>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-[260px] mx-auto leading-relaxed">
                 {current.description}
               </p>
             </motion.div>
 
-            {/* Dismiss hint */}
             <motion.p
               className="text-xs text-muted-foreground/40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 0.4 }}
+              transition={{ delay: 1.2, duration: 0.4 }}
             >
               Tap anywhere to continue
             </motion.p>

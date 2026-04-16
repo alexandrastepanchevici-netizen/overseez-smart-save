@@ -8,6 +8,7 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import PageTransition from "@/components/PageTransition";
 import BadgeUnlockCelebration from "@/components/BadgeUnlockCelebration";
 import StreakMilestoneCelebration from "@/components/StreakMilestoneCelebration";
+import SplashScreen from "@/components/SplashScreen";
 
 // Capture referral param from ?ref=NICKNAME (before the #) and persist to localStorage
 const refParam = new URLSearchParams(window.location.search).get('ref');
@@ -33,23 +34,14 @@ function AppInner() {
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex gap-1.5">
-        {[0,1,2,3].map(i => (
-          <div key={i} className="w-2.5 h-2.5 rounded-full animate-pulse-dot"
-            style={{ animationDelay: `${i*0.15}s`, backgroundColor: ['#fff','#60a5fa','#fbbf24','#f87171'][i] }} />
-        ))}
-      </div>
-    </div>
-  );
+  if (loading) return <SplashScreen />;
   if (!user) return <Navigate to="/register" replace />;
   return <>{children}</>;
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <SplashScreen />;
   if (user) return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
@@ -89,7 +81,7 @@ const App = () => (
 
 function AuthGate() {
   const { user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <SplashScreen />;
   if (!user) return <Navigate to="/register" replace />;
   return <Navigate to="/dashboard" replace />;
 }

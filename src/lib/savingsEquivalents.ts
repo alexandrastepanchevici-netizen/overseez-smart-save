@@ -1,26 +1,26 @@
 import { convertCurrency } from '@/components/CurrencySwitcher';
 
 interface Equivalent {
-  emoji: string;
+  icon: string;
   singular: string;
   plural: string;
   usdCost: number;
 }
 
 const EQUIVALENTS: Equivalent[] = [
-  { emoji: '☕', singular: 'coffee',          plural: 'coffees',           usdCost: 4  },
-  { emoji: '🍺', singular: 'pint at a bar',   plural: 'pints at a bar',    usdCost: 7  },
-  { emoji: '🏋️', singular: 'gym session',     plural: 'gym sessions',      usdCost: 10 },
-  { emoji: '🎬', singular: 'cinema ticket',   plural: 'cinema tickets',    usdCost: 12 },
-  { emoji: '🍽️', singular: 'restaurant meal', plural: 'restaurant meals',  usdCost: 15 },
-  { emoji: '📺', singular: 'month of Netflix', plural: 'months of Netflix', usdCost: 15 },
-  { emoji: '⛽', singular: 'tank of petrol',  plural: 'tanks of petrol',   usdCost: 60 },
-  { emoji: '🎮', singular: 'new game',         plural: 'new games',         usdCost: 60 },
-  { emoji: '✈️', singular: 'budget flight',   plural: 'budget flights',    usdCost: 80 },
+  { icon: 'Coffee',          singular: 'coffee',           plural: 'coffees',            usdCost: 4  },
+  { icon: 'GlassWater',      singular: 'pint at a bar',    plural: 'pints at a bar',     usdCost: 7  },
+  { icon: 'Dumbbell',        singular: 'gym session',      plural: 'gym sessions',       usdCost: 10 },
+  { icon: 'Film',            singular: 'cinema ticket',    plural: 'cinema tickets',     usdCost: 12 },
+  { icon: 'UtensilsCrossed', singular: 'restaurant meal',  plural: 'restaurant meals',   usdCost: 15 },
+  { icon: 'Tv',              singular: 'month of Netflix', plural: 'months of Netflix',  usdCost: 15 },
+  { icon: 'Fuel',            singular: 'tank of petrol',   plural: 'tanks of petrol',    usdCost: 60 },
+  { icon: 'Gamepad2',        singular: 'new game',         plural: 'new games',          usdCost: 60 },
+  { icon: 'Plane',           singular: 'budget flight',    plural: 'budget flights',     usdCost: 80 },
 ];
 
 export interface SavingsEquivalent {
-  emoji: string;
+  icon: string;
   count: number;
   label: string;
 }
@@ -40,7 +40,7 @@ export function getEquivalents(
     .map(eq => {
       const cost = convertCurrency(eq.usdCost, 'USD', displayCurrency);
       const count = Math.floor(totalSaved / cost);
-      return { emoji: eq.emoji, count, label: count === 1 ? eq.singular : eq.plural, usdCost: eq.usdCost };
+      return { icon: eq.icon, count, label: count === 1 ? eq.singular : eq.plural, usdCost: eq.usdCost };
     })
     .filter(r => r.count >= 1 && r.count <= 30)
     .sort((a, b) => b.usdCost - a.usdCost)

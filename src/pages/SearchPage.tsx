@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
 import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol, normalizeCurrencyCode } from '@/components/CurrencySwitcher';
-import { Search, MapPin, Building2, X, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Search, MapPin, Building2, X, ThumbsUp, ThumbsDown, AlertTriangle, BarChart2, Tag, Lock, Clock, Globe, Zap, ShoppingCart, Fuel, Coffee, BedDouble, Pill, UtensilsCrossed, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -44,17 +44,18 @@ interface SearchResult {
   sales: any[];
 }
 
-function getCategoryEmoji(type: string): string {
-  if (!type) return '📍';
+function getCategoryIcon(type: string): React.ReactNode {
+  const cls = 'w-5 h-5 text-muted-foreground';
+  if (!type) return <MapPin className={cls} />;
   const t = type.toLowerCase();
-  if (t.includes('grocer') || t.includes('supermarket')) return '🛒';
-  if (t.includes('petrol') || t.includes('fuel')) return '⛽';
-  if (t.includes('coffee') || t.includes('café')) return '☕';
-  if (t.includes('hotel')) return '🏨';
-  if (t.includes('pharmacy')) return '💊';
-  if (t.includes('takeaway') || t.includes('fast food')) return '🍔';
-  if (t.includes('gym')) return '🏋';
-  return '📍';
+  if (t.includes('grocer') || t.includes('supermarket')) return <ShoppingCart className={cls} />;
+  if (t.includes('petrol') || t.includes('fuel')) return <Fuel className={cls} />;
+  if (t.includes('coffee') || t.includes('café')) return <Coffee className={cls} />;
+  if (t.includes('hotel')) return <BedDouble className={cls} />;
+  if (t.includes('pharmacy')) return <Pill className={cls} />;
+  if (t.includes('takeaway') || t.includes('fast food')) return <UtensilsCrossed className={cls} />;
+  if (t.includes('gym')) return <Dumbbell className={cls} />;
+  return <MapPin className={cls} />;
 }
 
 const FREE_LIMIT = 5;
@@ -247,7 +248,7 @@ export default function SearchPage() {
       toast('Was the price accurate?', {
         description: `You saved at ${due.storeName} yesterday. Rate the price to help others.`,
         action: {
-          label: '👍 Rate now',
+          label: 'Rate now',
           onClick: () => setVoteEntryId(due.entryId),
         },
         duration: 8000,
@@ -267,7 +268,7 @@ export default function SearchPage() {
     );
     localStorage.setItem('overseez_vote_pending', JSON.stringify(pending.filter(p => p.entryId !== entryId)));
     setVoteEntryId(null);
-    toast.success(vote === 'accurate' ? '👍 Thanks for confirming!' : '👎 Got it — we\'ll flag this price.');
+    toast.success(vote === 'accurate' ? 'Thanks for confirming!' : 'Got it — we\'ll flag this price.');
   };
 
   // Cycle loading step messages while search is in progress
@@ -522,16 +523,16 @@ export default function SearchPage() {
               <>
                 <div className={`w-2 h-2 rounded-full ${loc ? 'bg-foreground' : 'bg-muted-foreground/30'}`} />
                 <span>{locStatus}</span>
-                <button onClick={requestLocation} className="text-overseez-blue hover:underline">
-                  📍 {loc ? t('search.refresh') : t('search.enableLocation')}
+                <button onClick={requestLocation} className="text-overseez-blue hover:underline flex items-center gap-1">
+                  <MapPin className="w-3 h-3" /> {loc ? t('search.refresh') : t('search.enableLocation')}
                 </button>
-                <button onClick={() => setUseCustomLoc(true)} className="text-overseez-blue hover:underline ml-1">
-                  🌍 {t('search.searchCity')}
+                <button onClick={() => setUseCustomLoc(true)} className="text-overseez-blue hover:underline ml-1 flex items-center gap-1">
+                  <Globe className="w-3 h-3" /> {t('search.searchCity')}
                 </button>
               </>
             ) : (
               <div className="flex items-center gap-2">
-                <span>🌍</span>
+                <Globe className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <input
                   type="text"
                   value={customLocation}
@@ -539,8 +540,8 @@ export default function SearchPage() {
                   placeholder={t('search.cityPlaceholder')}
                   className="bg-muted/50 border border-border rounded-md px-2 py-1 text-xs text-foreground outline-none w-40 focus:border-foreground/30"
                 />
-                <button onClick={() => { setUseCustomLoc(false); setCustomLocation(''); }} className="text-overseez-blue hover:underline">
-                  📍 {t('search.useMyLocation')}
+                <button onClick={() => { setUseCustomLoc(false); setCustomLocation(''); }} className="text-overseez-blue hover:underline flex items-center gap-1">
+                  <MapPin className="w-3 h-3" /> {t('search.useMyLocation')}
                 </button>
               </div>
             )}
@@ -552,8 +553,8 @@ export default function SearchPage() {
 
         {/* Bank Notice */}
         {bankInfo && (
-          <div className="bg-overseez-gold/10 border border-overseez-gold/25 rounded-lg px-4 py-2.5 mb-4 text-xs text-overseez-gold">
-            🏦 <strong>{bankInfo.bankName}</strong> {t('search.overseasFee')}: <strong>{bankInfo.overseasFeePercent}%</strong> — {bankInfo.feeDescription}
+          <div className="bg-overseez-gold/10 border border-overseez-gold/25 rounded-lg px-4 py-2.5 mb-4 text-xs text-overseez-gold flex items-center gap-2">
+            <Building2 className="w-3.5 h-3.5 flex-shrink-0" /> <strong>{bankInfo.bankName}</strong> {t('search.overseasFee')}: <strong>{bankInfo.overseasFeePercent}%</strong> — {bankInfo.feeDescription}
           </div>
         )}
 
@@ -591,8 +592,8 @@ export default function SearchPage() {
 
         {/* Error */}
         {error && (
-          <div className="bg-overseez-red/10 border border-overseez-red/25 rounded-lg p-4 text-sm text-overseez-red mb-4">
-            ⚠ {error}
+          <div className="bg-overseez-red/10 border border-overseez-red/25 rounded-lg p-4 text-sm text-overseez-red mb-4 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 flex-shrink-0" /> {error}
           </div>
         )}
 
@@ -605,12 +606,12 @@ export default function SearchPage() {
             </p>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              <span className="text-xs bg-overseez-gold/10 text-overseez-gold border border-overseez-gold/25 rounded-full px-3 py-1">
-                📊 {t('search.areaAverage')} {formatDisplay(result.averageValue)}
+              <span className="text-xs bg-overseez-gold/10 text-overseez-gold border border-overseez-gold/25 rounded-full px-3 py-1 flex items-center gap-1">
+                <BarChart2 className="w-3 h-3" /> {t('search.areaAverage')} {formatDisplay(result.averageValue)}
               </span>
               {result.sales?.length > 0 && (
-                <span className="text-xs bg-overseez-green/10 text-overseez-green border border-overseez-green/25 rounded-full px-3 py-1">
-                  🏷 {t('search.salesFound', { count: result.sales.length })}
+                <span className="text-xs bg-overseez-green/10 text-overseez-green border border-overseez-green/25 rounded-full px-3 py-1 flex items-center gap-1">
+                  <Tag className="w-3 h-3" /> {t('search.salesFound', { count: result.sales.length })}
                 </span>
               )}
             </div>
@@ -640,14 +641,14 @@ export default function SearchPage() {
                       }`}>
                         <div className="flex items-start gap-3">
                           <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center text-xs font-bold">#{place.rank}</div>
-                          <div className="w-14 h-14 rounded-lg bg-muted/50 border border-border flex items-center justify-center text-2xl">{getCategoryEmoji(place.type)}</div>
+                          <div className="w-14 h-14 rounded-lg bg-muted/50 border border-border flex items-center justify-center">{getCategoryIcon(place.type)}</div>
                           <div className="flex-1"><p className="text-sm font-semibold">{place.name}</p><p className="text-xs text-muted-foreground mt-1">{place.type} · ~{place.distance}</p></div>
                           <div className="text-right flex-shrink-0"><p className="text-lg font-bold">{currencySymbol}{displayedPrice.toFixed(2)}</p></div>
                         </div>
                       </div>
                       {/* Upgrade overlay */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-[2px] rounded-xl border border-overseez-gold/30">
-                        <p className="text-sm font-semibold text-overseez-gold">🔒 {combinedPlaces.length - 3} cheaper result{combinedPlaces.length - 3 !== 1 ? 's' : ''} hidden</p>
+                        <p className="text-sm font-semibold text-overseez-gold flex items-center gap-1"><Lock className="w-3.5 h-3.5" /> {combinedPlaces.length - 3} cheaper result{combinedPlaces.length - 3 !== 1 ? 's' : ''} hidden</p>
                         <p className="text-xs text-muted-foreground mt-1">Upgrade to Premium to unlock</p>
                         <button
                           onClick={() => navigate('/subscription')}
@@ -676,7 +677,7 @@ export default function SearchPage() {
                       </div>
 
                       <div className="w-14 h-14 rounded-lg bg-muted/50 border border-border flex items-center justify-center flex-shrink-0 text-2xl">
-                        {getCategoryEmoji(place.type)}
+                        {getCategoryIcon(place.type)}
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -684,8 +685,8 @@ export default function SearchPage() {
                           <span className="font-semibold text-sm">{place.name}</span>
                           {i === 0 && <span className="text-[10px] bg-foreground/10 text-foreground px-2 py-0.5 rounded-full font-semibold">{t('search.cheapest')}</span>}
                           {place.isSale && (
-                            <span className="text-[10px] bg-overseez-green/15 text-overseez-green border border-overseez-green/30 px-2 py-0.5 rounded-full font-bold">
-                              🏷 {t('search.sale')}
+                            <span className="text-[10px] bg-overseez-green/15 text-overseez-green border border-overseez-green/30 px-2 py-0.5 rounded-full font-bold flex items-center gap-0.5">
+                              <Tag className="w-2.5 h-2.5" /> {t('search.sale')}
                             </span>
                           )}
                         </div>
@@ -710,7 +711,7 @@ export default function SearchPage() {
                         )}
                         <p className="text-xs text-foreground/80 mt-1.5 leading-relaxed">{place.tip}</p>
                         {place.expires && (
-                          <p className="text-[11px] text-overseez-gold/80 italic mt-1">⏱ {place.expires}</p>
+                          <p className="text-[11px] text-overseez-gold/80 italic mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {place.expires}</p>
                         )}
                         {bankFeeRate > 0 && (
                           <div className="text-[11px] text-overseez-gold bg-overseez-gold/8 rounded px-2 py-1 mt-1.5 border border-overseez-gold/15">
@@ -734,14 +735,14 @@ export default function SearchPage() {
                     <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-border/50">
                       <button onClick={() => openExternalUrl(mapsUrl)}
                         className="text-xs text-overseez-blue hover:underline flex items-center gap-1">
-                        <MapPin className="w-3 h-3" /> {loc ? '📍 Get Directions' : t('search.viewOnMaps')}
+                        <MapPin className="w-3 h-3" /> {loc ? 'Get Directions' : t('search.viewOnMaps')}
                       </button>
                       <button onClick={() => {
                         setSpendModal({ open: true, place, avgVal: displayedAverage });
                         setSpendInput(displayedPrice.toFixed(2));
                       }}
-                        className="text-sm font-semibold bg-overseez-green/20 border border-overseez-green/40 text-overseez-green rounded-lg px-5 py-2 hover:bg-overseez-green/30 transition-colors active:scale-95">
-                        🏷 {t('search.iSavedHere')}
+                        className="text-sm font-semibold bg-overseez-green/20 border border-overseez-green/40 text-overseez-green rounded-lg px-5 py-2 hover:bg-overseez-green/30 transition-colors active:scale-95 flex items-center gap-1.5">
+                        <Tag className="w-3.5 h-3.5" /> {t('search.iSavedHere')}
                       </button>
                     </div>
                   </div>

@@ -93,7 +93,7 @@ export default function Subscription() {
                 <p className="text-[11px] text-muted-foreground">{t('subscription.subscriptionCost')}</p>
               </div>
             </div>
-            <p className="font-semibold text-foreground">👉 {t('subscription.caseConclusion')}</p>
+            <p className="font-semibold text-foreground flex items-center gap-1.5"><ArrowRight className="w-4 h-4 text-overseez-blue flex-shrink-0" /> {t('subscription.caseConclusion')}</p>
           </div>
           <p className="text-xs text-muted-foreground italic">{t('subscription.caseQuote')}</p>
         </div>

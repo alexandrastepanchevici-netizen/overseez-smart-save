@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 
 const CURRENCIES = [
   { code: 'USD', symbol: '$', label: 'US Dollar' },
@@ -151,7 +151,7 @@ export default function CurrencySwitcher({ value, onChange, compact = false }: C
               className={`w-full text-left flex items-center justify-between px-4 py-2 text-sm hover:bg-muted transition-colors ${c.code === value ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
             >
               <span>{c.symbol} {c.label}</span>
-              {c.code === value && <span className="text-overseez-blue text-xs">✓</span>}
+              {c.code === value && <Check className="w-3.5 h-3.5 text-overseez-blue" />}
             </button>
           ))}
         </div>

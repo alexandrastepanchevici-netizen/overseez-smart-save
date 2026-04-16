@@ -71,7 +71,7 @@ export function useXP() {
     await refreshProfile();
 
     if (newLevel.level > prevLevel) {
-      toast.success(`⚡ Level up! You're now ${newLevel.name} (Lv.${newLevel.level})`, {
+      toast.success(`Level up! You're now ${newLevel.name} (Lv.${newLevel.level})`, {
         duration: 4000,
       });
     }

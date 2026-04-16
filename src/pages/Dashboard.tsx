@@ -9,7 +9,12 @@ import SavingsRecap from '@/components/SavingsRecap';
 import MonthlyRecap from '@/components/MonthlyRecap';
 import ShareCard from '@/components/ShareCard';
 import NewUserWelcome from '@/components/NewUserWelcome';
-import { TrendingUp, Calendar, Wallet, Target } from 'lucide-react';
+import { TrendingUp, Calendar, Wallet, Target, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane } from 'lucide-react';
+import type { LucideProps } from 'lucide-react';
+
+const EQUIV_ICONS: Record<string, React.ComponentType<LucideProps>> = {
+  Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane,
+};
 import { getEquivalents } from '@/lib/savingsEquivalents';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -154,8 +159,8 @@ export default function Dashboard() {
                   {((profile as any)?.current_streak || 0) > 0 ? '🔥' : '🩶'} {(profile as any)?.current_streak || 0} day{((profile as any)?.current_streak || 0) !== 1 ? 's' : ''}
                 </button>
                 {percentileRank !== null && percentileRank >= 50 && (
-                  <span className="text-xs font-semibold text-overseez-gold bg-overseez-gold/10 border border-overseez-gold/25 rounded-full px-2.5 py-0.5">
-                    🏆 Top {100 - percentileRank}%
+                  <span className="text-xs font-semibold text-overseez-gold bg-overseez-gold/10 border border-overseez-gold/25 rounded-full px-2.5 py-0.5 flex items-center gap-1">
+                    <Trophy className="w-3 h-3" /> Top {100 - percentileRank}%
                   </span>
                 )}
               </div>
@@ -163,20 +168,21 @@ export default function Dashboard() {
                 const equivalents = getEquivalents(totalSaved, displayCurrency);
                 if (equivalents.length === 0) return null;
                 const eq = equivalents[0];
+                const EquivIcon = EQUIV_ICONS[eq.icon];
                 return (
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    ✨ That&apos;s {eq.count} {eq.emoji} {eq.label}
+                  <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                    That&apos;s {eq.count} {EquivIcon && <EquivIcon className="w-3 h-3 inline-block" />} {eq.label}
                   </p>
                 );
               })()}
               {/* AI usage + refresh counter */}
               <div className="flex items-center gap-2 mt-1 flex-wrap">
                 {(profile as any)?.subscribed ? (
-                  <span className="text-xs text-overseez-green font-semibold">⚡ Unlimited searches</span>
+                  <span className="text-xs text-overseez-green font-semibold flex items-center gap-1"><Zap className="w-3 h-3" /> Unlimited searches</span>
                 ) : (
                   <>
-                    <span className="text-xs text-muted-foreground">
-                      🔍 <span className="font-semibold text-foreground">{usageLeft}</span>/{FREE_LIMIT} searches left today
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <SearchIcon className="w-3 h-3" /> <span className="font-semibold text-foreground">{usageLeft}</span>/{FREE_LIMIT} searches left today
                     </span>
                     {resetCountdown && (
                       <span className="text-overseez-blue font-mono text-[11px] bg-overseez-blue/10 border border-overseez-blue/20 rounded-full px-2.5 py-0.5">
