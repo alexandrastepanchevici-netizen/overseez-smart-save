@@ -386,6 +386,7 @@ export default function SearchPage() {
         .sort((a, b) => a.priceValue - b.priceValue)
         .slice(0, 5)
         .map((p, i) => ({ ...p, rank: i + 1 }));
+      // Show top 3 fully; indices 3-4 are blurred paywall teasers
 
       setCombinedPlaces(combined);
       if (!subscribed) setUsageLeft(prev => Math.max(0, prev - 1));
@@ -513,26 +514,6 @@ export default function SearchPage() {
         </div>
       </div>
 
-      {/* Student Discount Chips */}
-      <div className="border-b border-border bg-overseez-mid/60 px-4 py-2">
-        <div className="max-w-3xl mx-auto flex gap-2 overflow-x-auto items-center">
-          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium flex-shrink-0">🎓 Student</span>
-          {[
-            { label: 'Transport pass', q: 'Student transport pass & discount travel cards' },
-            { label: 'Meal deals', q: 'Student meal deals & cheap restaurants near campus' },
-            { label: 'Gym', q: 'Student gym membership & fitness centres' },
-            { label: 'Phone plans', q: 'Student phone plans & SIM deals' },
-            { label: 'Software & tech', q: 'Student software deals & tech discounts' },
-            { label: 'Textbooks', q: 'Cheap textbooks & second-hand books' },
-          ].map(c => (
-            <button key={c.q} onClick={() => doSearch(c.q)}
-              className="text-xs text-overseez-blue bg-overseez-blue/10 border border-overseez-blue/30 rounded-full px-3 py-1.5 whitespace-nowrap hover:bg-overseez-blue/20 transition-colors flex-shrink-0">
-              {c.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className="max-w-3xl mx-auto px-4 py-6">
         {/* Location + Usage */}
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -564,34 +545,10 @@ export default function SearchPage() {
               </div>
             )}
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 text-xs text-muted-foreground">
-            <div className="mb-1 sm:mb-0 sm:mr-2">
-              <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} compact />
-            </div>
-            {subscribed ? (
-              <span className="text-overseez-green font-semibold">{t('search.unlimited')}</span>
-            ) : (
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                <span>
-                  {t('search.freeLeft')} <span className="font-semibold text-foreground">{usageLeft}</span> / {FREE_LIMIT}
-                </span>
-                {resetCountdown && (
-                  <span className="text-overseez-blue font-mono text-[11px] bg-overseez-blue/10 border border-overseez-blue/20 rounded-full px-2.5 py-0.5">
-                    {t('search.nextCredit')} {resetCountdown}
-                  </span>
-                )}
-              </div>
-            )}
+          <div className="flex items-center">
+            <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} compact />
           </div>
         </div>
-
-        {/* Usage Progress */}
-        {!subscribed && (
-          <div className="h-1 bg-muted rounded-full overflow-hidden mb-4">
-            <div className={`h-full rounded-full transition-all duration-500 ${usageLeft <= 1 ? 'bg-overseez-red' : usageLeft <= 2 ? 'bg-overseez-gold' : 'bg-overseez-blue'}`}
-              style={{ width: `${(usageLeft / FREE_LIMIT) * 100}%` }} />
-          </div>
-        )}
 
         {/* Bank Notice */}
         {bankInfo && (
@@ -652,18 +609,11 @@ export default function SearchPage() {
                 📊 {t('search.areaAverage')} {formatDisplay(result.averageValue)}
               </span>
               {result.sales?.length > 0 && (
-                <span className="text-xs bg-overseez-red/10 text-overseez-red border border-overseez-red/25 rounded-full px-3 py-1">
+                <span className="text-xs bg-overseez-green/10 text-overseez-green border border-overseez-green/25 rounded-full px-3 py-1">
                   🏷 {t('search.salesFound', { count: result.sales.length })}
                 </span>
               )}
             </div>
-
-            {result.insight && (
-              <div className="bg-overseez-blue/10 border border-overseez-blue/20 rounded-lg px-4 py-3 mb-4">
-                <p className="text-[11px] font-bold text-overseez-blue uppercase tracking-wider mb-1">⚡ {t('search.aiInsight')}</p>
-                <p className="text-sm text-foreground/85 leading-relaxed">{result.insight}</p>
-              </div>
-            )}
 
             <div className="space-y-3">
               {combinedPlaces.map((place, i) => {
@@ -678,15 +628,15 @@ export default function SearchPage() {
                   ? `https://www.google.com/maps/dir/?api=1&origin=${loc.lat},${loc.lng}&destination=${encodeURIComponent(mapsQuery + (loc.city ? ' ' + loc.city : ''))}&travelmode=walking`
                   : `https://www.google.com/maps/search/${encodeURIComponent(mapsQuery)}`;
 
-                // Blur the last result for free users when there are 5 results
-                const isBlurred = !subscribed && combinedPlaces.length === 5 && i === combinedPlaces.length - 1;
+                // Blur results 4-5 (indices 3-4) for free users as paywall teasers
+                const isBlurred = !subscribed && i >= 3;
 
                 if (isBlurred) {
                   return (
                     <div key={i} className="relative animate-card-in" style={{ animationDelay: `${i * 0.06}s` }}>
                       {/* Blurred card beneath */}
                       <div className={`bg-card border rounded-xl p-4 pointer-events-none select-none blur-sm opacity-50 ${
-                        place.isSale ? 'border-overseez-red/30' : 'border-border'
+                        place.isSale ? 'border-overseez-green/30' : 'border-border'
                       }`}>
                         <div className="flex items-start gap-3">
                           <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center text-xs font-bold">#{place.rank}</div>
@@ -697,7 +647,7 @@ export default function SearchPage() {
                       </div>
                       {/* Upgrade overlay */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/70 backdrop-blur-[2px] rounded-xl border border-overseez-gold/30">
-                        <p className="text-sm font-semibold text-overseez-gold">🔒 1 cheaper result hidden</p>
+                        <p className="text-sm font-semibold text-overseez-gold">🔒 {combinedPlaces.length - 3} cheaper result{combinedPlaces.length - 3 !== 1 ? 's' : ''} hidden</p>
                         <p className="text-xs text-muted-foreground mt-1">Upgrade to Premium to unlock</p>
                         <button
                           onClick={() => navigate('/subscription')}
@@ -715,13 +665,13 @@ export default function SearchPage() {
                     ref={el => { cardRefs.current[i] = el; }}
                     data-idx={i}
                     className={`bg-card border rounded-xl p-4 animate-card-in overseez-card-hover ${
-                      place.isSale ? 'border-overseez-red/30 bg-gradient-to-br from-card to-overseez-red/5' : 'border-border'
+                      place.isSale ? 'border-overseez-green/30 bg-gradient-to-br from-card to-overseez-green/5' : 'border-border'
                     }`}
                     style={{ animationDelay: `${i * 0.06}s` }}>
                     <div className="flex items-start gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0
                         ${i === 0 ? 'bg-foreground/15 text-foreground border border-foreground/30' : 'bg-muted text-muted-foreground border border-border'}
-                        ${place.isSale ? 'bg-overseez-red/15 text-overseez-red border-overseez-red/30' : ''}`}>
+                        ${place.isSale ? 'bg-overseez-green/15 text-overseez-green border-overseez-green/30' : ''}`}>
                         #{place.rank}
                       </div>
 
@@ -734,7 +684,7 @@ export default function SearchPage() {
                           <span className="font-semibold text-sm">{place.name}</span>
                           {i === 0 && <span className="text-[10px] bg-foreground/10 text-foreground px-2 py-0.5 rounded-full font-semibold">{t('search.cheapest')}</span>}
                           {place.isSale && (
-                            <span className="text-[10px] bg-overseez-red/15 text-overseez-red border border-overseez-red/30 px-2 py-0.5 rounded-full font-bold">
+                            <span className="text-[10px] bg-overseez-green/15 text-overseez-green border border-overseez-green/30 px-2 py-0.5 rounded-full font-bold">
                               🏷 {t('search.sale')}
                             </span>
                           )}
@@ -756,7 +706,7 @@ export default function SearchPage() {
                           )}
                         </div>
                         {place.isSale && place.saleLabel && (
-                          <p className="text-xs text-overseez-red font-semibold mt-1">{place.saleLabel}</p>
+                          <p className="text-xs text-overseez-green font-semibold mt-1">{place.saleLabel}</p>
                         )}
                         <p className="text-xs text-foreground/80 mt-1.5 leading-relaxed">{place.tip}</p>
                         {place.expires && (
@@ -777,12 +727,11 @@ export default function SearchPage() {
                         {bankFeeRate > 0 && (
                           <p className="text-xs text-overseez-gold font-semibold">{t('search.bankFee')} {currencySymbol}{effectivePrice.toFixed(2)}</p>
                         )}
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{t('search.avg')} {currencySymbol}{displayedAverage.toFixed(2)}</p>
-                        {saving > 0 && <p className="text-xs font-semibold mt-0.5">▼ {currencySymbol}{saving.toFixed(2)}</p>}
+                        {saving > 0 && <p className="text-xs font-semibold mt-0.5 text-overseez-green">▼ {currencySymbol}{saving.toFixed(2)}</p>}
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-2 mt-3 pt-2 border-t border-border/50">
+                    <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-border/50">
                       <button onClick={() => openExternalUrl(mapsUrl)}
                         className="text-xs text-overseez-blue hover:underline flex items-center gap-1">
                         <MapPin className="w-3 h-3" /> {loc ? '📍 Get Directions' : t('search.viewOnMaps')}
@@ -791,7 +740,7 @@ export default function SearchPage() {
                         setSpendModal({ open: true, place, avgVal: displayedAverage });
                         setSpendInput(displayedPrice.toFixed(2));
                       }}
-                        className="text-xs bg-muted/50 border border-border rounded-md px-3 py-1.5 hover:bg-muted transition-colors">
+                        className="text-sm font-semibold bg-overseez-green/20 border border-overseez-green/40 text-overseez-green rounded-lg px-5 py-2 hover:bg-overseez-green/30 transition-colors active:scale-95">
                         🏷 {t('search.iSavedHere')}
                       </button>
                     </div>

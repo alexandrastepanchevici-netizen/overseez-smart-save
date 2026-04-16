@@ -5,13 +5,13 @@ import AppNav from '@/components/AppNav';
 import FloatingOvals from '@/components/FloatingOvals';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
 import BadgeShelf from '@/components/BadgeShelf';
-import StreakCalendar from '@/components/StreakCalendar';
 import GoalCard from '@/components/GoalCard';
-import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { User, Calendar, Wallet, Star, Shield, TrendingUp, Flame } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useXP } from '@/hooks/useXP';
 import ReviewSection from '@/components/ReviewSection';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 function getMilestones(total: number): number[] {
   const base = [5, 25, 50, 100, 250, 500, 1000];
@@ -34,17 +34,9 @@ export default function Profile() {
   const { t } = useTranslation();
   const { profile, user, subscribed } = useAuth();
   const { xp, levelInfo } = useXP();
-  const [usageLeft, setUsageLeft] = useState(5);
+  const navigate = useNavigate();
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [displayCurrency, setDisplayCurrency] = useState('USD');
-
-  useEffect(() => {
-    if (!user) return;
-    const since = new Date(Date.now() - 24 * 3600000).toISOString();
-    supabase.from('ai_usage').select('id', { count: 'exact' })
-      .eq('user_id', user.id).gte('created_at', since)
-      .then(({ count }) => setUsageLeft(Math.max(0, 5 - (count || 0))));
-  }, [user]);
 
   const profileCurrency = profile?.currency || 'USD';
   const sym = getCurrencySymbol(displayCurrency);
@@ -118,7 +110,24 @@ export default function Profile() {
 
         <BadgeShelf />
 
-        <StreakCalendar />
+        {/* Streak button — taps through to /streak page */}
+        <button
+          onClick={() => navigate('/streak')}
+          className="w-full bg-card border border-border rounded-xl p-5 mb-6 flex items-center justify-between overseez-card-hover group"
+        >
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${((profile as any)?.current_streak || 0) > 0 ? 'bg-orange-400/15' : 'bg-muted/40'}`}>
+              <Flame className={`w-5 h-5 ${((profile as any)?.current_streak || 0) > 0 ? 'text-orange-400' : 'text-muted-foreground'}`} />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold">
+                {(profile as any)?.current_streak || 0} day streak
+              </p>
+              <p className="text-xs text-muted-foreground">Tap to view activity calendar</p>
+            </div>
+          </div>
+          <span className="text-muted-foreground group-hover:text-foreground transition-colors text-lg">→</span>
+        </button>
 
         <GoalCard />
 
@@ -145,19 +154,6 @@ export default function Profile() {
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-xl p-6 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-display font-semibold">{t('profile.aiUsage')}</h3>
-            <span className="text-sm text-muted-foreground">{subscribed ? t('search.unlimited') : `${usageLeft} / 5 ${t('profile.remaining')}`}</span>
-          </div>
-          {!subscribed && (
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div className={`h-full rounded-full transition-all duration-500 ${usageLeft <= 1 ? 'bg-overseez-red' : usageLeft <= 2 ? 'bg-overseez-gold' : 'bg-overseez-blue'}`} style={{ width: `${(usageLeft / 5) * 100}%` }} />
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground mt-2">{subscribed ? t('profile.premiumUnlimited') : t('profile.freeReset')}</p>
         </div>
 
         <div className="bg-card border border-border rounded-xl p-6">
@@ -189,6 +185,10 @@ export default function Profile() {
               <span className="text-sm">{t('profile.termsConditions')}</span>
               <span className="text-xs text-muted-foreground">{t('profile.view')}</span>
             </Link>
+            <div className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+              <span className="text-sm">Language</span>
+              <LanguageSwitcher compact />
+            </div>
           </div>
         </div>
       </div>

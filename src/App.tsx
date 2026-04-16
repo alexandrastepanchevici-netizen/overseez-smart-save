@@ -21,6 +21,8 @@ import Profile from "./pages/Profile";
 import Subscription from "./pages/Subscription";
 import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
+import Movement from "./pages/Movement";
+import StreakPage from "./pages/StreakPage";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +75,8 @@ const App = () => (
             <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+            <Route path="/movement" element={<Movement />} />
+            <Route path="/streak" element={<ProtectedRoute><StreakPage /></ProtectedRoute>} />
             <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -86,9 +90,8 @@ const App = () => (
 function AuthGate() {
   const { user, loading } = useAuth();
   if (loading) return null;
-  // Unauthenticated → registration. Authenticated → landing/home page.
   if (!user) return <Navigate to="/register" replace />;
-  return <Index />;
+  return <Navigate to="/dashboard" replace />;
 }
 
 export default App;

@@ -9,10 +9,28 @@ import { openExternalUrl } from '@/lib/openExternalUrl';
 import { toast } from 'sonner';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
+
+const TESTIMONIAL_IMAGES = [
+  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=100&h=100&fit=crop",
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&h=100&fit=crop",
+];
 
 export default function Subscription() {
   const { t } = useTranslation();
   const { subscribed, subscriptionEnd, checkSubscription } = useAuth();
+  const testimonials = Array.from({ length: 6 }, (_, i) => ({
+    text: t(`testimonials.items.${i}.text`),
+    image: TESTIMONIAL_IMAGES[i],
+    name: t(`testimonials.items.${i}.name`),
+    role: t(`testimonials.items.${i}.role`),
+  }));
+  const testimonialsCol1 = testimonials.slice(0, 3);
+  const testimonialsCol2 = testimonials.slice(3, 6);
   const [loading, setLoading] = useState(false);
   const [portalLoading, setPortalLoading] = useState(false);
   const [searchParams] = useSearchParams();
@@ -128,6 +146,18 @@ export default function Subscription() {
 
         <div className="mt-6 text-center">
           <Button variant="ghost" size="sm" onClick={() => checkSubscription()} className="text-xs text-muted-foreground">{t('subscription.refreshStatus')}</Button>
+        </div>
+      </div>
+
+      {/* Testimonials */}
+      <div className="border-t border-border bg-overseez-mid py-16 px-4">
+        <div className="max-w-3xl mx-auto">
+          <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-2 text-center">{t('testimonials.label')}</p>
+          <h2 className="text-2xl font-display font-bold tracking-tight mb-10 text-center">{t('testimonials.title')}</h2>
+          <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_20%,black_80%,transparent)] max-h-[480px] overflow-hidden">
+            <TestimonialsColumn testimonials={testimonialsCol1} duration={15} />
+            <TestimonialsColumn testimonials={testimonialsCol2} duration={19} className="hidden sm:block" />
+          </div>
         </div>
       </div>
     </div>

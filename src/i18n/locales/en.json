@@ -163,7 +163,7 @@
     "upgrade": "Upgrade",
     "overseezAI": "Overseez AI",
     "welcomeDesc": "Find the top 5 cheapest options near you for anything — with live sales merged into the ranking, savings vs average, and Google Maps links. All prices shown in your selected currency ({{currency}}).",
-    "bankSalesNote": "Enter your bank to see overseas fees · Sales automatically merged into rankings",
+    "bankSalesNote": "Enter your bank to see card fees · Sales automatically merged into rankings",
     "searching": "Searching for cheapest \"{{query}}\" near you…",
     "results": "About {{count}} cheapest results for \"{{query}}\"",
     "nearCity": " near {{city}}",
@@ -175,9 +175,9 @@
     "saveVsAvg": "Save {{amount}} vs avg",
     "viewOnMaps": "View on Maps",
     "iSavedHere": "I saved here",
-    "overseasFee": "overseas fee",
+    "overseasFee": "card fee",
     "trueCost": "true cost",
-    "bankFee": "overseas fee:",
+    "bankFee": "card fee:",
     "avg": "avg:",
     "spendTitle": "How much did you spend?",
     "spendDesc": "Enter what you spent at {{name}} — we'll calculate your real saving.",
@@ -187,7 +187,7 @@
     "logged": "Logged!",
     "loadingStep0": "🔍 Finding locations near you...",
     "loadingStep1": "💰 Comparing prices...",
-    "loadingStep2": "🏦 Checking bank fees..."
+    "loadingStep2": "🏦 Checking card fees..."
   },
   "profile": {
     "title": "Your Profile",

@@ -34,6 +34,9 @@ export default function Dashboard() {
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || 'USD');
   const [percentileRank, setPercentileRank] = useState<number | null>(null);
+  const [usageLeft, setUsageLeft] = useState(5);
+  const [resetCountdown, setResetCountdown] = useState('');
+  const [oldestUsageTime, setOldestUsageTime] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -42,6 +45,40 @@ export default function Dashboard() {
       .order('created_at', { ascending: false }).limit(20)
       .then(({ data }) => { if (data) setSavings(data); });
   }, [user]);
+
+  // Fetch AI usage for dashboard counter
+  const FREE_LIMIT = 5;
+  useEffect(() => {
+    if (!user || (profile as any)?.subscribed) return;
+    const since = new Date(Date.now() - 24 * 3600000).toISOString();
+    supabase.from('ai_usage').select('id, created_at', { count: 'exact' })
+      .eq('user_id', user.id).gte('created_at', since)
+      .order('created_at', { ascending: true })
+      .then(({ data, count }) => {
+        const used = count || 0;
+        setUsageLeft(Math.max(0, FREE_LIMIT - used));
+        if (data && data.length > 0) setOldestUsageTime(new Date(data[0].created_at).getTime());
+        else setOldestUsageTime(null);
+      });
+  }, [user, profile]);
+
+  // Countdown until next search credit
+  useEffect(() => {
+    if (oldestUsageTime === null || usageLeft >= FREE_LIMIT) { setResetCountdown(''); return; }
+    const resetAt = oldestUsageTime + 24 * 3600000;
+    const fmt = (ms: number) => {
+      const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000), s = Math.floor((ms % 60000) / 1000);
+      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+    const tick = () => {
+      const rem = resetAt - Date.now();
+      if (rem <= 0) { setResetCountdown(''); setUsageLeft(prev => Math.min(FREE_LIMIT, prev + 1)); setOldestUsageTime(null); return; }
+      setResetCountdown(fmt(rem));
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [oldestUsageTime, usageLeft]);
 
   useEffect(() => {
     if (!profile) return;
@@ -110,9 +147,12 @@ export default function Dashboard() {
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{t('dashboard.totalSaved')}</p>
               <div className="flex items-center gap-3">
                 <p className="text-2xl font-display font-bold tracking-tight tabular-nums">{sym}{animatedTotal.toFixed(2)}</p>
-                <span className="text-sm font-semibold text-orange-400">
-                  🔥 {(profile as any)?.current_streak || 0} day{((profile as any)?.current_streak || 0) !== 1 ? 's' : ''}
-                </span>
+                <button
+                  onClick={() => navigate('/streak')}
+                  className={`text-sm font-semibold transition-opacity hover:opacity-75 active:scale-95 ${((profile as any)?.current_streak || 0) > 0 ? 'text-orange-400' : 'text-muted-foreground'}`}
+                >
+                  {((profile as any)?.current_streak || 0) > 0 ? '🔥' : '🩶'} {(profile as any)?.current_streak || 0} day{((profile as any)?.current_streak || 0) !== 1 ? 's' : ''}
+                </button>
                 {percentileRank !== null && percentileRank >= 50 && (
                   <span className="text-xs font-semibold text-overseez-gold bg-overseez-gold/10 border border-overseez-gold/25 rounded-full px-2.5 py-0.5">
                     🏆 Top {100 - percentileRank}%
@@ -122,14 +162,30 @@ export default function Dashboard() {
               {(() => {
                 const equivalents = getEquivalents(totalSaved, displayCurrency);
                 if (equivalents.length === 0) return null;
+                const eq = equivalents[0];
                 return (
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    ✨ That&apos;s {equivalents.map((e, idx) => (
-                      <span key={idx}>{e.count} {e.emoji} {e.label}{idx < equivalents.length - 1 ? ' or ' : ''}</span>
-                    ))}
+                    ✨ That&apos;s {eq.count} {eq.emoji} {eq.label}
                   </p>
                 );
               })()}
+              {/* AI usage + refresh counter */}
+              <div className="flex items-center gap-2 mt-1 flex-wrap">
+                {(profile as any)?.subscribed ? (
+                  <span className="text-xs text-overseez-green font-semibold">⚡ Unlimited searches</span>
+                ) : (
+                  <>
+                    <span className="text-xs text-muted-foreground">
+                      🔍 <span className="font-semibold text-foreground">{usageLeft}</span>/{FREE_LIMIT} searches left today
+                    </span>
+                    {resetCountdown && (
+                      <span className="text-overseez-blue font-mono text-[11px] bg-overseez-blue/10 border border-overseez-blue/20 rounded-full px-2.5 py-0.5">
+                        next in {resetCountdown}
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <CurrencySwitcher value={displayCurrency} onChange={(c) => { setDisplayCurrency(c); localStorage.setItem('overseez_display_currency', c); }} />

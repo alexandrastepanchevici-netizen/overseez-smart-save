@@ -39,13 +39,16 @@ const CITY_AVG_SAVINGS: Record<string, number> = {
 };
 
 const ORIGIN_COUNTRIES = [
+  { code: 'US', name: 'USA', flag: '🇺🇸', currency: 'USD' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺', currency: 'AUD' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦', currency: 'CAD' },
   { code: 'IN', name: 'India', flag: '🇮🇳', currency: 'INR' },
   { code: 'NG', name: 'Nigeria', flag: '🇳🇬', currency: 'NGN' },
   { code: 'CN', name: 'China', flag: '🇨🇳', currency: 'CNY' },
   { code: 'GH', name: 'Ghana', flag: '🇬🇭', currency: 'GHS' },
   { code: 'KE', name: 'Kenya', flag: '🇰🇪', currency: 'KES' },
   { code: 'ZA', name: 'S. Africa', flag: '🇿🇦', currency: 'ZAR' },
-  { code: 'US', name: 'USA', flag: '🇺🇸', currency: 'USD' },
   { code: 'BR', name: 'Brazil', flag: '🇧🇷', currency: 'BRL' },
   { code: 'MX', name: 'Mexico', flag: '🇲🇽', currency: 'MXN' },
   { code: 'KR', name: 'South Korea', flag: '🇰🇷', currency: 'KRW' },
@@ -362,7 +365,7 @@ function Step1({ onNext }: { onNext: (city: string, currency: string) => void })
         🏠 Not traveling currently
       </button>
 
-      <p className="text-center text-xs text-muted-foreground">Used by 12,000+ students worldwide</p>
+      <p className="text-center text-xs text-muted-foreground">Used by 12,000+ people worldwide</p>
     </>
   );
 }
@@ -371,56 +374,81 @@ function Step1({ onNext }: { onNext: (city: string, currency: string) => void })
 
 type Country = typeof ORIGIN_COUNTRIES[0];
 
+// All countries for dropdown: ORIGIN_COUNTRIES first (with divider), then world
+const ALL_COUNTRIES_ORDERED = [
+  ...ORIGIN_COUNTRIES,
+  ...WORLD_COUNTRIES.filter(c => !new Set(ORIGIN_COUNTRIES.map(o => o.code)).has(c.code)),
+];
+
 function Step2({ onNext, onBack }: { onNext: (country: Country) => void; onBack: () => void }) {
   const [selected, setSelected] = useState<Country | null>(null);
   const [search, setSearch] = useState('');
+  const [open, setOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   const pick = (c: Country) => {
     setSelected(c);
+    setSearch(c.name);
+    setOpen(false);
     setTimeout(() => onNext(c), 300);
   };
 
   const query = search.trim().toLowerCase();
-  const filteredExtra = query
-    ? EXTRA_COUNTRIES.filter(c => c.name.toLowerCase().includes(query))
-    : EXTRA_COUNTRIES;
+  const filtered = query
+    ? ALL_COUNTRIES_ORDERED.filter(c => c.name.toLowerCase().includes(query) || c.code.toLowerCase().includes(query))
+    : ALL_COUNTRIES_ORDERED;
 
   return (
     <>
       <BigTitle>Where are you from?</BigTitle>
       <Sub>We'll show prices in your home currency too</Sub>
 
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        {ORIGIN_COUNTRIES.map(c => (
-          <button key={c.code} onClick={() => pick(c)}
-            className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-200 ${selected?.code === c.code ? 'border-overseez-blue bg-overseez-blue/10 scale-105' : 'border-border bg-card/50 hover:border-foreground/20'}`}>
-            <span className="text-3xl">{c.flag}</span>
-            <span className="text-[11px] font-medium text-center leading-tight">{c.name}</span>
-          </button>
-        ))}
-      </div>
-
-      <input
-        ref={searchRef}
-        type="text"
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        placeholder="🔍 Search all countries..."
-        className="w-full bg-muted/40 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-overseez-blue/50 transition-colors mb-2"
-      />
-
-      {filteredExtra.length > 0 && (
-        <div className="max-h-52 overflow-y-auto rounded-xl border border-border divide-y divide-border">
-          {filteredExtra.map(c => (
-            <button key={c.code} onClick={() => pick(c)}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${selected?.code === c.code ? 'bg-overseez-blue/10 text-overseez-blue' : 'bg-card/50 hover:bg-muted/40'}`}>
-              <span className="text-xl flex-shrink-0">{c.flag}</span>
-              <span className="text-sm font-medium">{c.name}</span>
-            </button>
-          ))}
+      <div className="relative mb-6">
+        <div
+          className={`flex items-center gap-3 w-full bg-muted/40 border rounded-xl px-4 py-3.5 cursor-text transition-colors ${open ? 'border-overseez-blue/50' : 'border-border'}`}
+          onClick={() => { setOpen(true); setTimeout(() => searchRef.current?.focus(), 50); }}
+        >
+          {selected && !open ? (
+            <>
+              <span className="text-2xl">{selected.flag}</span>
+              <span className="text-sm font-medium flex-1">{selected.name}</span>
+              <button onClick={(e) => { e.stopPropagation(); setSelected(null); setSearch(''); setOpen(true); }}
+                className="text-muted-foreground hover:text-foreground text-lg leading-none">×</button>
+            </>
+          ) : (
+            <>
+              <span className="text-muted-foreground text-sm">🔍</span>
+              <input
+                ref={searchRef}
+                type="text"
+                value={search}
+                onChange={e => { setSearch(e.target.value); setOpen(true); }}
+                onFocus={() => setOpen(true)}
+                placeholder="Search your country..."
+                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              />
+            </>
+          )}
         </div>
-      )}
+
+        {open && (
+          <div className="absolute top-full left-0 right-0 mt-1 max-h-64 overflow-y-auto rounded-xl border border-border bg-card shadow-lg z-10 divide-y divide-border/50">
+            {filtered.slice(0, 30).map((c, idx) => (
+              <button key={c.code} onClick={() => pick(c)}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/40 ${idx < ORIGIN_COUNTRIES.length && !query ? 'bg-overseez-blue/5' : ''}`}>
+                <span className="text-xl flex-shrink-0">{c.flag}</span>
+                <span className="text-sm font-medium">{c.name}</span>
+                {idx === ORIGIN_COUNTRIES.length - 1 && !query && (
+                  <span className="ml-auto text-[10px] text-muted-foreground uppercase tracking-wider">more ↓</span>
+                )}
+              </button>
+            ))}
+            {filtered.length === 0 && (
+              <p className="px-4 py-3 text-sm text-muted-foreground">No country found</p>
+            )}
+          </div>
+        )}
+      </div>
     </>
   );
 }
@@ -514,7 +542,7 @@ function Step4({ city, destCurrency, originCountry, onNext }: {
         </div>
 
         <div className="bg-overseez-green/10 border border-overseez-green/25 rounded-xl p-4 mb-6 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Students like you in {cityLabel} save an average of</p>
+          <p className="text-xs text-muted-foreground mb-1">People in {cityLabel} save an average of</p>
           <p className="text-2xl font-display font-bold text-overseez-green">{destSym}{avgSavings}/month</p>
           <p className="text-xs text-muted-foreground mt-1">using Overseez to find better prices</p>
         </div>
@@ -638,8 +666,8 @@ function Step7({ data, onNext, onBack }: { data: OnboardingData; onNext: () => v
   const QUICK_SEARCHES = [
     { label: '🛒 Groceries', q: 'Groceries & supermarkets' },
     { label: '☕ Coffee', q: 'Coffee shops & cafés' },
-    { label: '🚌 Transport', q: 'Student transport pass & discount travel cards' },
-    { label: '📱 Phone plans', q: 'Student SIM deals & phone plans' },
+    { label: '🚌 Transport', q: 'Cheap transport passes & travel cards' },
+    { label: '📱 Phone plans', q: 'Best SIM deals & phone plans' },
   ];
 
   return (
@@ -647,7 +675,7 @@ function Step7({ data, onNext, onBack }: { data: OnboardingData; onNext: () => v
       <h1 className="text-2xl font-display font-bold tracking-tight mb-1">
         {data.firstName}, here's your savings forecast
       </h1>
-      <p className="text-sm text-muted-foreground mb-5">Based on students like you{data.city ? ` in ${data.city}` : ''}</p>
+      <p className="text-sm text-muted-foreground mb-5">Based on people like you{data.city ? ` in ${data.city}` : ''}</p>
 
       {/* Hero projection */}
       <div className="bg-gradient-to-br from-overseez-blue/20 to-overseez-green/10 border border-overseez-blue/30 rounded-2xl p-6 mb-4 text-center">

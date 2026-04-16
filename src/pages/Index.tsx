@@ -3,14 +3,11 @@ import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { openExternalUrl } from '@/lib/openExternalUrl';
 import OverseezLogo from '@/components/OverseezLogo';
 import FloatingOvals from '@/components/FloatingOvals';
 import AnimatedCounter from '@/components/AnimatedCounter';
-import { ArrowRight, Instagram } from 'lucide-react';
-import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
+import { ArrowRight } from 'lucide-react';
 import GlobeComponent from '@/components/ui/globe';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 
 function useReveal() {
@@ -43,37 +40,11 @@ const COMPARISONS = [
   { key: 'monthlyTransport', before: '175.00', after: '109.00' },
 ];
 
-const TESTIMONIAL_IMAGES = [
-  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=100&h=100&fit=crop",
-  "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop",
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&h=100&fit=crop",
-  "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=100&h=100&fit=crop",
-  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=100&h=100&fit=crop",
-  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=100&h=100&fit=crop",
-  "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=100&h=100&fit=crop",
-  "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&h=100&fit=crop",
-  "https://images.unsplash.com/photo-1523824921871-d6f1a15151f1?w=100&h=100&fit=crop",
-];
-
-function useTestimonials() {
-  const { t } = useTranslation();
-  return Array.from({ length: 9 }, (_, i) => ({
-    text: t(`testimonials.items.${i}.text`),
-    image: TESTIMONIAL_IMAGES[i],
-    name: t(`testimonials.items.${i}.name`),
-    role: t(`testimonials.items.${i}.role`),
-  }));
-}
-
 export default function Index() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
-  const testimonials = useTestimonials();
-  const testimonialsCol1 = testimonials.slice(0, 3);
-  const testimonialsCol2 = testimonials.slice(3, 6);
-  const testimonialsCol3 = testimonials.slice(6, 9);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40);
@@ -82,7 +53,6 @@ export default function Index() {
   }, []);
 
   const goAI = () => navigate(user ? '/search' : '/register');
-  const goSub = () => navigate(user ? '/subscription' : '/register');
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -99,7 +69,6 @@ export default function Index() {
             {user && <Link to="/search" className="hover:text-foreground transition-colors">{t('nav.aiAssistant')}</Link>}
           </div>
           <div className="flex items-center gap-3">
-            <LanguageSwitcher compact />
             {user ? (
               <Link to="/dashboard">
                 <Button variant="hero" size="sm">{t('nav.dashboard')}</Button>
@@ -148,14 +117,9 @@ export default function Index() {
               variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } } }}
             >
               <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: 'easeOut' } } }} className="w-full sm:w-auto">
-                <Button variant="hero" size="xl" className="group w-full" onClick={goAI}>
-                  {t('hero.tryAI')}
+                <Button variant="hero" size="xl" className="group w-full" onClick={() => navigate(user ? '/register' : '/register')}>
+                  {t('footer.signUp')}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </motion.div>
-              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: 'easeOut' } } }} className="w-full sm:w-auto">
-                <Button variant="hero-outline" size="xl" className="w-full" onClick={goSub}>
-                  {t('hero.seeOptions')}
                 </Button>
               </motion.div>
             </motion.div>
@@ -318,26 +282,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ─── TESTIMONIALS ─── */}
-      <section className="py-24 px-4 sm:px-6 relative overflow-hidden bg-overseez-mid">
-        <div className="max-w-6xl mx-auto relative z-10">
-          <RevealSection className="text-center mb-12">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('testimonials.label')}</p>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              {t('testimonials.title')}
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto text-sm sm:text-base">
-              {t('testimonials.subtitle')}
-            </p>
-          </RevealSection>
-          <div className="flex justify-center gap-6 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)] max-h-[600px] overflow-hidden">
-            <TestimonialsColumn testimonials={testimonialsCol1} duration={15} className="hidden md:block" />
-            <TestimonialsColumn testimonials={testimonialsCol2} duration={19} />
-            <TestimonialsColumn testimonials={testimonialsCol3} duration={17} className="hidden lg:block" />
-          </div>
-        </div>
-      </section>
-
       {/* ─── COMMUNITY / SOCIAL ─── */}
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid">
         <div className="max-w-4xl mx-auto text-center">
@@ -345,18 +289,11 @@ export default function Index() {
             <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('community.label')}</p>
             <h2 className="text-3xl font-display font-bold tracking-tight mb-4">{t('community.title')}</h2>
             <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm sm:text-base">{t('community.subtitle')}</p>
-            <div className="flex items-center justify-center gap-4 flex-wrap">
-              <button onClick={() => openExternalUrl('https://www.instagram.com/overseez.co')}
-                className="flex items-center gap-2 bg-card border border-border rounded-full px-5 py-2.5 hover:border-overseez-blue/40 transition-colors group">
-                <Instagram className="w-5 h-5 text-overseez-blue" />
-                <span className="text-sm font-medium">@overseez.co</span>
-              </button>
-              <button onClick={() => openExternalUrl('https://www.tiktok.com/@overseez.co')}
-                className="flex items-center gap-2 bg-card border border-border rounded-full px-5 py-2.5 hover:border-overseez-blue/40 transition-colors group">
-                <svg className="w-5 h-5 text-overseez-blue" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.88-2.88 2.89 2.89 0 012.88-2.88c.28 0 .56.04.82.12V9.01a6.37 6.37 0 00-.82-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.05a8.26 8.26 0 004.77 1.51V7.12a4.83 4.83 0 01-1.01-.43z"/></svg>
-                <span className="text-sm font-medium">@overseez.co</span>
-              </button>
-            </div>
+            <Link to="/movement">
+              <Button variant="hero-outline" size="lg" className="group">
+                Join the Movement <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
           </RevealSection>
         </div>
       </section>
