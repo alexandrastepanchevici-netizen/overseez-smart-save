@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
@@ -82,6 +83,9 @@ export default function Dashboard() {
     return acc;
   }, []);
 
+  const staggerContainer = { hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } } };
+  const staggerItem = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } } };
+
   const formatMilestone = (m: number): string => {
     if (m >= 1_000_000) return `${sym}${(m / 1_000_000).toFixed(m % 1_000_000 === 0 ? 0 : 1)}M`;
     if (m >= 1_000) return `${sym}${(m / 1_000).toFixed(m % 1_000 === 0 ? 0 : 1)}k`;
@@ -146,25 +150,30 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <motion.div
+        className="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative z-10"
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.div variants={staggerItem} className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           <StatCard icon={<Wallet className="w-5 h-5" />} label={t('dashboard.totalSavedLabel')} value={`${sym}${totalSaved.toFixed(2)}`} />
           <StatCard icon={<Calendar className="w-5 h-5" />} label={t('dashboard.thisWeek')} value={`${sym}${weeklySaved.toFixed(2)}`} />
           <StatCard icon={<TrendingUp className="w-5 h-5" />} label={t('dashboard.thisMonth')} value={`${sym}${monthlySaved.toFixed(2)}`} />
-        </div>
+        </motion.div>
 
-        <div className="flex justify-end mb-4">
+        <motion.div variants={staggerItem} className="flex justify-end mb-4">
           <ShareCard
             totalSaved={totalSaved}
             displayCurrency={displayCurrency}
             streak={(profile as any)?.current_streak || 0}
           />
-        </div>
+        </motion.div>
 
-        <SavingsRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} />
-        <MonthlyRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} />
+        <motion.div variants={staggerItem}><SavingsRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} /></motion.div>
+        <motion.div variants={staggerItem}><MonthlyRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} /></motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <motion.div variants={staggerItem} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           <button onClick={() => navigate('/search')} className="bg-card border border-border rounded-xl p-5 text-left overseez-card-hover group relative overflow-hidden">
             <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" /></svg>
             <div className="flex items-center gap-3 mb-2">
@@ -181,28 +190,30 @@ export default function Dashboard() {
             </div>
             <p className="text-sm text-muted-foreground">{t('dashboard.subscriptionDesc')}</p>
           </button>
-        </div>
+        </motion.div>
 
-        <h2 className="font-display text-lg font-semibold mb-3">{t('dashboard.recentSavings')}</h2>
-        {savings.length === 0 ? (
-          <div className="bg-card border border-border rounded-xl p-8 text-center">
-            <p className="text-muted-foreground text-sm">{t('dashboard.noSavings')}</p>
-            <Button onClick={() => navigate('/search')} variant="accent" className="mt-4">{t('dashboard.startSearching')}</Button>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {savings.slice(0, 10).map(s => {
-              const converted = convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency);
-              return (
-                <div key={s.id} className="bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between overseez-card-hover">
-                  <div><p className="text-sm font-medium">{s.store_name}</p><p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</p></div>
-                  <span className="text-sm font-semibold text-overseez-green tabular-nums">▼ {sym}{converted.toFixed(2)}</span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+        <motion.div variants={staggerItem}>
+          <h2 className="font-display text-lg font-semibold mb-3">{t('dashboard.recentSavings')}</h2>
+          {savings.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl p-8 text-center">
+              <p className="text-muted-foreground text-sm">{t('dashboard.noSavings')}</p>
+              <Button onClick={() => navigate('/search')} variant="accent" className="mt-4">{t('dashboard.startSearching')}</Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {savings.slice(0, 10).map(s => {
+                const converted = convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency);
+                return (
+                  <div key={s.id} className="bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between overseez-card-hover">
+                    <div><p className="text-sm font-medium">{s.store_name}</p><p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</p></div>
+                    <span className="text-sm font-semibold text-overseez-green tabular-nums">▼ {sym}{converted.toFixed(2)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </motion.div>
+      </motion.div>
     </div>
   );
 }

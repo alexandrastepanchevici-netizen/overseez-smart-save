@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -6,9 +7,7 @@ import { openExternalUrl } from '@/lib/openExternalUrl';
 import OverseezLogo from '@/components/OverseezLogo';
 import FloatingOvals from '@/components/FloatingOvals';
 import AnimatedCounter from '@/components/AnimatedCounter';
-import { Search, MapPin, TrendingDown, Shield, Zap, Globe, Star, ArrowRight, ChevronRight, Instagram } from 'lucide-react';
-import ReviewSection from '@/components/ReviewSection';
-import VideoSection from '@/components/VideoSection';
+import { ArrowRight, Instagram } from 'lucide-react';
 import { TestimonialsColumn } from '@/components/ui/testimonials-columns-1';
 import GlobeComponent from '@/components/ui/globe';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -37,17 +36,6 @@ function RevealSection({ children, className = '', delay = 0 }: { children: Reac
     </div>
   );
 }
-
-const FEATURE_ICONS = [
-  <Search className="w-5 h-5" />,
-  <MapPin className="w-5 h-5" />,
-  <TrendingDown className="w-5 h-5" />,
-  <Shield className="w-5 h-5" />,
-  <Zap className="w-5 h-5" />,
-  <Globe className="w-5 h-5" />,
-];
-
-const FEATURE_KEYS = ['aiPrice', 'locationAware', 'savingsTracker', 'bankFee', 'saleAlerts', 'worksGlobally'];
 
 const COMPARISONS = [
   { key: 'morningCoffee', before: '5.90', after: '2.60' },
@@ -106,9 +94,7 @@ export default function Index() {
             <span className="font-display text-lg font-bold tracking-tight leading-none -ml-3">Overseez</span>
           </Link>
           <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#features" className="hover:text-foreground transition-colors">{t('footer.features')}</a>
             <a href="#how-it-works" className="hover:text-foreground transition-colors">{t('footer.howItWorks')}</a>
-            <a href="#reviews" className="hover:text-foreground transition-colors">{t('footer.reviews')}</a>
             {user && <Link to="/dashboard" className="hover:text-foreground transition-colors">{t('nav.dashboard')}</Link>}
             {user && <Link to="/search" className="hover:text-foreground transition-colors">{t('nav.aiAssistant')}</Link>}
           </div>
@@ -155,15 +141,24 @@ export default function Index() {
               {t('hero.subtitle')}
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
-                {t('hero.tryAI')}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goSub}>
-                {t('hero.seeOptions')}
-              </Button>
-            </div>
+            <motion.div
+              className="flex flex-col sm:flex-row items-center justify-center gap-4"
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } } }}
+            >
+              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: 'easeOut' } } }} className="w-full sm:w-auto">
+                <Button variant="hero" size="xl" className="group w-full" onClick={goAI}>
+                  {t('hero.tryAI')}
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </motion.div>
+              <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: 'easeOut' } } }} className="w-full sm:w-auto">
+                <Button variant="hero-outline" size="xl" className="w-full" onClick={goSub}>
+                  {t('hero.seeOptions')}
+                </Button>
+              </motion.div>
+            </motion.div>
           </div>
 
           {/* Stats bar */}
@@ -197,9 +192,6 @@ export default function Index() {
           <OverseezLogo size={128} color="white" />
         </div>
       </section>
-
-      {/* ─── VIDEO DEMO ─── */}
-      <VideoSection />
 
       {/* ─── BEFORE / AFTER PRICE CARDS ─── */}
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
@@ -279,45 +271,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ─── FEATURES ─── */}
-      <section id="features" className="py-24 px-4 sm:px-6 bg-overseez-mid relative overflow-hidden">
-        <FloatingOvals className="opacity-30" />
-        <div className="max-w-6xl mx-auto relative z-10">
-          <RevealSection className="text-center mb-16">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('features.label')}</p>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              {t('features.title')}
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base">
-              {t('features.subtitle')}
-            </p>
-          </RevealSection>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURE_KEYS.map((key, i) => (
-              <RevealSection key={key} delay={i * 80}>
-                <div className="bg-card border border-border rounded-xl p-6 overseez-card-hover h-full relative overflow-hidden group">
-                  <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none">
-                    <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" />
-                  </svg>
-                  <div className="w-10 h-10 rounded-lg bg-overseez-blue/10 border border-overseez-blue/15 flex items-center justify-center text-overseez-blue mb-4">
-                    {FEATURE_ICONS[i]}
-                  </div>
-                  <h3 className="font-display font-semibold mb-2">{t(`features.${key}`)}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{t(`features.${key}Desc`)}</p>
-                </div>
-              </RevealSection>
-            ))}
-          </div>
-
-          <RevealSection delay={500} className="text-center mt-10">
-            <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goAI}>
-              {t('features.tryAssistant')} <ChevronRight className="w-4 h-4" />
-            </Button>
-          </RevealSection>
-        </div>
-      </section>
-
       {/* ─── GLOBE ─── */}
       <section className="py-24 px-4 sm:px-6 relative overflow-hidden">
         <div className="max-w-6xl mx-auto relative z-10">
@@ -385,46 +338,6 @@ export default function Index() {
         </div>
       </section>
 
-      <section id="reviews" className="py-20 px-4 sm:px-6 relative overflow-hidden">
-        <div className="max-w-6xl mx-auto relative z-10">
-          <RevealSection className="text-center mb-10">
-            <p className="text-xs uppercase tracking-widest text-overseez-blue font-medium mb-3">{t('feedback.label')}</p>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              {t('feedback.title')}
-            </h2>
-          </RevealSection>
-          <ReviewSection />
-        </div>
-      </section>
-
-      {/* ─── CTA ─── */}
-      <section className="py-24 px-4 sm:px-6 relative overflow-hidden">
-        <FloatingOvals />
-        <RevealSection className="relative z-10">
-          <div className="max-w-3xl mx-auto text-center bg-gradient-to-br from-card to-overseez-surface border border-border rounded-2xl p-8 sm:p-12 relative overflow-hidden">
-            <svg className="absolute -top-12 -right-12 w-48 h-48 opacity-[0.04]" viewBox="0 0 100 100" fill="none">
-              <ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="white" strokeWidth="3" />
-            </svg>
-            <OverseezLogo size={112} className="mx-auto mb-6 opacity-30" color="white" />
-            <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-4">
-              {t('cta.title')}
-            </h2>
-            <p className="text-muted-foreground max-w-md mx-auto mb-8 text-sm sm:text-base">
-              {t('cta.subtitle')}
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="hero" size="xl" className="group w-full sm:w-auto" onClick={goAI}>
-                {t('hero.tryAI')}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button variant="hero-outline" size="xl" className="w-full sm:w-auto" onClick={goSub}>
-                {t('cta.viewPlans')}
-              </Button>
-            </div>
-          </div>
-        </RevealSection>
-      </section>
-
       {/* ─── COMMUNITY / SOCIAL ─── */}
       <section className="py-20 px-4 sm:px-6 bg-overseez-mid">
         <div className="max-w-4xl mx-auto text-center">
@@ -457,9 +370,7 @@ export default function Index() {
               <span className="font-display font-bold -ml-3">Overseez</span>
             </Link>
             <div className="flex flex-wrap gap-4 sm:gap-6 text-sm text-muted-foreground">
-              <a href="#features" className="hover:text-foreground transition-colors">{t('footer.features')}</a>
               <a href="#how-it-works" className="hover:text-foreground transition-colors">{t('footer.howItWorks')}</a>
-              <a href="#reviews" className="hover:text-foreground transition-colors">{t('footer.reviews')}</a>
               <Link to="/terms" className="hover:text-foreground transition-colors">{t('footer.terms')}</Link>
               <Link to="/register" className="hover:text-foreground transition-colors">{t('footer.signUp')}</Link>
             </div>

@@ -11,6 +11,7 @@ import { User, Calendar, Wallet, Star, Shield, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useXP } from '@/hooks/useXP';
+import ReviewSection from '@/components/ReviewSection';
 
 function getMilestones(total: number): number[] {
   const base = [5, 25, 50, 100, 250, 500, 1000];
@@ -120,6 +121,12 @@ export default function Profile() {
         <StreakCalendar />
 
         <GoalCard />
+
+        {/* Community Reviews */}
+        <div className="bg-card border border-border rounded-xl p-5 mb-6">
+          <h3 className="font-display font-semibold mb-4">{t('feedback.title')}</h3>
+          <ReviewSection />
+        </div>
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-4"><TrendingUp className="w-5 h-5 text-overseez-blue" /><h3 className="font-display font-semibold">{t('profile.savingsProgress')}</h3></div>

@@ -7,6 +7,7 @@ import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import PageTransition from "@/components/PageTransition";
 import BadgeUnlockCelebration from "@/components/BadgeUnlockCelebration";
+import StreakMilestoneCelebration from "@/components/StreakMilestoneCelebration";
 
 // Capture referral param from ?ref=NICKNAME (before the #) and persist to localStorage
 const refParam = new URLSearchParams(window.location.search).get('ref');
@@ -60,6 +61,7 @@ const App = () => (
           <DeepLinkHandler />
           <AppInner />
           <BadgeUnlockCelebration />
+          <StreakMilestoneCelebration />
           <PageTransition>
           <Routes>
             {/* First screen for unauthenticated users is register */}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, LayoutGroup } from 'motion/react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -88,18 +89,27 @@ export default function AppNav() {
       {/* Bottom tab bar — mobile only */}
       <div className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border md:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="flex items-center justify-around h-16">
-          {NAV_LINKS.map(link => {
-            const active = location.pathname === link.to;
-            return (
-              <Link key={link.to} to={link.to} onClick={() => tapLight()}
-                className={`flex flex-col items-center gap-1 px-3 py-2 transition-colors ${active ? 'text-overseez-blue' : 'text-muted-foreground'}`}>
-                <link.icon className="w-5 h-5" />
-                <span className="text-[10px] font-medium">{t(link.labelKey)}</span>
-              </Link>
-            );
-          })}
-        </div>
+        <LayoutGroup>
+          <div className="flex items-center justify-around h-16">
+            {NAV_LINKS.map(link => {
+              const active = location.pathname === link.to;
+              return (
+                <Link key={link.to} to={link.to} onClick={() => tapLight()}
+                  className={`relative flex flex-col items-center gap-1 px-3 py-2 transition-colors ${active ? 'text-overseez-blue' : 'text-muted-foreground'}`}>
+                  {active && (
+                    <motion.div
+                      layoutId="tab-indicator"
+                      className="absolute top-0 left-0 right-0 h-0.5 bg-overseez-blue rounded-full"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <link.icon className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">{t(link.labelKey)}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </LayoutGroup>
       </div>
     </>
   );

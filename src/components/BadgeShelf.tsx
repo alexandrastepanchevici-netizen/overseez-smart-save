@@ -39,6 +39,11 @@ const BADGE_META: Record<string, BadgeMeta> = {
   challenge_champion: { threshold: 1,    field: 'binary',    ctaText: '' },
 };
 
+// Format progress values: integers stay as integers, floats get 2 decimal places
+function fmtProgress(n: number): string {
+  return Number.isInteger(n) ? String(n) : parseFloat(n.toFixed(2)).toString();
+}
+
 // ─── SVG progress ring ────────────────────────────────────────────────────────
 
 function ProgressRing({ progressPct, size = 48 }: { progressPct: number; size?: number }) {
@@ -107,7 +112,7 @@ function UpNextCard({ badge, onCta }: { badge: ClosestBadge; onCta: (ctaText: st
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold truncate">{badge.name}</p>
           <p className="text-[10px] text-muted-foreground">
-            {badge.current} / {badge.threshold}
+            {fmtProgress(badge.current)} / {badge.threshold}
           </p>
         </div>
       </div>
@@ -266,7 +271,7 @@ export default function BadgeShelf() {
             const current = progressByField[meta.field];
             const progressPct = meta.field === 'binary' ? 0 : (current / meta.threshold) * 100;
             const progressLabel = meta.field !== 'binary'
-              ? `${Math.min(current, meta.threshold)}/${meta.threshold}`
+              ? `${fmtProgress(Math.min(current, meta.threshold))}/${meta.threshold}`
               : null;
 
             return (

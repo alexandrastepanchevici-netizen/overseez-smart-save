@@ -2,6 +2,24 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+export interface StreakMilestone {
+  days: number;
+  emoji: string;
+  title: string;
+  subtitle: string;
+}
+
+const MILESTONES: StreakMilestone[] = [
+  { days: 1,   emoji: '🌱', title: 'Day One!',     subtitle: 'Every great streak starts here' },
+  { days: 7,   emoji: '🔥', title: 'One Week!',    subtitle: 'Seven days of consistency' },
+  { days: 14,  emoji: '💪', title: 'Two Weeks!',   subtitle: "You're building a real habit" },
+  { days: 30,  emoji: '🌟', title: 'One Month!',   subtitle: 'A full month of daily wins' },
+  { days: 60,  emoji: '🏆', title: 'Two Months!',  subtitle: 'Unstoppable commitment' },
+  { days: 100, emoji: '⚡', title: '100 Days!',    subtitle: 'A century of savings power' },
+];
+
+const MILESTONE_DAYS = new Set(MILESTONES.map(m => m.days));
+
 export function useStreak() {
   const { user, refreshProfile } = useAuth();
 
@@ -51,6 +69,14 @@ export function useStreak() {
       .eq('id', user.id);
 
     refreshProfile();
+
+    // Fire milestone event if this streak count is a milestone
+    if (MILESTONE_DAYS.has(currentStreak)) {
+      const milestone = MILESTONES.find(m => m.days === currentStreak)!;
+      window.dispatchEvent(
+        new CustomEvent<StreakMilestone>('overseez:streak-milestone', { detail: milestone })
+      );
+    }
   }, [user, refreshProfile]);
 
   return { recordActivity };
