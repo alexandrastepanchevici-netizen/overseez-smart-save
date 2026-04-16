@@ -53,6 +53,168 @@ const ORIGIN_COUNTRIES = [
   { code: 'AE', name: 'UAE', flag: '🇦🇪', currency: 'AED' },
 ];
 
+// Full world country list for the search fallback (sorted A–Z)
+const WORLD_COUNTRIES = [
+  { code: 'AF', name: 'Afghanistan', flag: '🇦🇫', currency: 'AFN' },
+  { code: 'AL', name: 'Albania', flag: '🇦🇱', currency: 'ALL' },
+  { code: 'DZ', name: 'Algeria', flag: '🇩🇿', currency: 'DZD' },
+  { code: 'AO', name: 'Angola', flag: '🇦🇴', currency: 'AOA' },
+  { code: 'AR', name: 'Argentina', flag: '🇦🇷', currency: 'ARS' },
+  { code: 'AM', name: 'Armenia', flag: '🇦🇲', currency: 'AMD' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺', currency: 'AUD' },
+  { code: 'AT', name: 'Austria', flag: '🇦🇹', currency: 'EUR' },
+  { code: 'AZ', name: 'Azerbaijan', flag: '🇦🇿', currency: 'AZN' },
+  { code: 'BS', name: 'Bahamas', flag: '🇧🇸', currency: 'BSD' },
+  { code: 'BH', name: 'Bahrain', flag: '🇧🇭', currency: 'BHD' },
+  { code: 'BD', name: 'Bangladesh', flag: '🇧🇩', currency: 'BDT' },
+  { code: 'BY', name: 'Belarus', flag: '🇧🇾', currency: 'BYN' },
+  { code: 'BE', name: 'Belgium', flag: '🇧🇪', currency: 'EUR' },
+  { code: 'BZ', name: 'Belize', flag: '🇧🇿', currency: 'BZD' },
+  { code: 'BJ', name: 'Benin', flag: '🇧🇯', currency: 'XOF' },
+  { code: 'BT', name: 'Bhutan', flag: '🇧🇹', currency: 'BTN' },
+  { code: 'BO', name: 'Bolivia', flag: '🇧🇴', currency: 'BOB' },
+  { code: 'BA', name: 'Bosnia', flag: '🇧🇦', currency: 'BAM' },
+  { code: 'BW', name: 'Botswana', flag: '🇧🇼', currency: 'BWP' },
+  { code: 'BG', name: 'Bulgaria', flag: '🇧🇬', currency: 'BGN' },
+  { code: 'BF', name: 'Burkina Faso', flag: '🇧🇫', currency: 'XOF' },
+  { code: 'BI', name: 'Burundi', flag: '🇧🇮', currency: 'BIF' },
+  { code: 'KH', name: 'Cambodia', flag: '🇰🇭', currency: 'KHR' },
+  { code: 'CM', name: 'Cameroon', flag: '🇨🇲', currency: 'XAF' },
+  { code: 'CA', name: 'Canada', flag: '🇨🇦', currency: 'CAD' },
+  { code: 'CV', name: 'Cape Verde', flag: '🇨🇻', currency: 'CVE' },
+  { code: 'CF', name: 'Central African Rep.', flag: '🇨🇫', currency: 'XAF' },
+  { code: 'TD', name: 'Chad', flag: '🇹🇩', currency: 'XAF' },
+  { code: 'CL', name: 'Chile', flag: '🇨🇱', currency: 'CLP' },
+  { code: 'CO', name: 'Colombia', flag: '🇨🇴', currency: 'COP' },
+  { code: 'KM', name: 'Comoros', flag: '🇰🇲', currency: 'KMF' },
+  { code: 'CG', name: 'Congo', flag: '🇨🇬', currency: 'XAF' },
+  { code: 'CR', name: 'Costa Rica', flag: '🇨🇷', currency: 'CRC' },
+  { code: 'CI', name: "Côte d'Ivoire", flag: '🇨🇮', currency: 'XOF' },
+  { code: 'HR', name: 'Croatia', flag: '🇭🇷', currency: 'EUR' },
+  { code: 'CU', name: 'Cuba', flag: '🇨🇺', currency: 'CUP' },
+  { code: 'CY', name: 'Cyprus', flag: '🇨🇾', currency: 'EUR' },
+  { code: 'CZ', name: 'Czechia', flag: '🇨🇿', currency: 'CZK' },
+  { code: 'DK', name: 'Denmark', flag: '🇩🇰', currency: 'DKK' },
+  { code: 'DJ', name: 'Djibouti', flag: '🇩🇯', currency: 'DJF' },
+  { code: 'DO', name: 'Dominican Republic', flag: '🇩🇴', currency: 'DOP' },
+  { code: 'CD', name: 'DR Congo', flag: '🇨🇩', currency: 'CDF' },
+  { code: 'EC', name: 'Ecuador', flag: '🇪🇨', currency: 'USD' },
+  { code: 'EG', name: 'Egypt', flag: '🇪🇬', currency: 'EGP' },
+  { code: 'SV', name: 'El Salvador', flag: '🇸🇻', currency: 'USD' },
+  { code: 'GQ', name: 'Equatorial Guinea', flag: '🇬🇶', currency: 'XAF' },
+  { code: 'ER', name: 'Eritrea', flag: '🇪🇷', currency: 'ERN' },
+  { code: 'EE', name: 'Estonia', flag: '🇪🇪', currency: 'EUR' },
+  { code: 'ET', name: 'Ethiopia', flag: '🇪🇹', currency: 'ETB' },
+  { code: 'FJ', name: 'Fiji', flag: '🇫🇯', currency: 'FJD' },
+  { code: 'FI', name: 'Finland', flag: '🇫🇮', currency: 'EUR' },
+  { code: 'FR', name: 'France', flag: '🇫🇷', currency: 'EUR' },
+  { code: 'GA', name: 'Gabon', flag: '🇬🇦', currency: 'XAF' },
+  { code: 'GM', name: 'Gambia', flag: '🇬🇲', currency: 'GMD' },
+  { code: 'GE', name: 'Georgia', flag: '🇬🇪', currency: 'GEL' },
+  { code: 'DE', name: 'Germany', flag: '🇩🇪', currency: 'EUR' },
+  { code: 'GR', name: 'Greece', flag: '🇬🇷', currency: 'EUR' },
+  { code: 'GT', name: 'Guatemala', flag: '🇬🇹', currency: 'GTQ' },
+  { code: 'GN', name: 'Guinea', flag: '🇬🇳', currency: 'GNF' },
+  { code: 'GW', name: 'Guinea-Bissau', flag: '🇬🇼', currency: 'XOF' },
+  { code: 'GY', name: 'Guyana', flag: '🇬🇾', currency: 'GYD' },
+  { code: 'HT', name: 'Haiti', flag: '🇭🇹', currency: 'HTG' },
+  { code: 'HN', name: 'Honduras', flag: '🇭🇳', currency: 'HNL' },
+  { code: 'HK', name: 'Hong Kong', flag: '🇭🇰', currency: 'HKD' },
+  { code: 'HU', name: 'Hungary', flag: '🇭🇺', currency: 'HUF' },
+  { code: 'IS', name: 'Iceland', flag: '🇮🇸', currency: 'ISK' },
+  { code: 'IE', name: 'Ireland', flag: '🇮🇪', currency: 'EUR' },
+  { code: 'IL', name: 'Israel', flag: '🇮🇱', currency: 'ILS' },
+  { code: 'IT', name: 'Italy', flag: '🇮🇹', currency: 'EUR' },
+  { code: 'JM', name: 'Jamaica', flag: '🇯🇲', currency: 'JMD' },
+  { code: 'JP', name: 'Japan', flag: '🇯🇵', currency: 'JPY' },
+  { code: 'JO', name: 'Jordan', flag: '🇯🇴', currency: 'JOD' },
+  { code: 'KZ', name: 'Kazakhstan', flag: '🇰🇿', currency: 'KZT' },
+  { code: 'KW', name: 'Kuwait', flag: '🇰🇼', currency: 'KWD' },
+  { code: 'KG', name: 'Kyrgyzstan', flag: '🇰🇬', currency: 'KGS' },
+  { code: 'LA', name: 'Laos', flag: '🇱🇦', currency: 'LAK' },
+  { code: 'LV', name: 'Latvia', flag: '🇱🇻', currency: 'EUR' },
+  { code: 'LB', name: 'Lebanon', flag: '🇱🇧', currency: 'LBP' },
+  { code: 'LS', name: 'Lesotho', flag: '🇱🇸', currency: 'LSL' },
+  { code: 'LR', name: 'Liberia', flag: '🇱🇷', currency: 'LRD' },
+  { code: 'LY', name: 'Libya', flag: '🇱🇾', currency: 'LYD' },
+  { code: 'LT', name: 'Lithuania', flag: '🇱🇹', currency: 'EUR' },
+  { code: 'LU', name: 'Luxembourg', flag: '🇱🇺', currency: 'EUR' },
+  { code: 'MO', name: 'Macau', flag: '🇲🇴', currency: 'MOP' },
+  { code: 'MG', name: 'Madagascar', flag: '🇲🇬', currency: 'MGA' },
+  { code: 'MW', name: 'Malawi', flag: '🇲🇼', currency: 'MWK' },
+  { code: 'MY', name: 'Malaysia', flag: '🇲🇾', currency: 'MYR' },
+  { code: 'MV', name: 'Maldives', flag: '🇲🇻', currency: 'MVR' },
+  { code: 'ML', name: 'Mali', flag: '🇲🇱', currency: 'XOF' },
+  { code: 'MT', name: 'Malta', flag: '🇲🇹', currency: 'EUR' },
+  { code: 'MR', name: 'Mauritania', flag: '🇲🇷', currency: 'MRU' },
+  { code: 'MU', name: 'Mauritius', flag: '🇲🇺', currency: 'MUR' },
+  { code: 'MD', name: 'Moldova', flag: '🇲🇩', currency: 'MDL' },
+  { code: 'MN', name: 'Mongolia', flag: '🇲🇳', currency: 'MNT' },
+  { code: 'ME', name: 'Montenegro', flag: '🇲🇪', currency: 'EUR' },
+  { code: 'MA', name: 'Morocco', flag: '🇲🇦', currency: 'MAD' },
+  { code: 'MZ', name: 'Mozambique', flag: '🇲🇿', currency: 'MZN' },
+  { code: 'MM', name: 'Myanmar', flag: '🇲🇲', currency: 'MMK' },
+  { code: 'NA', name: 'Namibia', flag: '🇳🇦', currency: 'NAD' },
+  { code: 'NP', name: 'Nepal', flag: '🇳🇵', currency: 'NPR' },
+  { code: 'NL', name: 'Netherlands', flag: '🇳🇱', currency: 'EUR' },
+  { code: 'NZ', name: 'New Zealand', flag: '🇳🇿', currency: 'NZD' },
+  { code: 'NI', name: 'Nicaragua', flag: '🇳🇮', currency: 'NIO' },
+  { code: 'NE', name: 'Niger', flag: '🇳🇪', currency: 'XOF' },
+  { code: 'MK', name: 'North Macedonia', flag: '🇲🇰', currency: 'MKD' },
+  { code: 'NO', name: 'Norway', flag: '🇳🇴', currency: 'NOK' },
+  { code: 'OM', name: 'Oman', flag: '🇴🇲', currency: 'OMR' },
+  { code: 'PK', name: 'Pakistan', flag: '🇵🇰', currency: 'PKR' },
+  { code: 'PA', name: 'Panama', flag: '🇵🇦', currency: 'PAB' },
+  { code: 'PG', name: 'Papua New Guinea', flag: '🇵🇬', currency: 'PGK' },
+  { code: 'PY', name: 'Paraguay', flag: '🇵🇾', currency: 'PYG' },
+  { code: 'PE', name: 'Peru', flag: '🇵🇪', currency: 'PEN' },
+  { code: 'PH', name: 'Philippines', flag: '🇵🇭', currency: 'PHP' },
+  { code: 'PL', name: 'Poland', flag: '🇵🇱', currency: 'PLN' },
+  { code: 'PT', name: 'Portugal', flag: '🇵🇹', currency: 'EUR' },
+  { code: 'QA', name: 'Qatar', flag: '🇶🇦', currency: 'QAR' },
+  { code: 'RO', name: 'Romania', flag: '🇷🇴', currency: 'RON' },
+  { code: 'RU', name: 'Russia', flag: '🇷🇺', currency: 'RUB' },
+  { code: 'RW', name: 'Rwanda', flag: '🇷🇼', currency: 'RWF' },
+  { code: 'SA', name: 'Saudi Arabia', flag: '🇸🇦', currency: 'SAR' },
+  { code: 'SN', name: 'Senegal', flag: '🇸🇳', currency: 'XOF' },
+  { code: 'RS', name: 'Serbia', flag: '🇷🇸', currency: 'RSD' },
+  { code: 'SL', name: 'Sierra Leone', flag: '🇸🇱', currency: 'SLL' },
+  { code: 'SG', name: 'Singapore', flag: '🇸🇬', currency: 'SGD' },
+  { code: 'SK', name: 'Slovakia', flag: '🇸🇰', currency: 'EUR' },
+  { code: 'SI', name: 'Slovenia', flag: '🇸🇮', currency: 'EUR' },
+  { code: 'SO', name: 'Somalia', flag: '🇸🇴', currency: 'SOS' },
+  { code: 'ES', name: 'Spain', flag: '🇪🇸', currency: 'EUR' },
+  { code: 'LK', name: 'Sri Lanka', flag: '🇱🇰', currency: 'LKR' },
+  { code: 'SD', name: 'Sudan', flag: '🇸🇩', currency: 'SDG' },
+  { code: 'SR', name: 'Suriname', flag: '🇸🇷', currency: 'SRD' },
+  { code: 'SE', name: 'Sweden', flag: '🇸🇪', currency: 'SEK' },
+  { code: 'CH', name: 'Switzerland', flag: '🇨🇭', currency: 'CHF' },
+  { code: 'SY', name: 'Syria', flag: '🇸🇾', currency: 'SYP' },
+  { code: 'TW', name: 'Taiwan', flag: '🇹🇼', currency: 'TWD' },
+  { code: 'TJ', name: 'Tajikistan', flag: '🇹🇯', currency: 'TJS' },
+  { code: 'TZ', name: 'Tanzania', flag: '🇹🇿', currency: 'TZS' },
+  { code: 'TH', name: 'Thailand', flag: '🇹🇭', currency: 'THB' },
+  { code: 'TL', name: 'Timor-Leste', flag: '🇹🇱', currency: 'USD' },
+  { code: 'TG', name: 'Togo', flag: '🇹🇬', currency: 'XOF' },
+  { code: 'TT', name: 'Trinidad & Tobago', flag: '🇹🇹', currency: 'TTD' },
+  { code: 'TN', name: 'Tunisia', flag: '🇹🇳', currency: 'TND' },
+  { code: 'TM', name: 'Turkmenistan', flag: '🇹🇲', currency: 'TMT' },
+  { code: 'UG', name: 'Uganda', flag: '🇺🇬', currency: 'UGX' },
+  { code: 'UA', name: 'Ukraine', flag: '🇺🇦', currency: 'UAH' },
+  { code: 'GB', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP' },
+  { code: 'UY', name: 'Uruguay', flag: '🇺🇾', currency: 'UYU' },
+  { code: 'UZ', name: 'Uzbekistan', flag: '🇺🇿', currency: 'UZS' },
+  { code: 'VE', name: 'Venezuela', flag: '🇻🇪', currency: 'VES' },
+  { code: 'VN', name: 'Vietnam', flag: '🇻🇳', currency: 'VND' },
+  { code: 'YE', name: 'Yemen', flag: '🇾🇪', currency: 'YER' },
+  { code: 'ZM', name: 'Zambia', flag: '🇿🇲', currency: 'ZMW' },
+  { code: 'ZW', name: 'Zimbabwe', flag: '🇿🇼', currency: 'USD' },
+];
+
+// All countries deduplicated — ORIGIN_COUNTRIES first, then the rest from WORLD_COUNTRIES
+const QUICK_COUNTRY_CODES = new Set(ORIGIN_COUNTRIES.map(c => c.code));
+const EXTRA_COUNTRIES = WORLD_COUNTRIES.filter(c => !QUICK_COUNTRY_CODES.has(c.code));
+
 const PAIN_POINTS = [
   { id: 'overcharged', icon: '😰', title: "I don't know if I'm being overcharged", sub: 'Prices feel random and confusing' },
   { id: 'disappears', icon: '💸', title: 'My money disappears faster than expected', sub: 'Exchange rates and fees eat my budget' },
@@ -179,7 +341,7 @@ function Step1({ onNext }: { onNext: (city: string, currency: string) => void })
         ))}
       </div>
 
-      <div className="flex gap-2 mb-8">
+      <div className="flex gap-2 mb-4">
         <input
           type="text"
           value={city}
@@ -194,6 +356,12 @@ function Step1({ onNext }: { onNext: (city: string, currency: string) => void })
         </button>
       </div>
 
+      <button
+        onClick={() => select('', 'USD')}
+        className="w-full mb-6 py-3 px-4 rounded-full border border-border bg-muted/20 text-sm text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors">
+        🏠 Not traveling currently
+      </button>
+
       <p className="text-center text-xs text-muted-foreground">Used by 12,000+ students worldwide</p>
     </>
   );
@@ -201,20 +369,29 @@ function Step1({ onNext }: { onNext: (city: string, currency: string) => void })
 
 // ─── Step 2 — Origin country ─────────────────────────────────────────────────
 
-function Step2({ onNext, onBack }: { onNext: (country: typeof ORIGIN_COUNTRIES[0]) => void; onBack: () => void }) {
-  const [selected, setSelected] = useState<typeof ORIGIN_COUNTRIES[0] | null>(null);
+type Country = typeof ORIGIN_COUNTRIES[0];
 
-  const pick = (c: typeof ORIGIN_COUNTRIES[0]) => {
+function Step2({ onNext, onBack }: { onNext: (country: Country) => void; onBack: () => void }) {
+  const [selected, setSelected] = useState<Country | null>(null);
+  const [search, setSearch] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const pick = (c: Country) => {
     setSelected(c);
     setTimeout(() => onNext(c), 300);
   };
+
+  const query = search.trim().toLowerCase();
+  const filteredExtra = query
+    ? EXTRA_COUNTRIES.filter(c => c.name.toLowerCase().includes(query))
+    : EXTRA_COUNTRIES;
 
   return (
     <>
       <BigTitle>Where are you from?</BigTitle>
       <Sub>We'll show prices in your home currency too</Sub>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-4">
         {ORIGIN_COUNTRIES.map(c => (
           <button key={c.code} onClick={() => pick(c)}
             className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all duration-200 ${selected?.code === c.code ? 'border-overseez-blue bg-overseez-blue/10 scale-105' : 'border-border bg-card/50 hover:border-foreground/20'}`}>
@@ -224,10 +401,26 @@ function Step2({ onNext, onBack }: { onNext: (country: typeof ORIGIN_COUNTRIES[0
         ))}
       </div>
 
-      <button onClick={() => onNext({ code: 'OTHER', name: 'Other', flag: '🌍', currency: 'USD' })}
-        className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2">
-        + My country isn't listed
-      </button>
+      <input
+        ref={searchRef}
+        type="text"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        placeholder="🔍 Search all countries..."
+        className="w-full bg-muted/40 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-overseez-blue/50 transition-colors mb-2"
+      />
+
+      {filteredExtra.length > 0 && (
+        <div className="max-h-52 overflow-y-auto rounded-xl border border-border divide-y divide-border">
+          {filteredExtra.map(c => (
+            <button key={c.code} onClick={() => pick(c)}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${selected?.code === c.code ? 'bg-overseez-blue/10 text-overseez-blue' : 'bg-card/50 hover:bg-muted/40'}`}>
+              <span className="text-xl flex-shrink-0">{c.flag}</span>
+              <span className="text-sm font-medium">{c.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </>
   );
 }
@@ -295,6 +488,9 @@ function Step4({ city, destCurrency, originCountry, onNext }: {
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
+  const cityLabel = city || 'your area';
+  const cityFlag = city ? '🇬🇧' : '🌍';
+
   return (
     <>
       <BigTitle>Here's what your money actually buys</BigTitle>
@@ -306,11 +502,11 @@ function Step4({ city, destCurrency, originCountry, onNext }: {
               {originCountry?.flag} At home
             </p>
             <p className="text-2xl font-display font-bold">{homeSym}{homeAmount.toFixed(0)}</p>
-            <p className="text-xs text-muted-foreground mt-1">equiv. {destSym}{destAmount} in {city}</p>
+            <p className="text-xs text-muted-foreground mt-1">equiv. {destSym}{destAmount} locally</p>
           </div>
           <div className="bg-overseez-blue/10 border border-overseez-blue/30 rounded-xl p-5 text-center">
             <p className="text-[11px] uppercase tracking-wider text-overseez-blue font-medium mb-2">
-              🇬🇧 In {city}
+              {cityFlag} In {cityLabel}
             </p>
             <p className="text-2xl font-display font-bold text-overseez-blue">{destSym}{destAmount}</p>
             <p className="text-xs text-muted-foreground mt-1">for the same groceries</p>
@@ -318,7 +514,7 @@ function Step4({ city, destCurrency, originCountry, onNext }: {
         </div>
 
         <div className="bg-overseez-green/10 border border-overseez-green/25 rounded-xl p-4 mb-6 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Students like you in {city} save an average of</p>
+          <p className="text-xs text-muted-foreground mb-1">Students like you in {cityLabel} save an average of</p>
           <p className="text-2xl font-display font-bold text-overseez-green">{destSym}{avgSavings}/month</p>
           <p className="text-xs text-muted-foreground mt-1">using Overseez to find better prices</p>
         </div>
@@ -451,7 +647,7 @@ function Step7({ data, onNext, onBack }: { data: OnboardingData; onNext: () => v
       <h1 className="text-2xl font-display font-bold tracking-tight mb-1">
         {data.firstName}, here's your savings forecast
       </h1>
-      <p className="text-sm text-muted-foreground mb-5">Based on students like you in {data.city}</p>
+      <p className="text-sm text-muted-foreground mb-5">Based on students like you{data.city ? ` in ${data.city}` : ''}</p>
 
       {/* Hero projection */}
       <div className="bg-gradient-to-br from-overseez-blue/20 to-overseez-green/10 border border-overseez-blue/30 rounded-2xl p-6 mb-4 text-center">

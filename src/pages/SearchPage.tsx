@@ -107,6 +107,27 @@ export default function SearchPage() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Restore last search results from sessionStorage on mount
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('overseez:search_state');
+      if (!saved) return;
+      const { query: q, result: r, bankInfo: b, combinedPlaces: p } = JSON.parse(saved);
+      if (q) setQuery(q);
+      if (r) setResult(r);
+      if (b) setBankInfo(b);
+      if (p?.length) setCombinedPlaces(p);
+    } catch {}
+  }, []);
+
+  // Persist results to sessionStorage whenever a completed search is in state
+  useEffect(() => {
+    if (!result || !combinedPlaces.length) return;
+    try {
+      sessionStorage.setItem('overseez:search_state', JSON.stringify({ query, result, bankInfo, combinedPlaces }));
+    } catch {}
+  }, [result, combinedPlaces, bankInfo, query]);
+
   const profileCurrency = normalizeCurrencyCode(profile?.currency || 'USD');
   const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || profileCurrency);
 
@@ -316,6 +337,7 @@ export default function SearchPage() {
     setLoading(true);
     setError('');
     setResult(null);
+    sessionStorage.removeItem('overseez:search_state');
 
     try {
       if (user) {
@@ -462,7 +484,7 @@ export default function SearchPage() {
               placeholder={t('search.placeholder')}
               className="bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground flex-1" />
             {query && (
-              <button onClick={() => { setQuery(''); setResult(null); setCombinedPlaces([]); }}>
+              <button onClick={() => { setQuery(''); setResult(null); setCombinedPlaces([]); sessionStorage.removeItem('overseez:search_state'); }}>
                 <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             )}
