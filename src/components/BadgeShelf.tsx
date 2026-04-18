@@ -104,14 +104,14 @@ function UpNextCard({ badge, onCta }: { badge: ClosestBadge; onCta: (ctaText: st
   const progressPct = Math.min(badge.progressPct, 100);
 
   return (
-    <div className="flex-1 bg-muted/30 border border-border rounded-xl p-3 flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <div className="w-10 h-10 rounded-lg bg-muted/60 flex items-center justify-center text-xl grayscale opacity-70 flex-shrink-0">
+    <div className="flex-1 min-w-0 bg-muted/30 border border-border rounded-xl p-3 flex flex-col gap-2">
+      <div className="flex items-center gap-2 min-w-0">
+        <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center text-lg grayscale opacity-70 flex-shrink-0">
           {badge.emoji}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-semibold truncate">{badge.name}</p>
-          <p className="text-[10px] text-muted-foreground">
+          <p className="text-[11px] font-semibold truncate">{badge.name}</p>
+          <p className="text-[10px] text-muted-foreground truncate">
             {fmtProgress(badge.current)} / {badge.threshold}
           </p>
         </div>

@@ -8,10 +8,11 @@ import SavingsRecap from '@/components/SavingsRecap';
 import MonthlyRecap from '@/components/MonthlyRecap';
 import ShareCard from '@/components/ShareCard';
 import NewUserWelcome from '@/components/NewUserWelcome';
-import { TrendingUp, Calendar, Wallet, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane } from 'lucide-react';
+import { TrendingUp, Calendar, Wallet, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 import { getEquivalents } from '@/lib/savingsEquivalents';
 import { useNavigate } from 'react-router-dom';
+import { openExternalUrl } from '@/lib/openExternalUrl';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [savings, setSavings] = useState<any[]>([]);
+  const [savingsExpanded, setSavingsExpanded] = useState(false);
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || 'USD');
   const [percentileRank, setPercentileRank] = useState<number | null>(null);
@@ -46,7 +48,7 @@ export default function Dashboard() {
     if (!user) return;
     refreshProfile();
     supabase.from('savings_entries').select('*').eq('user_id', user.id)
-      .order('created_at', { ascending: false }).limit(20)
+      .order('created_at', { ascending: false }).limit(200)
       .then(({ data }) => { if (data) setSavings(data); });
   }, [user]);
 
@@ -234,23 +236,54 @@ export default function Dashboard() {
         <motion.div variants={staggerItem}><MonthlyRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} /></motion.div>
 
         <motion.div variants={staggerItem}>
-          <h2 className="font-display text-lg font-semibold mb-3">{t('dashboard.recentSavings')}</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-display text-lg font-semibold">{t('dashboard.recentSavings')}</h2>
+            {savings.length > 0 && (
+              <span className="text-xs text-muted-foreground">{savings.length} total</span>
+            )}
+          </div>
           {savings.length === 0 ? (
             <div className="bg-card border border-border rounded-xl p-8 text-center">
               <p className="text-muted-foreground text-sm">{t('dashboard.noSavings')}</p>
               <Button onClick={() => navigate('/search')} variant="accent" className="mt-4">{t('dashboard.startSearching')}</Button>
             </div>
           ) : (
-            <div className="space-y-2">
-              {savings.slice(0, 10).map(s => {
+            <div className="bg-card border border-border rounded-xl overflow-hidden">
+              {(savingsExpanded ? savings : savings.slice(0, 10)).map((s, idx) => {
                 const converted = convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency);
+                const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(s.store_name)}`;
+                const isLast = idx === (savingsExpanded ? savings.length : Math.min(savings.length, 10)) - 1;
                 return (
-                  <div key={s.id} className="bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between overseez-card-hover">
-                    <div><p className="text-sm font-medium">{s.store_name}</p><p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</p></div>
-                    <span className="text-sm font-semibold text-overseez-green tabular-nums">▼ {sym}{converted.toFixed(2)}</span>
+                  <div key={s.id} className={`px-4 py-3 flex items-center justify-between gap-3 ${!isLast ? 'border-b border-border/50' : ''}`}>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{s.store_name}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <button
+                        onClick={() => openExternalUrl(mapsUrl)}
+                        className="text-overseez-blue hover:opacity-75 transition-opacity"
+                        title="Find on Maps"
+                      >
+                        <MapPin className="w-4 h-4" />
+                      </button>
+                      <span className="text-sm font-semibold text-overseez-green tabular-nums">▼ {sym}{converted.toFixed(2)}</span>
+                    </div>
                   </div>
                 );
               })}
+              {savings.length > 10 && (
+                <button
+                  onClick={() => setSavingsExpanded(v => !v)}
+                  className="w-full flex items-center justify-center gap-1.5 py-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-t border-border/50"
+                >
+                  {savingsExpanded ? (
+                    <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
+                  ) : (
+                    <><ChevronDown className="w-3.5 h-3.5" /> Show all {savings.length} savings</>
+                  )}
+                </button>
+              )}
             </div>
           )}
         </motion.div>

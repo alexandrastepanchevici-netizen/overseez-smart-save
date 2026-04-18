@@ -1,23 +1,89 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
 import { getCurrencySymbol } from '@/components/CurrencySwitcher';
 import BadgeShelf from '@/components/BadgeShelf';
 import GoalCard from '@/components/GoalCard';
-import { User, Calendar, Wallet, Star, Shield, Flame } from 'lucide-react';
+import { User, Calendar, Wallet, Star, Shield, Flame, Camera, X, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useXP } from '@/hooks/useXP';
 import ReviewSection from '@/components/ReviewSection';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { profile, user, subscribed } = useAuth();
+  const { profile, user, subscribed, refreshProfile } = useAuth();
   const { xp, levelInfo } = useXP();
   const navigate = useNavigate();
 
   const profileCurrency = profile?.currency || 'USD';
+  const avatarUrl = (profile as any)?.avatar_url as string | null;
+
+  // Edit modal state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const openEdit = () => {
+    setEditName(profile?.full_name || '');
+    setPreviewUrl(null);
+    setAvatarFile(null);
+    setEditOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleSave = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      let newAvatarUrl = avatarUrl;
+
+      if (avatarFile) {
+        const ext = avatarFile.name.split('.').pop() ?? 'jpg';
+        const path = `${user.id}.${ext}`;
+        const { error: uploadErr } = await supabase.storage
+          .from('avatars')
+          .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type });
+        if (uploadErr) throw uploadErr;
+        const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+        newAvatarUrl = urlData.publicUrl + `?t=${Date.now()}`;
+      }
+
+      const updates: Record<string, any> = {};
+      if (editName.trim() && editName.trim() !== profile?.full_name) {
+        updates.full_name = editName.trim();
+      }
+      if (newAvatarUrl !== avatarUrl) {
+        updates.avatar_url = newAvatarUrl;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase.from('profiles').update(updates).eq('user_id', user.id);
+        if (error) throw error;
+        await refreshProfile();
+      }
+
+      toast.success('Profile updated');
+      setEditOpen(false);
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
@@ -27,16 +93,28 @@ export default function Profile() {
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="relative">
-              <div className="w-16 h-16 rounded-full bg-overseez-blue/20 flex items-center justify-center">
-                <User className="w-8 h-8 text-overseez-blue" />
+            {/* Tappable avatar */}
+            <button onClick={openEdit} className="relative group flex-shrink-0">
+              <div className="w-16 h-16 rounded-full bg-overseez-blue/20 flex items-center justify-center overflow-hidden">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-8 h-8 text-overseez-blue" />
+                )}
+              </div>
+              {/* Camera overlay on hover/tap */}
+              <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity">
+                <Camera className="w-5 h-5 text-white" />
               </div>
               <span className="absolute -bottom-1 -right-1 text-[10px] font-bold bg-overseez-blue text-white rounded-full px-1.5 py-0.5 leading-none">
                 {levelInfo.level}
               </span>
-            </div>
+            </button>
+
             <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-display font-semibold">{profile?.full_name || 'User'}</h2>
+              <button onClick={openEdit} className="text-left">
+                <h2 className="text-xl font-display font-semibold hover:text-overseez-blue transition-colors">{profile?.full_name || 'User'}</h2>
+              </button>
               <p className="text-sm text-muted-foreground">@{profile?.nickname || 'user'}</p>
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-xs font-semibold text-overseez-blue">{levelInfo.name}</span>
@@ -72,9 +150,7 @@ export default function Profile() {
               <Flame className={`w-5 h-5 ${((profile as any)?.current_streak || 0) > 0 ? 'text-orange-400' : 'text-muted-foreground'}`} />
             </div>
             <div className="text-left">
-              <p className="text-sm font-semibold">
-                {(profile as any)?.current_streak || 0} day streak
-              </p>
+              <p className="text-sm font-semibold">{(profile as any)?.current_streak || 0} day streak</p>
               <p className="text-xs text-muted-foreground">Tap to view activity calendar</p>
             </div>
           </div>
@@ -97,7 +173,6 @@ export default function Profile() {
                   try { await navigator.share({ title: 'Join Overseez', text, url: link }); } catch {}
                 } else {
                   await navigator.clipboard.writeText(link);
-                  const { toast } = await import('sonner');
                   toast.success('Invite link copied!');
                 }
               }}
@@ -120,12 +195,76 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Help us improve — bottom of page */}
+        {/* Help us improve */}
         <div className="bg-card border border-border rounded-xl p-5 mb-6">
           <h3 className="font-display font-semibold mb-4">{t('feedback.title')}</h3>
           <ReviewSection />
         </div>
       </div>
+
+      {/* Edit profile modal */}
+      {editOpen && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setEditOpen(false)}>
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-display font-semibold text-lg">Edit Profile</h3>
+              <button onClick={() => setEditOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Avatar picker */}
+            <div className="flex flex-col items-center mb-6">
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="relative group w-24 h-24 rounded-full overflow-hidden mb-2"
+              >
+                <div className="w-full h-full bg-overseez-blue/20 flex items-center justify-center">
+                  {previewUrl ? (
+                    <img src={previewUrl} alt="preview" className="w-full h-full object-cover" />
+                  ) : avatarUrl ? (
+                    <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-10 h-10 text-overseez-blue" />
+                  )}
+                </div>
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity rounded-full">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+              </button>
+              <p className="text-xs text-muted-foreground">Tap to change photo</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            {/* Name field */}
+            <div className="mb-5">
+              <label className="text-xs text-muted-foreground uppercase tracking-wider font-medium block mb-1.5">Display Name</label>
+              <input
+                type="text"
+                value={editName}
+                onChange={e => setEditName(e.target.value)}
+                placeholder="Your name"
+                className="w-full bg-muted/40 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-overseez-blue/50 transition-colors"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setEditOpen(false)}>Cancel</Button>
+              <Button variant="hero" className="flex-1" onClick={handleSave} disabled={saving}>
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
