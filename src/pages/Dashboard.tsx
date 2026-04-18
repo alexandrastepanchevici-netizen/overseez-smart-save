@@ -126,8 +126,8 @@ export default function Dashboard() {
     return acc;
   }, []);
 
-  const staggerContainer = { hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } } };
-  const staggerItem = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' } } };
+  const staggerContainer = { hidden: {}, show: { transition: { staggerChildren: 0.06, delayChildren: 0.05 } } } as const;
+  const staggerItem = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' as const } } };
 
   const formatMilestone = (m: number): string => {
     if (m >= 1_000_000) return `${sym}${(m / 1_000_000).toFixed(m % 1_000_000 === 0 ? 0 : 1)}M`;

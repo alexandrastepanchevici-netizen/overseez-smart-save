@@ -71,7 +71,7 @@ export default function Profile() {
       }
 
       if (Object.keys(updates).length > 0) {
-        const { error } = await supabase.from('profiles').update(updates).eq('user_id', user.id);
+        const { error } = await supabase.from('profiles').update(updates as any).eq('user_id', user.id);
         if (error) throw error;
         await refreshProfile();
       }
