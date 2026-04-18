@@ -148,9 +148,7 @@ export default function SearchPage() {
     { label: t('search.groceries'), q: 'Groceries & supermarkets' },
     { label: t('search.petrol'), q: 'Petrol & fuel stations' },
     { label: t('search.coffee'), q: 'Coffee shops & cafés' },
-    { label: t('search.hotels'), q: 'Budget hotels & accommodation' },
     { label: t('search.pharmacy'), q: 'Pharmacies & medicines' },
-    { label: t('search.takeaway'), q: 'Takeaway & fast food' },
   ];
 
   // Check usage and get oldest usage timestamp for timer
@@ -280,7 +278,7 @@ export default function SearchPage() {
   }, [loading]);
 
   // Request location — uses Capacitor plugin on Android, browser API on web
-  const requestLocation = useCallback(async () => {
+  const requestLocation = useCallback(async (): Promise<{ lat: number; lng: number; city: string; cc: string } | null> => {
     setLocStatus(t('search.detecting'));
     try {
       let lat: number, lng: number;
@@ -289,7 +287,7 @@ export default function SearchPage() {
         lat = pos.coords.latitude;
         lng = pos.coords.longitude;
       } else {
-        if (!navigator.geolocation) { setLocStatus(t('search.locationUnavailable')); return; }
+        if (!navigator.geolocation) { setLocStatus(t('search.locationUnavailable')); return null; }
         const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
           navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 })
         );
@@ -301,14 +299,19 @@ export default function SearchPage() {
         const d = await r.json();
         const city = d.address?.city || d.address?.town || d.address?.village || 'your area';
         const cc = (d.address?.country_code || 'GB').toUpperCase();
-        setLoc({ lat, lng, city, cc });
+        const result = { lat, lng, city, cc };
+        setLoc(result);
         setLocStatus(city);
+        return result;
       } catch {
-        setLoc({ lat, lng, city: `${lat.toFixed(2)}, ${lng.toFixed(2)}`, cc: 'GB' });
+        const result = { lat, lng, city: `${lat.toFixed(2)}, ${lng.toFixed(2)}`, cc: 'GB' };
+        setLoc(result);
         setLocStatus(`${lat.toFixed(2)}, ${lng.toFixed(2)}`);
+        return result;
       }
     } catch {
       setLocStatus(t('search.locationUnavailable'));
+      return null;
     }
   }, [t]);
 
@@ -340,11 +343,17 @@ export default function SearchPage() {
     sessionStorage.removeItem('overseez:search_state');
 
     try {
+      // Auto-request location on first search if no location set and not using custom city
+      let activeLoc = loc;
+      if (!activeLoc && !useCustomLoc && !customLocation.trim()) {
+        activeLoc = await requestLocation();
+      }
+
       if (user) {
         await supabase.from('ai_usage').insert({
           user_id: user.id,
           question: searchQ,
-          ...(loc ? { city: loc.city, country_code: loc.cc } : {}),
+          ...(activeLoc ? { city: activeLoc.city, country_code: activeLoc.cc } : {}),
         } as any);
       }
 
@@ -356,10 +365,10 @@ export default function SearchPage() {
       if (useCustomLoc && customLocation.trim()) {
         searchBody.customCity = customLocation.trim();
       } else {
-        searchBody.lat = loc?.lat;
-        searchBody.lng = loc?.lng;
-        searchBody.city = loc?.city;
-        searchBody.countryCode = loc?.cc;
+        searchBody.lat = activeLoc?.lat;
+        searchBody.lng = activeLoc?.lng;
+        searchBody.city = activeLoc?.city;
+        searchBody.countryCode = activeLoc?.cc;
       }
       const { data, error: fnErr } = await supabase.functions.invoke('search', {
         body: searchBody,
@@ -520,10 +529,7 @@ export default function SearchPage() {
               <>
                 <div className={`w-2 h-2 rounded-full ${loc ? 'bg-foreground' : 'bg-muted-foreground/30'}`} />
                 <span>{locStatus}</span>
-                <button onClick={requestLocation} className="text-overseez-blue hover:underline flex items-center gap-1">
-                  <MapPin className="w-3 h-3" /> {loc ? t('search.refresh') : t('search.enableLocation')}
-                </button>
-                <button onClick={() => setUseCustomLoc(true)} className="text-overseez-blue hover:underline ml-1 flex items-center gap-1">
+                <button onClick={() => setUseCustomLoc(true)} className="text-overseez-blue hover:underline flex items-center gap-1">
                   <Globe className="w-3 h-3" /> {t('search.searchCity')}
                 </button>
               </>
