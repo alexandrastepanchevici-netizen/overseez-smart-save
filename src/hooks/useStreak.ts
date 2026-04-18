@@ -77,6 +77,8 @@ export function useStreak() {
         new CustomEvent<StreakMilestone>('overseez:streak-milestone', { detail: milestone })
       );
     }
+
+    return currentStreak;
   }, [user, refreshProfile]);
 
   return { recordActivity };

@@ -394,18 +394,17 @@ export default function SearchPage() {
 
       // Record streak, XP, and check achievements after successful search
       if (user) {
-        recordActivity();
-        addXP(XP_EVENTS.SEARCH);
+        const [newStreak, , searchCountResult] = await Promise.all([
+          recordActivity(),
+          addXP(XP_EVENTS.SEARCH),
+          supabase.from('ai_usage').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        ]);
         const isStudentSearch = searchQ.toLowerCase().includes('student');
         const isAfterMidnight = new Date().getHours() === 0 || new Date().getHours() < 4;
-        const { count: searchCountData } = await supabase
-          .from('ai_usage')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id);
-        checkAchievements({
+        await checkAchievements({
           totalSavedUSD: profile?.total_saved || 0,
-          searchCount: searchCountData || 0,
-          streakDays: (profile as any)?.current_streak || 0,
+          searchCount: searchCountResult.count || 0,
+          streakDays: newStreak ?? (profile as any)?.current_streak ?? 0,
           isStudentSearch,
           isSubscribed: subscribed,
           isAfterMidnight,
