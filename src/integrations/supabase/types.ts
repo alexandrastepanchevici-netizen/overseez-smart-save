@@ -82,6 +82,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           birth_date: string
           created_at: string
           currency: string
@@ -100,6 +101,7 @@ export type Database = {
           weekly_saved: number
         }
         Insert: {
+          avatar_url?: string | null
           birth_date: string
           created_at?: string
           currency?: string
@@ -118,6 +120,7 @@ export type Database = {
           weekly_saved?: number
         }
         Update: {
+          avatar_url?: string | null
           birth_date?: string
           created_at?: string
           currency?: string
