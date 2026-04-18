@@ -20,7 +20,7 @@ const MOODS: Record<string, RouteMood> = {
 };
 
 const DEFAULT_MOOD = MOODS['/home'];
-const TRANSITION = { duration: 0.65, ease: 'easeInOut' };
+const TRANSITION = { duration: 0.65, ease: 'easeInOut' as const };
 
 export default function FloatingOvals({ className = '' }: { className?: string }) {
   const location = useLocation();

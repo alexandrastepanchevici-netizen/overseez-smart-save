@@ -59,7 +59,7 @@ export function useXP() {
     if (!user) return;
     const prevLevel = levelInfo.level;
 
-    const { data } = await supabase.rpc('increment_profile_xp' as any, {
+    const { data } = await (supabase.rpc as any)('increment_profile_xp', {
       user_id_in: user.id,
       amount_in: amount,
     });
