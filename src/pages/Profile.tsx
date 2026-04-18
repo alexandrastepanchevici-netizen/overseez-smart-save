@@ -1,75 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
-import CurrencySwitcher, { convertCurrency, getCurrencySymbol } from '@/components/CurrencySwitcher';
+import { getCurrencySymbol } from '@/components/CurrencySwitcher';
 import BadgeShelf from '@/components/BadgeShelf';
 import GoalCard from '@/components/GoalCard';
-import { User, Calendar, Wallet, Star, Shield, TrendingUp, Flame } from 'lucide-react';
+import { User, Calendar, Wallet, Star, Shield, Flame } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useXP } from '@/hooks/useXP';
 import ReviewSection from '@/components/ReviewSection';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 
-function getMilestones(total: number): number[] {
-  const base = [5, 25, 50, 100, 250, 500, 1000];
-  let ms = base;
-  while (total >= ms[ms.length - 1]) {
-    const last = ms[ms.length - 1];
-    const next = [last * 2, last * 5, last * 10].filter(v => v > last);
-    ms = [...ms, ...next];
-  }
-  return ms;
-}
-
-function formatMilestone(sym: string, m: number): string {
-  if (m >= 1_000_000) return `${sym}${(m / 1_000_000).toFixed(0)}M`;
-  if (m >= 1_000) return `${sym}${(m / 1_000).toFixed(0)}k`;
-  return `${sym}${m}`;
-}
-
 export default function Profile() {
   const { t } = useTranslation();
   const { profile, user, subscribed } = useAuth();
   const { xp, levelInfo } = useXP();
   const navigate = useNavigate();
-  const [animatedTotal, setAnimatedTotal] = useState(0);
-  const [displayCurrency, setDisplayCurrency] = useState('USD');
 
   const profileCurrency = profile?.currency || 'USD';
-  const sym = getCurrencySymbol(displayCurrency);
-  const totalSaved = convertCurrency(profile?.total_saved || 0, profileCurrency, displayCurrency);
-
-  useEffect(() => {
-    if (totalSaved === 0) { setAnimatedTotal(0); return; }
-    const dur = 800; const t0 = performance.now();
-    const step = (now: number) => {
-      const p = Math.min((now - t0) / dur, 1);
-      setAnimatedTotal(totalSaved * (1 - Math.pow(1 - p, 3)));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [totalSaved]);
-
-  const milestones = getMilestones(totalSaved);
-  const goalMax = milestones[milestones.length - 1];
-  const pct = Math.min((totalSaved / goalMax) * 100, 100);
-  const visibleMilestones = milestones.reduce<number[]>((acc, m) => {
-    const pos = (m / goalMax) * 100;
-    const lastPos = acc.length > 0 ? (acc[acc.length - 1] / goalMax) * 100 : -20;
-    if (pos - lastPos >= 8) acc.push(m);
-    return acc;
-  }, []);
 
   return (
     <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
       <AppNav />
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-display font-bold tracking-tight">{t('profile.title')}</h1>
-          <CurrencySwitcher value={displayCurrency} onChange={setDisplayCurrency} />
-        </div>
+        <h1 className="text-2xl font-display font-bold tracking-tight mb-6">{t('profile.title')}</h1>
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
@@ -108,7 +62,7 @@ export default function Profile() {
 
         <BadgeShelf />
 
-        {/* Streak button — taps through to /streak page */}
+        {/* Streak button */}
         <button
           onClick={() => navigate('/streak')}
           className="w-full bg-card border border-border rounded-xl p-5 mb-6 flex items-center justify-between overseez-card-hover group"
@@ -129,32 +83,8 @@ export default function Profile() {
 
         <GoalCard />
 
-        {/* Community Reviews */}
-        <div className="bg-card border border-border rounded-xl p-5 mb-6">
-          <h3 className="font-display font-semibold mb-4">{t('feedback.title')}</h3>
-          <ReviewSection />
-        </div>
-
+        {/* Account settings */}
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
-          <div className="flex items-center gap-3 mb-4"><TrendingUp className="w-5 h-5 text-overseez-blue" /><h3 className="font-display font-semibold">{t('profile.savingsProgress')}</h3></div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-2xl font-display font-bold tracking-tight">{sym}{animatedTotal.toFixed(2)}</p>
-            <p className="text-xs text-muted-foreground">{t('profile.goal')} {sym}{goalMax.toLocaleString()}</p>
-          </div>
-          <div className="h-3 bg-muted rounded-full overflow-hidden mb-2">
-            <div className="h-full rounded-full bg-gradient-to-r from-overseez-blue to-overseez-green transition-all duration-700" style={{ width: `${pct}%` }} />
-          </div>
-          <div className="relative h-6 mt-1">
-            {visibleMilestones.map(m => (
-              <div key={m} className="absolute top-0 flex flex-col items-center gap-0.5" style={{ left: `${(m / goalMax) * 100}%`, transform: 'translateX(-50%)' }}>
-                <div className={`w-1.5 h-1.5 rounded-full transition-colors ${totalSaved >= m ? 'bg-overseez-green' : 'bg-muted-foreground/30'}`} />
-                <span className={`text-[10px] whitespace-nowrap ${totalSaved >= m ? 'text-foreground/80' : 'text-muted-foreground/40'}`}>{formatMilestone(sym, m)}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-card border border-border rounded-xl p-6">
           <div className="flex items-center gap-3 mb-4"><Shield className="w-5 h-5 text-muted-foreground" /><h3 className="font-display font-semibold">{t('profile.account')}</h3></div>
           <div className="space-y-3">
             <button
@@ -188,6 +118,12 @@ export default function Profile() {
               <LanguageSwitcher compact />
             </div>
           </div>
+        </div>
+
+        {/* Help us improve — bottom of page */}
+        <div className="bg-card border border-border rounded-xl p-5 mb-6">
+          <h3 className="font-display font-semibold mb-4">{t('feedback.title')}</h3>
+          <ReviewSection />
         </div>
       </div>
     </div>

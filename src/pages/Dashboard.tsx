@@ -8,7 +8,7 @@ import SavingsRecap from '@/components/SavingsRecap';
 import MonthlyRecap from '@/components/MonthlyRecap';
 import ShareCard from '@/components/ShareCard';
 import NewUserWelcome from '@/components/NewUserWelcome';
-import { TrendingUp, Calendar, Wallet, Target, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane } from 'lucide-react';
+import { TrendingUp, Calendar, Wallet, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 import { getEquivalents } from '@/lib/savingsEquivalents';
 import { useNavigate } from 'react-router-dom';
@@ -232,25 +232,6 @@ export default function Dashboard() {
 
         <motion.div variants={staggerItem}><SavingsRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} /></motion.div>
         <motion.div variants={staggerItem}><MonthlyRecap displayCurrency={displayCurrency} profileCurrency={profileCurrency} /></motion.div>
-
-        <motion.div variants={staggerItem} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-          <button onClick={() => navigate('/search')} className="bg-card border border-border rounded-xl p-5 text-left overseez-card-hover group relative overflow-hidden">
-            <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(200 80% 55%)" strokeWidth="4" /></svg>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-overseez-blue/15 flex items-center justify-center"><Target className="w-5 h-5 text-overseez-blue" /></div>
-              <h3 className="font-display font-semibold">{t('dashboard.tryAI')}</h3>
-            </div>
-            <p className="text-sm text-muted-foreground">{t('dashboard.tryAIDesc')}</p>
-          </button>
-          <button onClick={() => navigate('/subscription')} className="bg-card border border-border rounded-xl p-5 text-left overseez-card-hover group relative overflow-hidden">
-            <svg className="absolute -bottom-6 -right-6 w-24 h-24 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500" viewBox="0 0 100 100" fill="none"><ellipse cx="50" cy="50" rx="38" ry="34" transform="rotate(-18 50 50)" stroke="hsl(43 96% 56%)" strokeWidth="4" /></svg>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-overseez-gold/15 flex items-center justify-center"><TrendingUp className="w-5 h-5 text-overseez-gold" /></div>
-              <h3 className="font-display font-semibold">{t('dashboard.subscription')}</h3>
-            </div>
-            <p className="text-sm text-muted-foreground">{t('dashboard.subscriptionDesc')}</p>
-          </button>
-        </motion.div>
 
         <motion.div variants={staggerItem}>
           <h2 className="font-display text-lg font-semibold mb-3">{t('dashboard.recentSavings')}</h2>
