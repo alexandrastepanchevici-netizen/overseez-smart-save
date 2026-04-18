@@ -385,6 +385,18 @@ function Step2({ onNext, onBack }: { onNext: (country: Country) => void; onBack:
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
 
   const pick = (c: Country) => {
     setSelected(c);
@@ -403,7 +415,7 @@ function Step2({ onNext, onBack }: { onNext: (country: Country) => void; onBack:
       <BigTitle>Where are you from?</BigTitle>
       <Sub>We'll show prices in your home currency too</Sub>
 
-      <div className="relative mb-6">
+      <div className="relative mb-6" ref={dropdownRef}>
         <div
           className={`flex items-center gap-3 w-full bg-muted/40 border rounded-xl px-4 py-3.5 cursor-text transition-colors ${open ? 'border-overseez-blue/50' : 'border-border'}`}
           onClick={() => { setOpen(true); setTimeout(() => searchRef.current?.focus(), 50); }}

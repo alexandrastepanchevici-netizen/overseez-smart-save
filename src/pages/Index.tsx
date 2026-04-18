@@ -115,7 +115,7 @@ export default function Index() {
               variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.2 } } }}
             >
               <motion.div variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: 'easeOut' } } }} className="w-full sm:w-auto">
-                <Button variant="hero" size="xl" className="group w-full" onClick={() => navigate(user ? '/register' : '/register')}>
+                <Button variant="hero" size="xl" className="group w-full" onClick={() => navigate(user ? '/dashboard' : '/register')}>
                   {t('footer.signUp')}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -135,7 +135,7 @@ export default function Index() {
                 <p className="text-xs text-muted-foreground mt-0.5">{t('hero.savedPerUser')}</p>
               </div>
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={400} decimals={0} suffix="+" /></p></p>
+                <p className="text-xl sm:text-2xl font-display font-bold tracking-tight"><AnimatedCounter end={400} decimals={0} suffix="+" /></p>
                 <p className="text-xs text-muted-foreground mt-0.5">{t('hero.activeUsers')}</p>
               </div>
               <div className="text-center">

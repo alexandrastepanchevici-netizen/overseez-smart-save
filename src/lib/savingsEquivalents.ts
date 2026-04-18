@@ -45,5 +45,5 @@ export function getEquivalents(
     .filter(r => r.count >= 1 && r.count <= 30)
     .sort((a, b) => b.usdCost - a.usdCost)
     .slice(0, 2)
-    .map(({ emoji, count, label }) => ({ emoji, count, label }));
+    .map(({ icon, count, label }) => ({ icon, count, label }));
 }

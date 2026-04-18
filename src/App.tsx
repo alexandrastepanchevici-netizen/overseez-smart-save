@@ -9,10 +9,6 @@ import PageTransition from "@/components/PageTransition";
 import BadgeUnlockCelebration from "@/components/BadgeUnlockCelebration";
 import StreakMilestoneCelebration from "@/components/StreakMilestoneCelebration";
 import SplashScreen from "@/components/SplashScreen";
-
-// Capture referral param from ?ref=NICKNAME (before the #) and persist to localStorage
-const refParam = new URLSearchParams(window.location.search).get('ref');
-if (refParam) localStorage.setItem('overseez_ref', refParam);
 import Index from "./pages/Index";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -24,6 +20,10 @@ import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Movement from "./pages/Movement";
 import StreakPage from "./pages/StreakPage";
+
+// Capture referral param from ?ref=NICKNAME (before the #) and persist to localStorage
+const refParam = new URLSearchParams(window.location.search).get('ref');
+if (refParam) localStorage.setItem('overseez_ref', refParam);
 
 const queryClient = new QueryClient();
 

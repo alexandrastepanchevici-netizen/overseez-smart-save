@@ -10,14 +10,14 @@ import ShareCard from '@/components/ShareCard';
 import NewUserWelcome from '@/components/NewUserWelcome';
 import { TrendingUp, Calendar, Wallet, Target, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
-
-const EQUIV_ICONS: Record<string, React.ComponentType<LucideProps>> = {
-  Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane,
-};
 import { getEquivalents } from '@/lib/savingsEquivalents';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
+
+const EQUIV_ICONS: Record<string, React.ComponentType<LucideProps>> = {
+  Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane,
+};
 
 const BASE_MILESTONES = [5, 25, 50, 100, 250, 500, 1000];
 
