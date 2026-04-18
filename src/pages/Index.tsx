@@ -58,7 +58,7 @@ export default function Index() {
       {/* Nav */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-card/90 backdrop-blur-xl border-b border-border' : 'bg-transparent'}`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
-          <Link to={user ? '/home' : '/'} className="flex items-center gap-0">
+          <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-0">
             <OverseezLogo size={96} color="white" />
             <span className="font-display text-lg font-bold tracking-tight leading-none -ml-3">Overseez</span>
           </Link>
@@ -299,7 +299,7 @@ export default function Index() {
       <footer className="border-t border-border bg-card/50 py-12 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <Link to={user ? '/home' : '/'} className="flex items-center gap-0">
+            <Link to={user ? '/dashboard' : '/'} className="flex items-center gap-0">
               <OverseezLogo size={96} color="white" />
               <span className="font-display font-bold -ml-3">Overseez</span>
             </Link>

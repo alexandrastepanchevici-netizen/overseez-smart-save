@@ -31,7 +31,7 @@ export function useStreak() {
     const { data: profile } = await supabase
       .from('profiles')
       .select('current_streak, longest_streak, last_active_date')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (!profile) return;
@@ -66,7 +66,7 @@ export function useStreak() {
         longest_streak: longestStreak,
         last_active_date: today,
       } as any)
-      .eq('id', user.id);
+      .eq('user_id', user.id);
 
     refreshProfile();
 
