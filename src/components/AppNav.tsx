@@ -3,13 +3,12 @@ import { motion, LayoutGroup } from 'motion/react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { User, LayoutDashboard, CreditCard, LogOut, ChevronDown, Search, Home } from 'lucide-react';
+import { User, LayoutDashboard, CreditCard, LogOut, ChevronDown, Search } from 'lucide-react';
 import OverseezLogo from '@/components/OverseezLogo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useHaptics } from '@/hooks/useHaptics';
 
 const NAV_LINKS = [
-  { to: '/home', labelKey: 'nav.home', icon: Home },
   { to: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
   { to: '/search', labelKey: 'nav.aiAssistant', icon: Search },
   { to: '/subscription', labelKey: 'nav.subscription', icon: CreditCard },
