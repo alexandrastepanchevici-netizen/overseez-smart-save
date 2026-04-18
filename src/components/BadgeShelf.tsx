@@ -104,7 +104,7 @@ function UpNextCard({ badge, onCta }: { badge: ClosestBadge; onCta: (ctaText: st
   const progressPct = Math.min(badge.progressPct, 100);
 
   return (
-    <div className="flex-1 min-w-[140px] bg-muted/30 border border-border rounded-xl p-3 flex flex-col gap-2">
+    <div className="flex-1 bg-muted/30 border border-border rounded-xl p-3 flex flex-col gap-2">
       <div className="flex items-center gap-2">
         <div className="w-10 h-10 rounded-lg bg-muted/60 flex items-center justify-center text-xl grayscale opacity-70 flex-shrink-0">
           {badge.emoji}
@@ -242,7 +242,7 @@ export default function BadgeShelf() {
       {top3.length > 0 && (
         <div className="mb-4">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Up Next</p>
-          <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="flex gap-2">
             {top3.map(b => (
               <UpNextCard key={b.key} badge={b} onCta={handleCta} />
             ))}

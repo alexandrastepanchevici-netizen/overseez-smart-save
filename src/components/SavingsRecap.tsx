@@ -221,8 +221,8 @@ export default function SavingsRecap({ displayCurrency, profileCurrency }: Props
             <AreaChart data={chartData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="savingsGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(160 60% 45%)" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="hsl(160 60% 45%)" stopOpacity={0} />
+                  <stop offset="5%" stopColor="hsl(200 80% 55%)" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="hsl(200 80% 55%)" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis dataKey="date" hide />
@@ -234,10 +234,10 @@ export default function SavingsRecap({ displayCurrency, profileCurrency }: Props
               <Area
                 type="monotone"
                 dataKey="value"
-                stroke="hsl(160 60% 45%)"
+                stroke="hsl(200 80% 55%)"
                 strokeWidth={2}
                 fill="url(#savingsGrad)"
-                activeDot={{ r: 5, fill: '#fff', stroke: 'hsl(160 60% 55%)', strokeWidth: 2 }}
+                activeDot={{ r: 5, fill: '#fff', stroke: 'hsl(200 80% 65%)', strokeWidth: 2 }}
                 dot={false}
               />
             </AreaChart>
