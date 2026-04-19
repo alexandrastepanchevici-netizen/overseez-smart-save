@@ -21,7 +21,7 @@ interface TransitionConfig {
 const EASE_OUT = [0.25, 0.46, 0.45, 0.94] as const;
 const EASE_IN  = [0.55, 0, 1, 0.45] as const;
 
-const pageVariants = {
+const pageVariants: import('motion/react').Variants = {
   initial: (cfg: TransitionConfig) => {
     if (cfg.isPanel)        return { y: '100%', opacity: 1 };
     if (cfg.isClosingPanel) return { opacity: 0 };
@@ -36,12 +36,12 @@ const pageVariants = {
     }
     if (cfg.isClosingPanel) {
       // The page behind the closing panel just fades in gently near the end.
-      return { opacity: 1, transition: { duration: 0.18, delay: 0.18, ease: 'easeOut' } };
+      return { opacity: 1, transition: { duration: 0.18, delay: 0.18, ease: 'easeOut' as const } };
     }
     if (cfg.direction !== 0) {
       return { x: 0, opacity: 1, transition: { duration: 0.22, ease: EASE_OUT } };
     }
-    return { opacity: 1, transition: { duration: 0.1, ease: 'easeOut' } };
+    return { opacity: 1, transition: { duration: 0.1, ease: 'easeOut' as const } };
   },
 
   exit: (cfg: TransitionConfig) => {
@@ -59,7 +59,7 @@ const pageVariants = {
     if (cfg.direction < 0) {
       return { x: '42%',  opacity: 0, transition: { duration: 0.15, ease: EASE_IN } };
     }
-    return { opacity: 0, transition: { duration: 0.07, ease: 'easeIn' } };
+    return { opacity: 0, transition: { duration: 0.07, ease: 'easeIn' as const } };
   },
 };
 
