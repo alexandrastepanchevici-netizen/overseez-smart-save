@@ -21,7 +21,7 @@ interface TransitionConfig {
 const EASE_OUT = [0.25, 0.46, 0.45, 0.94] as const;
 const EASE_IN  = [0.55, 0, 1, 0.45] as const;
 
-const pageVariants = {
+const pageVariants: import('motion/react').Variants = {
   initial: (cfg: TransitionConfig) => {
     if (cfg.isPanel)        return { y: '100%', opacity: 1 };
     if (cfg.isClosingPanel) return { opacity: 0 };
