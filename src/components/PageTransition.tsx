@@ -36,12 +36,12 @@ const pageVariants: import('motion/react').Variants = {
     }
     if (cfg.isClosingPanel) {
       // The page behind the closing panel just fades in gently near the end.
-      return { opacity: 1, transition: { duration: 0.18, delay: 0.18, ease: 'easeOut' } };
+      return { opacity: 1, transition: { duration: 0.18, delay: 0.18, ease: 'easeOut' as const } };
     }
     if (cfg.direction !== 0) {
       return { x: 0, opacity: 1, transition: { duration: 0.22, ease: EASE_OUT } };
     }
-    return { opacity: 1, transition: { duration: 0.1, ease: 'easeOut' } };
+    return { opacity: 1, transition: { duration: 0.1, ease: 'easeOut' as const } };
   },
 
   exit: (cfg: TransitionConfig) => {
@@ -59,7 +59,7 @@ const pageVariants: import('motion/react').Variants = {
     if (cfg.direction < 0) {
       return { x: '42%',  opacity: 0, transition: { duration: 0.15, ease: EASE_IN } };
     }
-    return { opacity: 0, transition: { duration: 0.07, ease: 'easeIn' } };
+    return { opacity: 0, transition: { duration: 0.07, ease: 'easeIn' as const } };
   },
 };
 
