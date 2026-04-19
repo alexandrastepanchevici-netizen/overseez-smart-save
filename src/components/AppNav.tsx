@@ -59,8 +59,12 @@ export default function AppNav() {
             <div className="relative">
               <button onClick={() => setOpen(!open)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-muted/50 hover:bg-muted transition-colors text-sm">
-                <div className="w-7 h-7 rounded-full bg-overseez-blue/20 flex items-center justify-center">
-                  <User className="w-4 h-4 text-overseez-blue" />
+                <div className="w-7 h-7 rounded-full bg-overseez-blue/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {(profile as any)?.avatar_url ? (
+                    <img src={(profile as any).avatar_url} alt="avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-4 h-4 text-overseez-blue" />
+                  )}
                 </div>
                 <span className="hidden sm:inline text-muted-foreground">
                   {profile?.nickname || t('nav.account')}

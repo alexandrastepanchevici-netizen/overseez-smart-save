@@ -432,7 +432,7 @@ export default function SearchPage() {
     if (isNaN(spent) || spent < 0) return;
     const saved = spendModal.avgVal - spent;
 
-    const { data: entryData } = await supabase.from('savings_entries').insert({
+    const { data: entryData, error: insertError } = await supabase.from('savings_entries').insert({
       user_id: user.id,
       store_name: spendModal.place.name,
       amount_saved: Math.max(0, saved),
@@ -442,6 +442,15 @@ export default function SearchPage() {
       search_query: query,
       ...(selectedGoalId ? { goal_id: selectedGoalId } : {}),
     } as any).select('id').single();
+
+    if (insertError) {
+      const isRLS = insertError.code === '42501' || insertError.message?.toLowerCase().includes('row-level security');
+      toast.error(isRLS
+        ? 'Could not save — please sign out and back in, then try again.'
+        : `Failed to save: ${insertError.message}`
+      );
+      return;
+    }
 
     if (saved > 0) {
       const { data: prof } = await supabase.from('profiles').select('total_saved')

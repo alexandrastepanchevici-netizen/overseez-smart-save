@@ -249,10 +249,10 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="bg-card border border-border rounded-xl overflow-hidden">
-              {(savingsExpanded ? savings : savings.slice(0, 10)).map((s, idx) => {
+              {savings.slice(0, 5).map((s, idx) => {
                 const converted = convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency);
                 const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(s.store_name)}`;
-                const isLast = idx === (savingsExpanded ? savings.length : Math.min(savings.length, 10)) - 1;
+                const isLast = idx === Math.min(savings.length, 5) - 1 && !savingsExpanded;
                 return (
                   <div key={s.id} className={`px-4 py-3 flex items-center justify-between gap-3 ${!isLast ? 'border-b border-border/50' : ''}`}>
                     <div className="flex-1 min-w-0">
@@ -260,11 +260,7 @@ export default function Dashboard() {
                       <p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</p>
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
-                      <button
-                        onClick={() => openExternalUrl(mapsUrl)}
-                        className="text-overseez-blue hover:opacity-75 transition-opacity"
-                        title="Find on Maps"
-                      >
+                      <button onClick={() => openExternalUrl(mapsUrl)} className="text-overseez-blue hover:opacity-75 transition-opacity" title="Find on Maps">
                         <MapPin className="w-4 h-4" />
                       </button>
                       <span className="text-sm font-semibold text-overseez-green tabular-nums">▼ {sym}{converted.toFixed(2)}</span>
@@ -272,17 +268,40 @@ export default function Dashboard() {
                   </div>
                 );
               })}
-              {savings.length > 10 && (
-                <button
-                  onClick={() => setSavingsExpanded(v => !v)}
-                  className="w-full flex items-center justify-center gap-1.5 py-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-t border-border/50"
-                >
-                  {savingsExpanded ? (
-                    <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
-                  ) : (
-                    <><ChevronDown className="w-3.5 h-3.5" /> Show all {savings.length} savings</>
-                  )}
-                </button>
+
+              {/* Collapsible older entries */}
+              {savings.length > 5 && (
+                <>
+                  {savingsExpanded && savings.slice(5).map((s, idx) => {
+                    const converted = convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency);
+                    const mapsUrl = `https://www.google.com/maps/search/${encodeURIComponent(s.store_name)}`;
+                    const isLast = idx === savings.length - 6;
+                    return (
+                      <div key={s.id} className={`px-4 py-3 flex items-center justify-between gap-3 border-t border-border/50 ${!isLast ? 'border-b border-border/50' : ''}`}>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{s.store_name}</p>
+                          <p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString()}</p>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <button onClick={() => openExternalUrl(mapsUrl)} className="text-overseez-blue hover:opacity-75 transition-opacity" title="Find on Maps">
+                            <MapPin className="w-4 h-4" />
+                          </button>
+                          <span className="text-sm font-semibold text-overseez-green tabular-nums">▼ {sym}{converted.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <button
+                    onClick={() => setSavingsExpanded(v => !v)}
+                    className="w-full flex items-center justify-center gap-1.5 py-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors border-t border-border/50"
+                  >
+                    {savingsExpanded ? (
+                      <><ChevronUp className="w-3.5 h-3.5" /> Show less</>
+                    ) : (
+                      <><ChevronDown className="w-3.5 h-3.5" /> {savings.length - 5} more savings</>
+                    )}
+                  </button>
+                </>
               )}
             </div>
           )}
