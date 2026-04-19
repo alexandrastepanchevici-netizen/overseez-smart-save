@@ -5,7 +5,9 @@ import AppNav from '@/components/AppNav';
 import { getCurrencySymbol } from '@/components/CurrencySwitcher';
 import BadgeShelf from '@/components/BadgeShelf';
 import GoalCard from '@/components/GoalCard';
-import { User, Calendar, Wallet, Star, Shield, Flame, Camera, X, Loader2 } from 'lucide-react';
+import ProfileAvatar from '@/components/ProfileAvatar';
+import ProfileFrameSheet from '@/components/ProfileFrameSheet';
+import { Calendar, Wallet, Star, Shield, Flame, X, Loader2, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useXP } from '@/hooks/useXP';
@@ -29,6 +31,7 @@ export default function Profile() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
+  const [frameSheetOpen, setFrameSheetOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const openEdit = () => {
@@ -93,23 +96,24 @@ export default function Profile() {
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
-            {/* Tappable avatar */}
-            <button onClick={openEdit} className="relative group flex-shrink-0">
-              <div className="w-16 h-16 rounded-full bg-overseez-blue/20 flex items-center justify-center overflow-hidden">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-8 h-8 text-overseez-blue" />
-                )}
-              </div>
-              {/* Camera overlay on hover/tap */}
-              <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity">
-                <Camera className="w-5 h-5 text-white" />
-              </div>
-              <span className="absolute -bottom-1 -right-1 text-[10px] font-bold bg-overseez-blue text-white rounded-full px-1.5 py-0.5 leading-none">
-                {levelInfo.level}
-              </span>
-            </button>
+            {/* Tappable avatar — opens frame sheet */}
+            <ProfileAvatar
+              size="md"
+              avatarUrl={avatarUrl}
+              nickname={profile?.nickname || profile?.full_name || 'U'}
+              weeklyRank={(profile as any)?.weekly_rank ?? null}
+              showLevel
+              level={levelInfo.level}
+              onClick={() => setFrameSheetOpen(true)}
+            />
+            <ProfileFrameSheet
+              open={frameSheetOpen}
+              onOpenChange={setFrameSheetOpen}
+              weeklyRank={(profile as any)?.weekly_rank ?? null}
+              avatarUrl={avatarUrl}
+              nickname={profile?.nickname || profile?.full_name || 'U'}
+              onChangePhoto={() => { setFrameSheetOpen(false); openEdit(); }}
+            />
 
             <div className="flex-1 min-w-0">
               <button onClick={openEdit} className="text-left">

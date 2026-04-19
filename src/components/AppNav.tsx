@@ -3,16 +3,18 @@ import { motion, LayoutGroup } from 'motion/react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { User, LayoutDashboard, CreditCard, LogOut, ChevronDown, Search } from 'lucide-react';
+import { User, LayoutDashboard, CreditCard, LogOut, ChevronDown, Search, Trophy } from 'lucide-react';
 import OverseezLogo from '@/components/OverseezLogo';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useHaptics } from '@/hooks/useHaptics';
+import ProfileAvatar from '@/components/ProfileAvatar';
 
 const NAV_LINKS = [
-  { to: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
-  { to: '/search', labelKey: 'nav.aiAssistant', icon: Search },
-  { to: '/subscription', labelKey: 'nav.subscription', icon: CreditCard },
-  { to: '/profile', labelKey: 'nav.profile', icon: User },
+  { to: '/dashboard',   labelKey: 'nav.dashboard',   icon: LayoutDashboard },
+  { to: '/search',      labelKey: 'nav.aiAssistant',  icon: Search },
+  { to: '/leaderboard', labelKey: 'nav.leaderboard',  icon: Trophy },
+  { to: '/subscription',labelKey: 'nav.subscription', icon: CreditCard },
+  { to: '/profile',     labelKey: 'nav.profile',      icon: User },
 ];
 
 export default function AppNav() {
@@ -59,13 +61,12 @@ export default function AppNav() {
             <div className="relative">
               <button onClick={() => setOpen(!open)}
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-muted/50 hover:bg-muted transition-colors text-sm">
-                <div className="w-7 h-7 rounded-full bg-overseez-blue/20 flex items-center justify-center overflow-hidden flex-shrink-0">
-                  {(profile as any)?.avatar_url ? (
-                    <img src={(profile as any).avatar_url} alt="avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-4 h-4 text-overseez-blue" />
-                  )}
-                </div>
+                <ProfileAvatar
+                  size="sm"
+                  avatarUrl={(profile as any)?.avatar_url ?? null}
+                  nickname={profile?.nickname || profile?.full_name || 'U'}
+                  weeklyRank={(profile as any)?.weekly_rank ?? null}
+                />
                 <span className="hidden sm:inline text-muted-foreground">
                   {profile?.nickname || t('nav.account')}
                 </span>

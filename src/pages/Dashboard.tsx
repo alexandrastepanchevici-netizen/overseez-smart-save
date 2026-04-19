@@ -39,7 +39,7 @@ export default function Dashboard() {
   const [savingsExpanded, setSavingsExpanded] = useState(false);
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || 'USD');
-  const [percentileRank, setPercentileRank] = useState<number | null>(null);
+  const [leagueRank, setLeagueRank] = useState<number | null>(null);
   const [usageLeft, setUsageLeft] = useState(5);
   const [resetCountdown, setResetCountdown] = useState('');
   const [oldestUsageTime, setOldestUsageTime] = useState<number | null>(null);
@@ -68,10 +68,18 @@ export default function Dashboard() {
       });
   }, [user, profile]);
 
+  // Tiered cooldown bonus from leaderboard finish
+  const bonusHours = (profile as any)?.search_cooldown_bonus_hours ?? 0;
+  const hasCooldownBonus =
+    (profile as any)?.search_cooldown_bonus_at != null &&
+    new Date((profile as any).search_cooldown_bonus_at) > new Date() &&
+    bonusHours > 0;
+  const cooldownMs = hasCooldownBonus ? (24 - bonusHours) * 3600000 : 24 * 3600000;
+
   // Countdown until next search credit
   useEffect(() => {
     if (oldestUsageTime === null || usageLeft >= FREE_LIMIT) { setResetCountdown(''); return; }
-    const resetAt = oldestUsageTime + 24 * 3600000;
+    const resetAt = oldestUsageTime + cooldownMs;
     const fmt = (ms: number) => {
       const h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000), s = Math.floor((ms % 60000) / 1000);
       return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
@@ -84,20 +92,41 @@ export default function Dashboard() {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [oldestUsageTime, usageLeft]);
+  }, [oldestUsageTime, usageLeft, cooldownMs]);
 
+  // League group of 20 — rank among weekly savers, backfill with bots
   useEffect(() => {
-    if (!profile) return;
-    const myTotal = profile.total_saved || 0;
-    Promise.all([
-      supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('total_saved', myTotal),
-      supabase.from('profiles').select('id', { count: 'exact', head: true }).gt('total_saved', 0),
-    ]).then(([above, total]) => {
-      const aboveCount = above.count || 0;
-      const totalCount = total.count || 1;
-      if (totalCount > 1) setPercentileRank(Math.round((1 - aboveCount / totalCount) * 100));
+    if (!user || !profile) return;
+
+    const BOT_NAMES = [
+      'SavvySam', 'BudgetBen', 'ThriftyTia', 'DealsDave', 'CentsCarla',
+      'PennyPat', 'FrugalFred', 'BargainBea', 'SmartSue', 'WisdomWes',
+      'CashCora', 'ValueVic', 'MintMike', 'SaverSol', 'CleverCleo',
+      'GainGrace', 'EcoElla', 'NiftNate', 'DimeDan', 'PricePaige',
+    ];
+    const isoWeek = (d: Date) => {
+      const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+      const day = date.getUTCDay() || 7;
+      date.setUTCDate(date.getUTCDate() + 4 - day);
+      const y = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+      return Math.ceil((((date as any) - (y as any)) / 86400000 + 1) / 7);
+    };
+    const weekSeed = isoWeek(new Date());
+
+    supabase.rpc('get_savings_leaderboard', { period: 'week', lim: 50 }).then(({ data }) => {
+      const entries: Array<{ user_id: string; amount_saved: number; isBot?: boolean }> = (data ?? []).map((r: any) => ({
+        user_id: r.user_id, amount_saved: Number(r.amount_saved),
+      }));
+      const botsNeeded = Math.max(0, 20 - entries.length);
+      const bots = BOT_NAMES.slice(0, botsNeeded).map((_, i) => ({
+        user_id: `bot-${i}`, isBot: true,
+        amount_saved: Math.round(((weekSeed * (i + 7)) % 180) + 20) / 10,
+      }));
+      const merged = [...entries, ...bots].sort((a, b) => b.amount_saved - a.amount_saved);
+      const meIdx = merged.findIndex(e => e.user_id === user.id);
+      setLeagueRank(meIdx >= 0 ? meIdx + 1 : 20);
     });
-  }, [profile?.total_saved]);
+  }, [user?.id, profile?.weekly_saved]);
 
   const profileCurrency = profile?.currency || 'USD';
   const sym = getCurrencySymbol(displayCurrency);
@@ -158,10 +187,13 @@ export default function Dashboard() {
                 >
                   {((profile as any)?.current_streak || 0) > 0 ? '🔥' : '🩶'} {(profile as any)?.current_streak || 0} day{((profile as any)?.current_streak || 0) !== 1 ? 's' : ''}
                 </button>
-                {percentileRank !== null && percentileRank >= 50 && (
-                  <span className="text-xs font-semibold text-overseez-gold bg-overseez-gold/10 border border-overseez-gold/25 rounded-full px-2.5 py-0.5 flex items-center gap-1">
-                    <Trophy className="w-3 h-3" /> Top {100 - percentileRank}%
-                  </span>
+                {leagueRank !== null && (
+                  <button
+                    onClick={() => navigate('/leaderboard')}
+                    className="text-xs font-semibold text-overseez-gold bg-overseez-gold/10 border border-overseez-gold/25 rounded-full px-2.5 py-0.5 flex items-center gap-1 hover:bg-overseez-gold/20 transition-colors"
+                  >
+                    <Trophy className="w-3 h-3" /> Rank #{leagueRank} of 20
+                  </button>
                 )}
               </div>
               {(() => {
@@ -187,6 +219,12 @@ export default function Dashboard() {
                     {resetCountdown && (
                       <span className="text-overseez-blue font-mono text-[11px] bg-overseez-blue/10 border border-overseez-blue/20 rounded-full px-2.5 py-0.5">
                         next in {resetCountdown}
+                      </span>
+                    )}
+                    {hasCooldownBonus && resetCountdown && (
+                      <span className="text-overseez-gold text-[11px] bg-overseez-gold/10 border border-overseez-gold/25 rounded-full px-2.5 py-0.5 flex items-center gap-1">
+                        <Zap className="w-3 h-3" />
+                        {bonusHours === 12 ? 'Champion' : bonusHours === 8 ? 'Runner-up' : 'Podium'} bonus active
                       </span>
                     )}
                   </>

@@ -2,10 +2,10 @@ import React, { useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useLocation } from 'react-router-dom';
 
-// The 4 main tab routes in left→right order.
+// The 5 main tab routes in left→right order.
 // Navigating to a higher index = slide left (new page comes from right).
 // Navigating to a lower index  = slide right (new page comes from left).
-const MAIN_TABS = ['/dashboard', '/search', '/subscription', '/profile'];
+const MAIN_TABS = ['/dashboard', '/search', '/leaderboard', '/subscription', '/profile'];
 
 // Routes that should slide UP from the bottom as a full-screen panel.
 // Everything else that isn't a main tab gets a plain fade.

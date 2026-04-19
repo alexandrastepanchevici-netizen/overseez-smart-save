@@ -1,43 +1,12 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Badge } from '@/hooks/useAchievements';
-
-const CONFETTI_COLORS = [
-  'hsl(200 80% 55%)',
-  'hsl(160 60% 45%)',
-  'hsl(43 96% 56%)',
-  'hsl(0 90% 65%)',
-  '#ffffff',
-  'hsl(280 70% 65%)',
-  'hsl(340 80% 60%)',
-];
-
-interface RainParticle {
-  x: number;
-  size: number;
-  color: string;
-  duration: number;
-  delay: number;
-  rotation: number;
-  shape: 'circle' | 'square' | 'diamond' | 'strip';
-}
-
-function generateRain(): RainParticle[] {
-  return Array.from({ length: 90 }, (_, i) => ({
-    x: Math.random() * 100,
-    size: 4 + Math.random() * 10,
-    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-    duration: 1.8 + Math.random() * 2.4,
-    delay: Math.random() * 2.5,
-    rotation: Math.random() * 900,
-    shape: (['circle', 'square', 'diamond', 'strip'] as const)[i % 4],
-  }));
-}
+import { useConfettiParticles } from '@/hooks/useConfettiParticles';
 
 export default function BadgeUnlockCelebration() {
-  const [queue, setQueue] = useState<Badge[]>([]);
+  const [queue, setQueue]     = useState<Badge[]>([]);
   const [current, setCurrent] = useState<Badge | null>(null);
-  const particles = useMemo(() => generateRain(), []);
+  const particles             = useConfettiParticles();
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -79,7 +48,7 @@ export default function BadgeUnlockCelebration() {
           {/* Backdrop */}
           <div className="absolute inset-0 bg-background/95 backdrop-blur-md" />
 
-          {/* Radial glow — outer warm wash */}
+          {/* Radial glow */}
           <div className="absolute inset-0 pointer-events-none" style={{
             background: 'radial-gradient(ellipse 70% 55% at 50% 50%, hsl(43 96% 56% / 0.18) 0%, transparent 70%)',
           }} />
@@ -91,21 +60,21 @@ export default function BadgeUnlockCelebration() {
                 key={i}
                 className="absolute"
                 style={{
-                  left: `${p.x}%`,
-                  top: 0,
-                  width: p.shape === 'strip' ? p.size * 0.4 : p.size,
-                  height: p.shape === 'strip' ? p.size * 2.5 : p.size,
+                  left:            `${p.x}%`,
+                  top:             0,
+                  width:           p.shape === 'strip' ? p.size * 0.4 : p.size,
+                  height:          p.shape === 'strip' ? p.size * 2.5 : p.size,
                   backgroundColor: p.color,
-                  borderRadius: p.shape === 'circle' ? '50%' : p.shape === 'diamond' ? '2px' : '1px',
-                  transform: p.shape === 'diamond' ? 'rotate(45deg)' : undefined,
+                  borderRadius:    p.shape === 'circle' ? '50%' : p.shape === 'diamond' ? '2px' : '1px',
+                  transform:       p.shape === 'diamond' ? 'rotate(45deg)' : undefined,
                 }}
                 initial={{ y: -80, opacity: 1 }}
                 animate={{ y: '108vh', rotate: p.rotation, opacity: [1, 1, 0] }}
                 transition={{
                   duration: p.duration,
-                  delay: p.delay,
-                  ease: 'easeIn',
-                  opacity: { times: [0, 0.78, 1], duration: p.duration, delay: p.delay },
+                  delay:    p.delay,
+                  ease:     'easeIn',
+                  opacity:  { times: [0, 0.78, 1], duration: p.duration, delay: p.delay },
                 }}
               />
             ))}
@@ -114,23 +83,20 @@ export default function BadgeUnlockCelebration() {
           {/* Main content */}
           <div className="relative z-10 flex flex-col items-center gap-6 px-8 pointer-events-none select-none">
 
-            {/* Multi-layer glow rings behind badge */}
+            {/* Glow rings + badge tile */}
             <div className="relative flex items-center justify-center">
-              {/* Outermost slow pulse */}
               <motion.div
                 className="absolute rounded-full"
                 style={{ width: 200, height: 200, background: 'radial-gradient(circle, hsl(43 96% 56% / 0.18) 0%, transparent 70%)' }}
                 animate={{ scale: [1, 1.25, 1] }}
                 transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
               />
-              {/* Mid ring */}
               <motion.div
                 className="absolute rounded-full border border-overseez-gold/25"
                 style={{ width: 160, height: 160 }}
                 animate={{ scale: [1, 1.18, 1], opacity: [0.6, 1, 0.6] }}
                 transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
               />
-              {/* Inner glow ring */}
               <motion.div
                 className="absolute rounded-full border-2 border-overseez-gold/40"
                 style={{ width: 124, height: 124 }}
@@ -138,20 +104,22 @@ export default function BadgeUnlockCelebration() {
                 transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut', delay: 0.15 }}
               />
 
-              {/* Badge tile */}
+              {/* Badge tile — renders lucide icon */}
               <motion.div
                 className="relative w-28 h-28 rounded-3xl flex items-center justify-center"
                 style={{
-                  background: 'linear-gradient(135deg, hsl(43 96% 56% / 0.25) 0%, hsl(200 80% 55% / 0.2) 100%)',
-                  border: '2px solid hsl(43 96% 56% / 0.55)',
-                  boxShadow: '0 0 40px hsl(43 96% 56% / 0.45), 0 0 80px hsl(43 96% 56% / 0.2), inset 0 1px 0 hsl(43 96% 56% / 0.3)',
-                  fontSize: '4rem',
+                  background:  'linear-gradient(135deg, hsl(43 96% 56% / 0.25) 0%, hsl(200 80% 55% / 0.2) 100%)',
+                  border:      '2px solid hsl(43 96% 56% / 0.55)',
+                  boxShadow:   '0 0 40px hsl(43 96% 56% / 0.45), 0 0 80px hsl(43 96% 56% / 0.2), inset 0 1px 0 hsl(43 96% 56% / 0.3)',
                 }}
                 initial={{ scale: 0, rotate: -20 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 16, delay: 0.1 }}
               >
-                {current.emoji}
+                <current.icon
+                  className="w-16 h-16 text-overseez-gold"
+                  style={{ filter: 'drop-shadow(0 0 12px hsl(43 96% 56% / 0.8))' }}
+                />
               </motion.div>
             </div>
 
@@ -163,7 +131,7 @@ export default function BadgeUnlockCelebration() {
               transition={{ delay: 0.28, duration: 0.4, ease: 'easeOut' }}
             >
               <p className="text-xs uppercase tracking-widest text-overseez-gold font-semibold mb-2">
-                Badge Unlocked ✨
+                Badge Unlocked
               </p>
               <h2 className="text-2xl font-display font-bold text-foreground">{current.name}</h2>
               <p className="text-sm text-muted-foreground mt-1.5 max-w-[260px] mx-auto leading-relaxed">

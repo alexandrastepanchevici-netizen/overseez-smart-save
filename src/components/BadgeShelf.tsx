@@ -4,15 +4,16 @@ import { useAchievements, ALL_BADGES } from '@/hooks/useAchievements';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { convertCurrency } from '@/components/CurrencySwitcher';
+import type { LucideIcon } from 'lucide-react';
 
 // ─── Badge metadata ───────────────────────────────────────────────────────────
 
-type BadgeField = 'searches' | 'savings' | 'streak' | 'cities' | 'countries' | 'referrals' | 'binary';
+type BadgeField = 'searches' | 'savings' | 'streak' | 'cities' | 'countries' | 'referrals' | 'top3' | 'binary';
 
 interface BadgeMeta {
   threshold: number;
-  field: BadgeField;
-  ctaText: string;
+  field:     BadgeField;
+  ctaText:   string;
 }
 
 const BADGE_META: Record<string, BadgeMeta> = {
@@ -37,6 +38,11 @@ const BADGE_META: Record<string, BadgeMeta> = {
   show_off:           { threshold: 1,    field: 'binary',    ctaText: '' },
   challenge_crusher:  { threshold: 1,    field: 'binary',    ctaText: '' },
   challenge_champion: { threshold: 1,    field: 'binary',    ctaText: '' },
+  // Leaderboard
+  top3_debut:         { threshold: 1,    field: 'top3',      ctaText: 'View Leaderboard →' },
+  top3_hat_trick:     { threshold: 3,    field: 'top3',      ctaText: 'View Leaderboard →' },
+  top3_veteran:       { threshold: 10,   field: 'top3',      ctaText: 'View Leaderboard →' },
+  weekly_champion:    { threshold: 1,    field: 'binary',    ctaText: '' },
 };
 
 // Format progress values: integers stay as integers, floats get 2 decimal places
@@ -59,27 +65,13 @@ function ProgressRing({ progressPct, size = 48 }: { progressPct: number; size?: 
       className="absolute inset-0 pointer-events-none"
       style={{ transform: 'rotate(-90deg)' }}
     >
-      {/* Track */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={r}
-        fill="none"
-        stroke="hsl(200 80% 55% / 0.12)"
-        strokeWidth="2"
-      />
-      {/* Progress arc */}
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="hsl(200 80% 55% / 0.12)" strokeWidth="2" />
       {progressPct > 0 && (
         <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
+          cx={size / 2} cy={size / 2} r={r} fill="none"
           stroke={isNearComplete ? 'hsl(160 60% 45%)' : 'hsl(200 80% 55%)'}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
+          strokeWidth="2" strokeLinecap="round"
+          strokeDasharray={circumference} strokeDashoffset={offset}
           style={isNearComplete ? { filter: 'drop-shadow(0 0 4px hsl(160 60% 45%))' } : undefined}
         />
       )}
@@ -87,27 +79,28 @@ function ProgressRing({ progressPct, size = 48 }: { progressPct: number; size?: 
   );
 }
 
-// ─── Up Next card (one of the 3 closest badges) ───────────────────────────────
+// ─── Up Next card ─────────────────────────────────────────────────────────────
 
 interface ClosestBadge {
-  key: string;
-  emoji: string;
-  name: string;
+  key:         string;
+  icon:        LucideIcon;
+  name:        string;
   description: string;
-  current: number;
-  threshold: number;
+  current:     number;
+  threshold:   number;
   progressPct: number;
-  ctaText: string;
+  ctaText:     string;
 }
 
 function UpNextCard({ badge, onCta }: { badge: ClosestBadge; onCta: (ctaText: string) => void }) {
   const progressPct = Math.min(badge.progressPct, 100);
+  const Icon = badge.icon;
 
   return (
     <div className="flex-1 min-w-0 bg-muted/30 border border-border rounded-xl p-3 flex flex-col gap-2">
       <div className="flex items-center gap-2 min-w-0">
-        <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center text-lg grayscale opacity-70 flex-shrink-0">
-          {badge.emoji}
+        <div className="w-8 h-8 rounded-lg bg-muted/60 flex items-center justify-center flex-shrink-0 opacity-70">
+          <Icon className="w-4 h-4 text-muted-foreground" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[11px] font-semibold truncate">{badge.name}</p>
@@ -144,12 +137,11 @@ export default function BadgeShelf() {
   const navigate = useNavigate();
 
   const [unlockedKeys, setUnlockedKeys] = useState<Set<string>>(new Set());
-  const [searchCount, setSearchCount] = useState(0);
-  const [cityCount, setCityCount] = useState(0);
+  const [searchCount, setSearchCount]   = useState(0);
+  const [cityCount, setCityCount]       = useState(0);
   const [countryCount, setCountryCount] = useState(0);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll]           = useState(false);
 
-  // Fetch all badge-related data in parallel
   useEffect(() => {
     if (!user) return;
 
@@ -173,14 +165,14 @@ export default function BadgeShelf() {
       });
   }, [user, fetchUnlocked]);
 
-  // Compute progress values
   const totalSavedUSD = convertCurrency(
     (profile as any)?.total_saved || 0,
     profile?.currency || 'USD',
     'USD',
   );
-  const streakDays = (profile as any)?.current_streak || 0;
-  const referralCount = (profile as any)?.referral_count || 0;
+  const streakDays    = (profile as any)?.current_streak   || 0;
+  const referralCount = (profile as any)?.referral_count   || 0;
+  const top3Count     = (profile as any)?.top3_weekly_count || 0;
 
   const progressByField: Record<BadgeField, number> = useMemo(() => ({
     searches:  searchCount,
@@ -189,27 +181,21 @@ export default function BadgeShelf() {
     cities:    cityCount,
     countries: countryCount,
     referrals: referralCount,
+    top3:      top3Count,
     binary:    0,
-  }), [searchCount, totalSavedUSD, streakDays, cityCount, countryCount, referralCount]);
+  }), [searchCount, totalSavedUSD, streakDays, cityCount, countryCount, referralCount, top3Count]);
 
-  // Top 3 closest locked badges (excluding binary/orphaned fields)
   const top3: ClosestBadge[] = useMemo(() => {
     return ALL_BADGES
       .filter(b => !unlockedKeys.has(b.key))
-      .filter(b => BADGE_META[b.key]?.field !== 'binary')
+      .filter(b => BADGE_META[b.key] && BADGE_META[b.key].field !== 'binary')
       .map(b => {
         const meta = BADGE_META[b.key];
         const current = progressByField[meta.field];
         const progressPct = (current / meta.threshold) * 100;
         return {
-          key: b.key,
-          emoji: b.emoji,
-          name: b.name,
-          description: b.description,
-          current,
-          threshold: meta.threshold,
-          progressPct,
-          ctaText: meta.ctaText,
+          key: b.key, icon: b.icon, name: b.name, description: b.description,
+          current, threshold: meta.threshold, progressPct, ctaText: meta.ctaText,
         };
       })
       .sort((a, b) => {
@@ -219,50 +205,43 @@ export default function BadgeShelf() {
       .slice(0, 3);
   }, [unlockedKeys, progressByField]);
 
-  // CTA navigation handler
   const handleCta = (ctaText: string) => {
     if (ctaText === 'Search Now →' || ctaText === 'Search a New City →') navigate('/search');
     else if (ctaText === 'Log a Saving →') navigate('/search');
-    else if (ctaText === 'Open Daily →') { /* streak — just close */ }
+    else if (ctaText === 'Open Daily →') { /* streak */ }
     else if (ctaText === 'Invite a Friend →') navigate('/profile');
+    else if (ctaText === 'View Leaderboard →') navigate('/leaderboard');
   };
 
   const unlockedCount = unlockedKeys.size;
-  const lockedCount = ALL_BADGES.length - unlockedCount;
+  const lockedCount   = ALL_BADGES.length - unlockedCount;
 
   return (
     <div className="bg-card border border-border rounded-xl p-5 mb-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-display font-semibold">Badges</h3>
         <span className="text-xs text-muted-foreground">{unlockedCount} / {ALL_BADGES.length} unlocked</span>
       </div>
 
-      {/* Up Next — top 3 closest locked badges */}
       {top3.length > 0 && (
         <div className="mb-4">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2">Up Next</p>
           <div className="flex gap-2">
-            {top3.map(b => (
-              <UpNextCard key={b.key} badge={b} onCta={handleCta} />
-            ))}
+            {top3.map(b => <UpNextCard key={b.key} badge={b} onCta={handleCta} />)}
           </div>
         </div>
       )}
 
-      {/* Toggle for full shelf */}
       <button
         onClick={() => setShowAll(v => !v)}
         className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2 flex items-center justify-center gap-1.5 border border-border/50 rounded-lg hover:border-border"
       >
-        {showAll ? (
-          <>Hide badges ↑</>
-        ) : (
-          <>{lockedCount > 0 ? `See all ${ALL_BADGES.length} badges (${lockedCount} locked)` : `See all ${ALL_BADGES.length} badges`} ↓</>
-        )}
+        {showAll
+          ? <>Hide badges ↑</>
+          : <>{lockedCount > 0 ? `See all ${ALL_BADGES.length} badges (${lockedCount} locked)` : `See all ${ALL_BADGES.length} badges`} ↓</>
+        }
       </button>
 
-      {/* Full badge grid */}
       {showAll && (
         <div className="grid grid-cols-5 sm:grid-cols-7 gap-3 mt-4">
           {ALL_BADGES.map(badge => {
@@ -273,39 +252,39 @@ export default function BadgeShelf() {
             const progressLabel = meta.field !== 'binary'
               ? `${fmtProgress(Math.min(current, meta.threshold))}/${meta.threshold}`
               : null;
+            const Icon = badge.icon;
 
             return (
               <div key={badge.key} className="flex flex-col items-center gap-1 group relative">
-                {/* Badge icon + ring */}
                 <div className="relative w-12 h-12">
                   {!unlocked && meta.field !== 'binary' && (
                     <ProgressRing progressPct={progressPct} size={48} />
                   )}
                   <div
-                    className={`w-full h-full rounded-xl flex items-center justify-center text-xl transition-all ${
+                    className={`w-full h-full rounded-xl flex items-center justify-center transition-all ${
                       unlocked
                         ? 'bg-overseez-blue/15 border border-overseez-blue/30'
-                        : 'bg-muted/40 border border-border opacity-40 grayscale'
+                        : 'bg-muted/40 border border-border opacity-40'
                     }`}
                     title={badge.name}
                   >
-                    {badge.emoji}
+                    <Icon className={`w-5 h-5 ${unlocked ? 'text-overseez-gold' : 'text-muted-foreground'}`} />
                   </div>
                 </div>
 
-                {/* Name */}
                 <span className={`text-[9px] text-center leading-tight max-w-[48px] ${unlocked ? 'text-foreground/70' : 'text-muted-foreground/40'}`}>
                   {badge.name}
                 </span>
 
-                {/* Progress label for locked numeric badges */}
                 {!unlocked && progressLabel && (
                   <span className="text-[8px] text-muted-foreground/50 tabular-nums">{progressLabel}</span>
                 )}
 
                 {/* Hover tooltip */}
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-popover border border-border rounded-lg px-2 py-1.5 text-xs text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 shadow-lg transition-opacity">
-                  <p className="font-medium">{badge.emoji} {badge.name}</p>
+                  <p className="font-medium flex items-center gap-1">
+                    <Icon className="w-3 h-3 text-overseez-gold" /> {badge.name}
+                  </p>
                   <p className="text-muted-foreground text-[10px]">{badge.description}</p>
                   {!unlocked && progressLabel && (
                     <p className="text-[10px] text-overseez-blue mt-0.5">Progress: {progressLabel}</p>

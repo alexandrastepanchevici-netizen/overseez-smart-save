@@ -90,14 +90,19 @@ export type Database = {
           full_name: string
           id: string
           last_active_date: string | null
+          last_week_recorded: number | null
           longest_streak: number | null
           monthly_saved: number
           nickname: string
           referral_count: number | null
           referred_by: string | null
+          search_cooldown_bonus_at: string | null
+          search_cooldown_bonus_hours: number
+          top3_weekly_count: number
           total_saved: number
           updated_at: string
           user_id: string
+          weekly_rank: number | null
           weekly_saved: number
         }
         Insert: {
@@ -109,14 +114,19 @@ export type Database = {
           full_name: string
           id?: string
           last_active_date?: string | null
+          last_week_recorded?: number | null
           longest_streak?: number | null
           monthly_saved?: number
           nickname: string
           referral_count?: number | null
           referred_by?: string | null
+          search_cooldown_bonus_at?: string | null
+          search_cooldown_bonus_hours?: number
+          top3_weekly_count?: number
           total_saved?: number
           updated_at?: string
           user_id: string
+          weekly_rank?: number | null
           weekly_saved?: number
         }
         Update: {
@@ -128,14 +138,19 @@ export type Database = {
           full_name?: string
           id?: string
           last_active_date?: string | null
+          last_week_recorded?: number | null
           longest_streak?: number | null
           monthly_saved?: number
           nickname?: string
           referral_count?: number | null
           referred_by?: string | null
+          search_cooldown_bonus_at?: string | null
+          search_cooldown_bonus_hours?: number
+          top3_weekly_count?: number
           total_saved?: number
           updated_at?: string
           user_id?: string
+          weekly_rank?: number | null
           weekly_saved?: number
         }
         Relationships: []
@@ -205,7 +220,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_search_leaderboard: {
+        Args: { period: string; lim?: number }
+        Returns: { rank: number; user_id: string; nickname: string; avatar_url: string | null; search_count: number }[]
+      }
+      get_savings_leaderboard: {
+        Args: { period: string; lim?: number }
+        Returns: { rank: number; user_id: string; nickname: string; avatar_url: string | null; amount_saved: number; currency: string }[]
+      }
+      get_last_week_savings_leaderboard: {
+        Args: { lim?: number }
+        Returns: { rank: number; user_id: string; nickname: string; avatar_url: string | null; amount_saved: number; currency: string }[]
+      }
+      record_weekly_finish: {
+        Args: { p_user_id: string; p_rank: number }
+        Returns: undefined
+      }
+      consume_cooldown_bonus: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      reset_weekly_ranks: {
+        Args: Record<string, never>
+        Returns: undefined
+      }
+      increment_profile_xp: {
+        Args: { p_user_id: string; p_amount: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

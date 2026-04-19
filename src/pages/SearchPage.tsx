@@ -169,19 +169,31 @@ export default function SearchPage() {
       });
   }, [user, result, subscribed]);
 
+  // Tiered cooldown bonus from leaderboard finish
+  const bonusHours   = (profile as any)?.search_cooldown_bonus_hours ?? 0;
+  const hasCooldownBonus =
+    (profile as any)?.search_cooldown_bonus_at != null &&
+    new Date((profile as any).search_cooldown_bonus_at) > new Date() &&
+    bonusHours > 0;
+  const cooldownMs = hasCooldownBonus ? (24 - bonusHours) * 3600000 : 24 * 3600000;
+
   // Live countdown timer
   useEffect(() => {
     if (subscribed || oldestUsageTime === null || usageLeft >= FREE_LIMIT) {
       setResetCountdown('');
       return;
     }
-    const resetAt = oldestUsageTime + 24 * 3600000;
+    const resetAt = oldestUsageTime + cooldownMs;
     const tick = () => {
       const remaining = resetAt - Date.now();
       if (remaining <= 0) {
         setResetCountdown('');
         setUsageLeft(prev => Math.min(FREE_LIMIT, prev + 1));
         setOldestUsageTime(null);
+        // Consume the bonus now that the reduced reset has fired
+        if (hasCooldownBonus && user) {
+          supabase.rpc('consume_cooldown_bonus', { p_user_id: user.id } as any);
+        }
         return;
       }
       setResetCountdown(formatCountdown(remaining));
@@ -189,7 +201,7 @@ export default function SearchPage() {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [oldestUsageTime, subscribed, usageLeft]);
+  }, [oldestUsageTime, subscribed, usageLeft, cooldownMs]);
 
   // Load user goals when spend modal opens
   useEffect(() => {

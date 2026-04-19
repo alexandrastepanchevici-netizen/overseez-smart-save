@@ -7,6 +7,7 @@ import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import PageTransition from "@/components/PageTransition";
 import BadgeUnlockCelebration from "@/components/BadgeUnlockCelebration";
+import WeeklyFinishReveal from "@/components/WeeklyFinishReveal";
 import StreakMilestoneCelebration from "@/components/StreakMilestoneCelebration";
 import SplashScreen from "@/components/SplashScreen";
 import Index from "./pages/Index";
@@ -20,6 +21,7 @@ import Terms from "./pages/Terms";
 import NotFound from "./pages/NotFound";
 import Movement from "./pages/Movement";
 import StreakPage from "./pages/StreakPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 
 // Capture referral param from ?ref=NICKNAME (before the #) and persist to localStorage
 const refParam = new URLSearchParams(window.location.search).get('ref');
@@ -55,6 +57,7 @@ const App = () => (
           <DeepLinkHandler />
           <AppInner />
           <BadgeUnlockCelebration />
+          <WeeklyFinishReveal />
           <StreakMilestoneCelebration />
           <PageTransition>
           <Routes>
@@ -68,6 +71,7 @@ const App = () => (
             <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
             <Route path="/movement" element={<Movement />} />
             <Route path="/streak" element={<ProtectedRoute><StreakPage /></ProtectedRoute>} />
+            <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
             <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
