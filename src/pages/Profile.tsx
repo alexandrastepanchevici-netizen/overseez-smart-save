@@ -8,7 +8,7 @@ import GoalCard from '@/components/GoalCard';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import ProfileFrameSheet from '@/components/ProfileFrameSheet';
 import FriendsList from '@/components/FriendsList';
-import { Calendar, Wallet, Star, Shield, Flame, X, Loader2, User, Users } from 'lucide-react';
+import { Calendar, Wallet, Star, Shield, Flame, X, Loader2, User, Users, Camera } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useXP } from '@/hooks/useXP';
