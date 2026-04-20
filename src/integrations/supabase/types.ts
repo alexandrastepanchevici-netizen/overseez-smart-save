@@ -188,6 +188,48 @@ export type Database = {
         }
         Relationships: []
       }
+      saving_list_items: {
+        Row: {
+          average_price: number | null
+          city: string | null
+          created_at: string | null
+          currency: string | null
+          displayed_price: number | null
+          expires_at: string
+          id: string
+          notified_expiry: boolean | null
+          search_query: string | null
+          store_name: string
+          user_id: string
+        }
+        Insert: {
+          average_price?: number | null
+          city?: string | null
+          created_at?: string | null
+          currency?: string | null
+          displayed_price?: number | null
+          expires_at?: string
+          id?: string
+          notified_expiry?: boolean | null
+          search_query?: string | null
+          store_name: string
+          user_id: string
+        }
+        Update: {
+          average_price?: number | null
+          city?: string | null
+          created_at?: string | null
+          currency?: string | null
+          displayed_price?: number | null
+          expires_at?: string
+          id?: string
+          notified_expiry?: boolean | null
+          search_query?: string | null
+          store_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       savings_entries: {
         Row: {
           amount_saved: number
