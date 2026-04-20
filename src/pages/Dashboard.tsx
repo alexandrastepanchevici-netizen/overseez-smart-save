@@ -114,7 +114,7 @@ export default function Dashboard() {
     const weekSeed = isoWeek(new Date());
 
     supabase.rpc('get_savings_leaderboard', { period: 'week', lim: 50 }).then(({ data }) => {
-      const entries: Array<{ user_id: string; amount_saved: number; isBot?: boolean }> = (data ?? []).map((r: any) => ({
+      const entries: Array<{ user_id: string; amount_saved: number; isBot?: boolean }> = ((data ?? []) as any[]).map((r: any) => ({
         user_id: r.user_id, amount_saved: Number(r.amount_saved),
       }));
       const botsNeeded = Math.max(0, 20 - entries.length);
