@@ -4,6 +4,7 @@ import { useFriends } from '@/hooks/useFriends';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCurrencySymbol } from '@/components/CurrencySwitcher';
 import { toast } from 'sonner';
+import Mascot from '@/components/Mascot';
 
 function RankBadge({ rank }: { rank: number | null }) {
   if (rank == null) return <span className="text-xs text-muted-foreground">—</span>;
@@ -65,10 +66,8 @@ export default function FriendsList() {
 
   if (friends.length === 0) {
     return (
-      <div className="flex flex-col items-center py-12 text-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-overseez-blue/10 flex items-center justify-center">
-          <Users className="w-8 h-8 text-overseez-blue/60" />
-        </div>
+      <div className="flex flex-col items-center py-8 text-center gap-3">
+        <Mascot pose="shrug" size="lg" />
         <div>
           <p className="font-display font-semibold mb-1">No friends yet</p>
           <p className="text-sm text-muted-foreground max-w-xs">
