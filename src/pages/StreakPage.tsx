@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import AppNav from '@/components/AppNav';
 import StreakCalendar from '@/components/StreakCalendar';
 import type { LucideIcon } from 'lucide-react';
-import Mascot, { streakPose } from '@/components/Mascot';
 
 function MilestoneRow({ icon: Icon, label, reached, detail }: {
   icon:    LucideIcon;
@@ -47,23 +46,15 @@ export default function StreakPage() {
         </button>
 
         {/* Header card */}
-        <div className="bg-card border border-border rounded-2xl p-6 mb-6 text-center flex flex-col items-center">
-          {streak === 0 ? (
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-4 bg-muted/40">
-              <Flame className="w-10 h-10 text-muted-foreground" />
-            </div>
-          ) : (
-            <Mascot pose={streakPose(streak)} size="xl" className="mb-2" />
-          )}
+        <div className="bg-card border border-border rounded-2xl p-6 mb-6 text-center">
+          <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 ${streak > 0 ? 'bg-orange-400/15' : 'bg-muted/40'}`}>
+            <Flame className={`w-10 h-10 ${streak > 0 ? 'text-orange-400' : 'text-muted-foreground'}`} />
+          </div>
           <p className="text-5xl font-display font-bold tracking-tight mb-1">{streak}</p>
           <p className="text-sm text-muted-foreground mb-4">day streak{streak !== 1 ? 's' : ''}</p>
           {streak === 0 ? (
             <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-2 inline-block">
               Make a search today to start your streak
-            </p>
-          ) : streak >= 30 ? (
-            <p className="text-xs text-orange-400 bg-orange-400/10 border border-orange-400/25 rounded-full px-4 py-1.5 inline-block font-medium">
-              Forging legend status — unstoppable!
             </p>
           ) : streak >= 7 ? (
             <p className="text-xs text-overseez-gold bg-overseez-gold/10 border border-overseez-gold/25 rounded-full px-4 py-1.5 inline-block font-medium">

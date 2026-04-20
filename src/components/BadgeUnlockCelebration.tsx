@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Badge } from '@/hooks/useAchievements';
 import { useConfettiParticles } from '@/hooks/useConfettiParticles';
-import Mascot from '@/components/Mascot';
 
 export default function BadgeUnlockCelebration() {
   const [queue, setQueue]     = useState<Badge[]>([]);

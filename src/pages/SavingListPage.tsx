@@ -11,7 +11,6 @@ import { openExternalUrl } from '@/lib/openExternalUrl';
 import { useTranslation } from 'react-i18next';
 import { useXP, XP_EVENTS } from '@/hooks/useXP';
 import { useStreak } from '@/hooks/useStreak';
-import Mascot from '@/components/Mascot';
 
 interface SavingListItem {
   id: string;
@@ -210,8 +209,10 @@ export default function SavingListPage() {
       <div className="max-w-3xl mx-auto px-4 py-6">
         {items.length === 0 ? (
           /* Empty state */
-          <div className="text-center py-12 animate-fade-in-up flex flex-col items-center">
-            <Mascot pose="sleeping" size="lg" className="mb-2" />
+          <div className="text-center py-16 animate-fade-in-up">
+            <div className="w-16 h-16 rounded-full bg-overseez-blue/10 border border-overseez-blue/20 flex items-center justify-center mx-auto mb-4">
+              <ShoppingBag className="w-8 h-8 text-overseez-blue/60" />
+            </div>
             <h2 className="font-display font-semibold text-lg mb-1">{t('savingList.empty')}</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">{t('savingList.emptyPrompt')}</p>
             <div className="flex flex-wrap gap-2 justify-center">
