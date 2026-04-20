@@ -2,73 +2,56 @@ import React, { useRef, useEffect } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useLocation } from 'react-router-dom';
 
-// The 5 main tab routes in left→right order.
-// Navigating to a higher index = slide left (new page comes from right).
-// Navigating to a lower index  = slide right (new page comes from left).
 const MAIN_TABS = ['/dashboard', '/search', '/leaderboard', '/subscription', '/profile'];
-
-// Routes that should slide UP from the bottom as a full-screen panel.
-// Everything else that isn't a main tab gets a plain fade.
 const PANEL_PAGES = ['/streak', '/movement', '/terms'];
 
-interface TransitionConfig {
-  direction: number;       // +1 forward, -1 backward, 0 none
-  isPanel: boolean;        // entering a panel page
-  isClosingPanel: boolean; // leaving a panel page back to a main tab
-}
-
-// Easing curves
 const EASE_OUT = [0.25, 0.46, 0.45, 0.94] as const;
 const EASE_IN  = [0.55, 0, 1, 0.45] as const;
 
+interface TransitionConfig {
+  direction: number;
+  isPanel: boolean;
+  isClosingPanel: boolean;
+}
+
 const pageVariants: import('motion/react').Variants = {
   initial: (cfg: TransitionConfig) => {
-    if (cfg.isPanel)        return { y: '100%', opacity: 1 };
-    if (cfg.isClosingPanel) return { opacity: 0 };
-    if (cfg.direction > 0)  return { x: '42%',  opacity: 0 };
-    if (cfg.direction < 0)  return { x: '-42%', opacity: 0 };
-    return { opacity: 0 };
+    if (cfg.isPanel)        return { y: '100%' };
+    if (cfg.isClosingPanel) return { x: 0 };
+    if (cfg.direction > 0)  return { x: '100%' };
+    if (cfg.direction < 0)  return { x: '-100%' };
+    return { x: 0 };
   },
 
   animate: (cfg: TransitionConfig) => {
     if (cfg.isPanel) {
-      return { y: 0, opacity: 1, transition: { duration: 0.36, ease: EASE_OUT } };
+      return { y: 0, transition: { duration: 0.36, ease: EASE_OUT } };
     }
     if (cfg.isClosingPanel) {
-      // The page behind the closing panel just fades in gently near the end.
-      return { opacity: 1, transition: { duration: 0.18, delay: 0.18, ease: 'easeOut' as const } };
+      return { x: 0, transition: { duration: 0.28, ease: EASE_OUT } };
     }
     if (cfg.direction !== 0) {
-      return { x: 0, opacity: 1, transition: { duration: 0.22, ease: EASE_OUT } };
+      return { x: 0, transition: { duration: 0.28, ease: EASE_OUT } };
     }
-    return { opacity: 1, transition: { duration: 0.1, ease: 'easeOut' as const } };
+    return { x: 0 };
   },
 
   exit: (cfg: TransitionConfig) => {
-    // isClosingPanel: the PANEL page is exiting — slides back down.
     if (cfg.isClosingPanel) {
-      return { y: '100%', opacity: 1, transition: { duration: 0.3, ease: EASE_IN } };
+      return { y: '100%', transition: { duration: 0.3, ease: EASE_IN } };
     }
-    // isPanel: the background page exits quickly so the panel can slide up over it.
     if (cfg.isPanel) {
-      return { opacity: 0, transition: { duration: 0.06 } };
+      return { x: 0, transition: { duration: 0.06 } };
     }
-    if (cfg.direction > 0) {
-      return { x: '-42%', opacity: 0, transition: { duration: 0.15, ease: EASE_IN } };
-    }
-    if (cfg.direction < 0) {
-      return { x: '42%',  opacity: 0, transition: { duration: 0.15, ease: EASE_IN } };
-    }
-    return { opacity: 0, transition: { duration: 0.07, ease: 'easeIn' as const } };
+    if (cfg.direction > 0)  return { x: '-100%', transition: { duration: 0.28, ease: EASE_IN } };
+    if (cfg.direction < 0)  return { x: '100%',  transition: { duration: 0.28, ease: EASE_IN } };
+    return { x: 0 };
   },
 };
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
-  // Track previous pathname in a ref so we can read it synchronously during render.
-  // useEffect fires AFTER the render, so the ref still holds the OLD value
-  // when this render runs — exactly what we need to compute direction.
   const prevPathnameRef = useRef(location.pathname);
   const prevPathname = prevPathnameRef.current;
 
@@ -93,9 +76,7 @@ export default function PageTransition({ children }: { children: React.ReactNode
   const cfg: TransitionConfig = { direction, isPanel, isClosingPanel };
 
   return (
-    // `custom` on AnimatePresence propagates the CURRENT config to the exit
-    // variants of the outgoing element, enabling the correct directional exit.
-    <AnimatePresence mode="wait" custom={cfg} initial={false}>
+    <AnimatePresence mode="popLayout" custom={cfg} initial={false}>
       <motion.div
         key={location.pathname}
         custom={cfg}
@@ -103,8 +84,6 @@ export default function PageTransition({ children }: { children: React.ReactNode
         initial="initial"
         animate="animate"
         exit="exit"
-        // Panel pages render on top; give them a higher stacking order
-        // so they overlay the outgoing page during mode="wait" hand-off.
         style={isPanel ? { position: 'relative', zIndex: 10 } : undefined}
       >
         {children}
