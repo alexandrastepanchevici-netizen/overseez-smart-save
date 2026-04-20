@@ -3,11 +3,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getTipsForCountry } from '@/data/countryTips';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTutorial } from '@/contexts/TutorialContext';
 
 const STORAGE_KEY = 'overseez_welcome_shown';
 
 export default function NewUserWelcome() {
   const { user, profile } = useAuth();
+  const { startTutorial } = useTutorial();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -28,6 +30,9 @@ export default function NewUserWelcome() {
   const handleDismiss = () => {
     localStorage.setItem(STORAGE_KEY, '1');
     setVisible(false);
+    if (!localStorage.getItem('overseez_tutorial_completed')) {
+      startTutorial();
+    }
   };
 
   return (

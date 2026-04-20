@@ -177,7 +177,7 @@ export default function Dashboard() {
       <div className="border-b border-border bg-overseez-mid px-4 sm:px-6 py-3 relative z-[60]">
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 gap-1">
-            <div>
+            <div data-tutorial-id="dashboard-savings">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{t('dashboard.totalSaved')}</p>
               <div className="flex items-center gap-3">
                 <p className="text-2xl font-display font-bold tracking-tight tabular-nums">{sym}{animatedTotal.toFixed(2)}</p>

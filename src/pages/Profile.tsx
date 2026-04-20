@@ -142,7 +142,9 @@ export default function Profile() {
           </div>
         </div>
 
-        <BadgeShelf />
+        <div data-tutorial-id="profile-badge-shelf">
+          <BadgeShelf />
+        </div>
 
         {/* Streak button */}
         <button

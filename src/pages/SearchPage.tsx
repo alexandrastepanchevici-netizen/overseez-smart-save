@@ -15,6 +15,7 @@ import { useAchievements } from '@/hooks/useAchievements';
 import { useHaptics } from '@/hooks/useHaptics';
 import { useXP, XP_EVENTS } from '@/hooks/useXP';
 import { openExternalUrl } from '@/lib/openExternalUrl';
+import { useTutorial } from '@/contexts/TutorialContext';
 
 interface Place {
   rank: number;
@@ -75,7 +76,13 @@ export default function SearchPage() {
   const { checkAchievements } = useAchievements();
   const { tapMedium, tapSuccess } = useHaptics();
   const { addXP } = useXP();
+  const { tutorialQuery } = useTutorial();
   const [query, setQuery] = useState('');
+
+  // Pre-fill search query during tutorial
+  useEffect(() => {
+    if (tutorialQuery) setQuery(tutorialQuery);
+  }, [tutorialQuery]);
   const [bankName, setBankName] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -512,7 +519,7 @@ export default function SearchPage() {
       {/* Search Header */}
       <div className="sticky top-14 z-40 border-b border-border bg-overseez-mid px-4 py-3">
         <div className="max-w-3xl mx-auto flex flex-wrap items-center gap-2">
-          <div className="flex-1 min-w-[200px] flex items-center gap-2 bg-muted/50 border border-border rounded-full px-4 py-2 focus-within:border-foreground/30 focus-within:bg-muted/80 transition-all">
+          <div data-tutorial-id="search-input" className="flex-1 min-w-[200px] flex items-center gap-2 bg-muted/50 border border-border rounded-full px-4 py-2 focus-within:border-foreground/30 focus-within:bg-muted/80 transition-all">
             <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <input ref={inputRef} type="text" value={query} onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && doSearch()}
@@ -532,7 +539,7 @@ export default function SearchPage() {
               placeholder={t('search.yourBank')}
               className="bg-transparent border-none outline-none text-xs text-foreground placeholder:text-muted-foreground w-20" />
           </div>
-          <Button onClick={() => doSearch()} variant="hero" size="sm" disabled={loading || !query.trim()}>
+          <Button data-tutorial-id="search-submit" onClick={() => doSearch()} variant="hero" size="sm" disabled={loading || !query.trim()}>
             {t('search.searchBtn')}
           </Button>
         </div>

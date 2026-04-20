@@ -9,6 +9,8 @@ import PageTransition from "@/components/PageTransition";
 import BadgeUnlockCelebration from "@/components/BadgeUnlockCelebration";
 import WeeklyFinishReveal from "@/components/WeeklyFinishReveal";
 import StreakMilestoneCelebration from "@/components/StreakMilestoneCelebration";
+import { TutorialProvider } from "@/contexts/TutorialContext";
+import TutorialOverlay from "@/components/TutorialOverlay";
 import SplashScreen from "@/components/SplashScreen";
 import Index from "./pages/Index";
 import Register from "./pages/Register";
@@ -54,11 +56,13 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <HashRouter>
+          <TutorialProvider>
           <DeepLinkHandler />
           <AppInner />
           <BadgeUnlockCelebration />
           <WeeklyFinishReveal />
           <StreakMilestoneCelebration />
+          <TutorialOverlay />
           <PageTransition>
           <Routes>
             {/* First screen for unauthenticated users is register */}
@@ -76,6 +80,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           </PageTransition>
+          </TutorialProvider>
         </HashRouter>
       </AuthProvider>
     </TooltipProvider>

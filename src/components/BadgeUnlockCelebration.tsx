@@ -25,7 +25,10 @@ export default function BadgeUnlockCelebration() {
     }
   }, [queue, current]);
 
-  const dismiss = useCallback(() => setCurrent(null), []);
+  const dismiss = useCallback(() => {
+    setCurrent(null);
+    window.dispatchEvent(new CustomEvent('overseez:badge-celebration-done'));
+  }, []);
 
   useEffect(() => {
     if (!current) return;

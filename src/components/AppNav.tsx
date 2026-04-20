@@ -99,6 +99,11 @@ export default function AppNav() {
               const active = location.pathname === link.to;
               return (
                 <Link key={link.to} to={link.to} onClick={() => tapLight()}
+                  data-tutorial-id={
+                    link.to === '/search' ? 'nav-search' :
+                    link.to === '/leaderboard' ? 'nav-leaderboard' :
+                    undefined
+                  }
                   className={`relative flex flex-col items-center gap-1 px-3 py-2 transition-colors ${active ? 'text-overseez-blue' : 'text-muted-foreground'}`}>
                   {active && (
                     <motion.div
