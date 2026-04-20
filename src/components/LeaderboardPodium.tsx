@@ -1,30 +1,23 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Crown, Medal, Award } from 'lucide-react';
-import ProfileAvatar from '@/components/ProfileAvatar';
-import type { LeaderboardEntry, LeaderboardType } from '@/types/leaderboard';
-import { getCurrencySymbol } from '@/components/CurrencySwitcher';
+import type { LeaderboardEntry } from '@/types/leaderboard';
 
 interface LeaderboardPodiumProps {
   first:  LeaderboardEntry;
   second: LeaderboardEntry;
   third:  LeaderboardEntry;
-  type:   LeaderboardType;
 }
 
-function formatScore(entry: LeaderboardEntry, type: LeaderboardType): string {
-  if (type === 'searches') {
-    return `${(entry.searchCount ?? 0).toLocaleString()} searches`;
-  }
-  const sym = getCurrencySymbol(entry.currency ?? 'USD');
-  return `${sym}${(entry.amountSaved ?? 0).toFixed(2)}`;
+function formatScore(entry: LeaderboardEntry): string {
+  const count = entry.saveCount ?? 0;
+  return `${count.toLocaleString()} ${count === 1 ? 'save' : 'saves'}`;
 }
 
 interface PodiumCardProps {
-  entry:  LeaderboardEntry;
-  place:  1 | 2 | 3;
-  type:   LeaderboardType;
-  delay:  number;
+  entry: LeaderboardEntry;
+  place: 1 | 2 | 3;
+  delay: number;
 }
 
 const PLACE_STYLES = {
@@ -51,7 +44,7 @@ const PLACE_STYLES = {
   },
 } as const;
 
-function PodiumCard({ entry, place, type, delay }: PodiumCardProps) {
+function PodiumCard({ entry, place, delay }: PodiumCardProps) {
   const style = PLACE_STYLES[place];
   const Icon = style.icon;
 
@@ -92,7 +85,7 @@ function PodiumCard({ entry, place, type, delay }: PodiumCardProps) {
 
       {/* Score */}
       <p className="text-[10px] text-muted-foreground text-center max-w-[80px] leading-tight">
-        {formatScore(entry, type)}
+        {formatScore(entry)}
       </p>
 
       {/* Podium block */}
@@ -111,13 +104,13 @@ function PodiumCard({ entry, place, type, delay }: PodiumCardProps) {
   );
 }
 
-export default function LeaderboardPodium({ first, second, third, type }: LeaderboardPodiumProps) {
+export default function LeaderboardPodium({ first, second, third }: LeaderboardPodiumProps) {
   return (
     <div className="flex items-end gap-2 mb-6 px-2">
       {/* 2nd | 1st | 3rd */}
-      <PodiumCard entry={second} place={2} type={type} delay={0.12} />
-      <PodiumCard entry={first}  place={1} type={type} delay={0}    />
-      <PodiumCard entry={third}  place={3} type={type} delay={0.22} />
+      <PodiumCard entry={second} place={2} delay={0.12} />
+      <PodiumCard entry={first}  place={1} delay={0}    />
+      <PodiumCard entry={third}  place={3} delay={0.22} />
     </div>
   );
 }

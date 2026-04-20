@@ -1,16 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Trophy } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AppNav from '@/components/AppNav';
 import LeaderboardPodium from '@/components/LeaderboardPodium';
 import LeaderboardList, { LeaderboardListSkeleton } from '@/components/LeaderboardList';
-import { useLeaderboard } from '@/hooks/useLeaderboard';
+// import { useLeaderboard } from '@/hooks/useLeaderboard';
 import { useAuth } from '@/contexts/AuthContext';
+import type { LeaderboardEntry } from '@/types/leaderboard';
+
+// ── MOCK DATA (remove to restore live data) ───────────────────────────────────
+import { fillLeaderboardWithBots } from '@/lib/leaderboardBots';
+
+const MOCK_SAVES: LeaderboardEntry[] = [
+  { rank: 1, userId: 'u1', nickname: 'ShopKing99',    avatarUrl: null, saveCount: 47, isCurrentUser: false },
+  { rank: 2, userId: 'u2', nickname: 'BargainHunter', avatarUrl: null, saveCount: 38, isCurrentUser: true  },
+  { rank: 3, userId: 'u3', nickname: 'DealFinder',    avatarUrl: null, saveCount: 31, isCurrentUser: false },
+  { rank: 4, userId: 'u4', nickname: 'PriceWatcher',  avatarUrl: null, saveCount: 24, isCurrentUser: false },
+  { rank: 5, userId: 'u5', nickname: 'SavvyShopper',  avatarUrl: null, saveCount: 19, isCurrentUser: false },
+];
+function useMockLeaderboard(_period: LeaderboardPeriod) {
+  return { data: fillLeaderboardWithBots(MOCK_SAVES), isLoading: false, error: null };
+}
+// ─────────────────────────────────────────────────────────────────────────────
 import { useAchievements } from '@/hooks/useAchievements';
+import { useFriends } from '@/hooks/useFriends';
 import { supabase } from '@/integrations/supabase/client';
 import { queueWeeklyReveal } from '@/components/WeeklyFinishReveal';
-import type { LeaderboardPeriod, LeaderboardType } from '@/types/leaderboard';
+import type { LeaderboardPeriod } from '@/types/leaderboard';
 
 const PERIOD_LABELS: Record<LeaderboardPeriod, string> = {
   week:  'Weekly',
@@ -30,11 +46,11 @@ function getISOWeek(d: Date): number {
 export default function LeaderboardPage() {
   const { user, profile } = useAuth();
   const { checkAchievements } = useAchievements();
+  const { friendIds, addFriend } = useFriends();
 
-  const [type,   setType]   = useState<LeaderboardType>('searches');
   const [period, setPeriod] = useState<LeaderboardPeriod>('week');
 
-  const { data, isLoading, error } = useLeaderboard(type, period);
+  const { data, isLoading, error } = useMockLeaderboard(period);
 
   // Weekly finish recording (client-side trigger)
   useEffect(() => {
@@ -47,7 +63,7 @@ export default function LeaderboardPage() {
     if (lastRecorded === currentWeek - 1 || lastRecorded === currentWeek) return;
 
     (async () => {
-      const { data: lastWeekData } = await (supabase.rpc as any)('get_last_week_savings_leaderboard', { lim: 200 });
+      const { data: lastWeekData } = await supabase.rpc('get_last_week_saves_leaderboard', { lim: 200 });
       if (lastWeekData) {
         const myRow = (lastWeekData as any[]).find((r: any) => r.user_id === user.id);
         if (myRow) {
@@ -87,14 +103,6 @@ export default function LeaderboardPage() {
           Leaderboard
         </h1>
 
-        {/* Type tabs */}
-        <Tabs value={type} onValueChange={v => setType(v as LeaderboardType)} className="mb-4">
-          <TabsList className="w-full">
-            <TabsTrigger value="searches" className="flex-1">Searches</TabsTrigger>
-            <TabsTrigger value="savings"  className="flex-1">Savings</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
         {/* Period pills */}
         <div className="flex gap-2 mb-6">
           {(['week', 'month', 'year'] as const).map(p => (
@@ -112,17 +120,10 @@ export default function LeaderboardPage() {
           ))}
         </div>
 
-        {/* Currency note for savings leaderboard */}
-        {type === 'savings' && (
-          <p className="text-[11px] text-muted-foreground mb-4">
-            Amounts shown in each user's own currency.
-          </p>
-        )}
-
-        {/* Content — animated on tab change */}
+        {/* Content — animated on period change */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${type}-${period}`}
+            key={period}
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}
@@ -142,7 +143,7 @@ export default function LeaderboardPage() {
                 <Trophy className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
                 <p className="font-display font-semibold mb-1">No data yet</p>
                 <p className="text-sm text-muted-foreground">
-                  Be the first to climb the leaderboard this {PERIOD_LABELS[period].toLowerCase()}.
+                  Be the first to log a save this {PERIOD_LABELS[period].toLowerCase()}.
                 </p>
               </div>
             )}
@@ -154,13 +155,13 @@ export default function LeaderboardPage() {
                     first={podiumEntries[0]}
                     second={podiumEntries[1]}
                     third={podiumEntries[2]}
-                    type={type}
                   />
                 )}
                 <LeaderboardList
                   entries={listEntries}
-                  type={type}
                   currentUserRank={currentUserRank}
+                  friendIds={friendIds}
+                  onAddFriend={addFriend}
                 />
               </>
             )}

@@ -7,7 +7,8 @@ import BadgeShelf from '@/components/BadgeShelf';
 import GoalCard from '@/components/GoalCard';
 import ProfileAvatar from '@/components/ProfileAvatar';
 import ProfileFrameSheet from '@/components/ProfileFrameSheet';
-import { Calendar, Wallet, Star, Shield, Flame, X, Loader2, User, Camera } from 'lucide-react';
+import FriendsList from '@/components/FriendsList';
+import { Calendar, Wallet, Star, Shield, Flame, X, Loader2, User, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useXP } from '@/hooks/useXP';
@@ -32,6 +33,7 @@ export default function Profile() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [frameSheetOpen, setFrameSheetOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'profile' | 'friends'>('profile');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const openEdit = () => {
@@ -92,7 +94,39 @@ export default function Profile() {
     <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
       <AppNav />
       <div className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-display font-bold tracking-tight mb-6">{t('profile.title')}</h1>
+        <h1 className="text-2xl font-display font-bold tracking-tight mb-4">{t('profile.title')}</h1>
+
+        {/* Tab switcher */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setActiveTab('profile')}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'profile'
+                ? 'bg-overseez-blue text-white'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <User className="w-3.5 h-3.5" />
+            Profile
+          </button>
+          <button
+            onClick={() => setActiveTab('friends')}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              activeTab === 'friends'
+                ? 'bg-overseez-blue text-white'
+                : 'bg-muted text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            Friends
+          </button>
+        </div>
+
+        {/* Friends tab */}
+        {activeTab === 'friends' && <FriendsList />}
+
+        {/* Profile tab content */}
+        {activeTab === 'profile' && <>
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
@@ -206,6 +240,8 @@ export default function Profile() {
           <h3 className="font-display font-semibold mb-4">{t('feedback.title')}</h3>
           <ReviewSection />
         </div>
+
+        </>}
       </div>
 
       {/* Edit profile modal */}

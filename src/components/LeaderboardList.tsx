@@ -1,22 +1,20 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { UserPlus, Check } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { LeaderboardEntry, LeaderboardType } from '@/types/leaderboard';
-import { getCurrencySymbol } from '@/components/CurrencySwitcher';
+import type { LeaderboardEntry } from '@/types/leaderboard';
 
 interface LeaderboardListProps {
   entries:         LeaderboardEntry[];
-  type:            LeaderboardType;
   currentUserRank: number | undefined;
   isLoading?:      boolean;
+  friendIds?:      Set<string>;
+  onAddFriend?:    (userId: string) => void;
 }
 
-function formatScore(entry: LeaderboardEntry, type: LeaderboardType): string {
-  if (type === 'searches') {
-    return `${(entry.searchCount ?? 0).toLocaleString()} searches`;
-  }
-  const sym = getCurrencySymbol(entry.currency ?? 'USD');
-  return `${sym}${(entry.amountSaved ?? 0).toFixed(2)}`;
+function formatScore(entry: LeaderboardEntry): string {
+  const count = entry.saveCount ?? 0;
+  return `${count.toLocaleString()} ${count === 1 ? 'save' : 'saves'}`;
 }
 
 const containerVariants = {
@@ -68,7 +66,7 @@ export function LeaderboardListSkeleton() {
   );
 }
 
-export default function LeaderboardList({ entries, type, currentUserRank, isLoading }: LeaderboardListProps) {
+export default function LeaderboardList({ entries, currentUserRank, isLoading, friendIds, onAddFriend }: LeaderboardListProps) {
   if (isLoading) return <LeaderboardListSkeleton />;
 
   return (
@@ -78,29 +76,51 @@ export default function LeaderboardList({ entries, type, currentUserRank, isLoad
       initial="hidden"
       animate="show"
     >
-      {entries.map(entry => (
-        <motion.div
-          key={entry.isBot ? `bot-${entry.userId}` : entry.userId}
-          variants={rowVariants}
-          className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-colors ${
-            entry.isCurrentUser
-              ? 'bg-overseez-blue/10 border border-overseez-blue/30'
-              : 'bg-card border border-border'
-          }`}
-        >
-          <RankBadge rank={entry.rank} />
-          <AvatarThumb avatarUrl={entry.avatarUrl} nickname={entry.nickname} />
-          <span className="flex-1 text-sm font-medium truncate">
-            {entry.nickname}
-            {entry.isCurrentUser && (
-              <span className="ml-1.5 text-[10px] text-overseez-blue font-semibold">You</span>
+      {entries.map(entry => {
+        const isFriend = !entry.isBot && !!friendIds?.has(entry.userId);
+        const canAdd   = !entry.isCurrentUser && !entry.isBot && !!onAddFriend;
+        return (
+          <motion.div
+            key={entry.isBot ? `bot-${entry.userId}` : entry.userId}
+            variants={rowVariants}
+            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-colors ${
+              entry.isCurrentUser
+                ? 'bg-overseez-blue/10 border border-overseez-blue/30'
+                : 'bg-card border border-border'
+            }`}
+          >
+            <RankBadge rank={entry.rank} />
+            <AvatarThumb avatarUrl={entry.avatarUrl} nickname={entry.nickname} />
+            <span className="flex-1 text-sm font-medium truncate">
+              {entry.nickname}
+              {entry.isCurrentUser && (
+                <span className="ml-1.5 text-[10px] text-overseez-blue font-semibold">You</span>
+              )}
+              {isFriend && (
+                <span className="ml-1.5 text-[10px] text-emerald-500 font-semibold">Friend</span>
+              )}
+            </span>
+            <span className="text-xs text-muted-foreground tabular-nums text-right flex-shrink-0">
+              {formatScore(entry)}
+            </span>
+            {canAdd && (
+              isFriend ? (
+                <div className="w-7 h-7 rounded-full flex items-center justify-center bg-emerald-500/10 flex-shrink-0">
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                </div>
+              ) : (
+                <button
+                  onClick={() => onAddFriend(entry.userId)}
+                  className="w-7 h-7 rounded-full flex items-center justify-center bg-overseez-blue/10 hover:bg-overseez-blue/20 transition-colors flex-shrink-0"
+                  title={`Add ${entry.nickname} as friend`}
+                >
+                  <UserPlus className="w-3.5 h-3.5 text-overseez-blue" />
+                </button>
+              )
             )}
-          </span>
-          <span className="text-xs text-muted-foreground tabular-nums text-right flex-shrink-0">
-            {formatScore(entry, type)}
-          </span>
-        </motion.div>
-      ))}
+          </motion.div>
+        );
+      })}
     </motion.div>
   );
 }

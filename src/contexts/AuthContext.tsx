@@ -47,7 +47,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .select('*')
       .eq('user_id', userId)
       .single();
-    if (data) setProfile(data as unknown as Profile);
+    if (data) {
+      setProfile(data as unknown as Profile);
+
+      // Auto-create bi-directional friendship when a referred user first loads
+      const referredBy = (data as any).referred_by as string | null;
+      if (referredBy) {
+        const { data: referrerProfile } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('nickname', referredBy)
+          .single();
+
+        if (referrerProfile?.user_id && referrerProfile.user_id !== userId) {
+          // Insert both directions; unique constraint silently ignores duplicates
+          await supabase.from('friendships').upsert(
+            [
+              { user_id: userId, friend_id: referrerProfile.user_id },
+              { user_id: referrerProfile.user_id, friend_id: userId },
+            ] as any,
+            { onConflict: 'user_id,friend_id', ignoreDuplicates: true }
+          );
+        }
+      }
+    }
   };
 
   const refreshProfile = async () => {
