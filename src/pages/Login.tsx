@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import OverseezLogo from '@/components/OverseezLogo';
-import Mascot from '@/components/Mascot';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 
@@ -35,9 +34,8 @@ export default function Login() {
     <div className="min-h-screen overseez-gradient-hero flex items-center justify-center p-4 relative">
       <div className="absolute top-4 right-4 z-50"><LanguageSwitcher /></div>
       <div className="w-full max-w-md animate-fade-in-up">
-        <div className="text-center mb-6">
-          <Mascot pose="laptop" size={150} className="mx-auto mb-2" />
-          <OverseezLogo size={96} className="mx-auto mb-3" color="white" />
+        <div className="text-center mb-8">
+          <OverseezLogo size={112} className="mx-auto mb-3" color="white" />
           <h1 className="text-3xl font-display font-bold tracking-tight">{t('login.title')}</h1>
           <p className="text-muted-foreground mt-2 text-sm">{t('login.subtitle')}</p>
         </div>

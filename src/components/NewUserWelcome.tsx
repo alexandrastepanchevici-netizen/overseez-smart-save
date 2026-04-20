@@ -4,7 +4,6 @@ import { getTipsForCountry } from '@/data/countryTips';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTutorial } from '@/contexts/TutorialContext';
-import Mascot from '@/components/Mascot';
 
 const STORAGE_KEY = 'overseez_welcome_shown';
 
@@ -38,12 +37,8 @@ export default function NewUserWelcome() {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl animate-fade-in relative">
-        {/* Mascot peeking from above the card */}
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 pointer-events-none">
-          <Mascot pose="hero" size={140} />
-        </div>
-        <div className="flex items-start justify-between mb-4 mt-8">
+      <div className="w-full max-w-md bg-card border border-border rounded-2xl p-6 shadow-2xl animate-fade-in">
+        <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="text-xl font-display font-bold">Welcome to Overseez!</h2>
             <p className="text-sm text-muted-foreground mt-1">Here are some quick tips for saving in your area:</p>

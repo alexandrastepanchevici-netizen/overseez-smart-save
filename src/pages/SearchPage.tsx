@@ -16,7 +16,6 @@ import { useHaptics } from '@/hooks/useHaptics';
 import { useXP, XP_EVENTS } from '@/hooks/useXP';
 import { openExternalUrl } from '@/lib/openExternalUrl';
 import { useTutorial } from '@/contexts/TutorialContext';
-import Mascot from '@/components/Mascot';
 
 interface Place {
   rank: number;
@@ -650,8 +649,7 @@ export default function SearchPage() {
 
         {/* Welcome State */}
         {!loading && !result && !error && (
-          <div className="text-center py-10 animate-fade-in-up">
-            <Mascot pose="map" size={200} className="mx-auto mb-4" />
+          <div className="text-center py-16 animate-fade-in-up">
             <h2 className="text-4xl font-display font-bold tracking-tight mb-3 overseez-text-gradient">{t('search.overseezAI')}</h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
               {t('search.welcomeDesc', { currency: displayCurrency })}
