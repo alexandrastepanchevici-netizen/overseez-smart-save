@@ -63,7 +63,7 @@ export default function LeaderboardPage() {
     if (lastRecorded === currentWeek - 1 || lastRecorded === currentWeek) return;
 
     (async () => {
-      const { data: lastWeekData } = await supabase.rpc('get_last_week_saves_leaderboard', { lim: 200 });
+      const { data: lastWeekData } = await (supabase.rpc as any)('get_last_week_saves_leaderboard', { lim: 200 });
       if (lastWeekData) {
         const myRow = (lastWeekData as any[]).find((r: any) => r.user_id === user.id);
         if (myRow) {
