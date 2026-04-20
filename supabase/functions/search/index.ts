@@ -38,7 +38,8 @@ serve(async (req) => {
             role: "user",
             content: `You are a banking fee reference assistant. Bank name: "${bankName}".
 Return ONLY this JSON (no markdown, no extra text):
-{"bankName":"Full official bank name","overseasFeePercent":2.99,"feeDescription":"One sentence describing the overseas/foreign transaction fee."}`
+{"bankName":"Full official bank name","bankCountryCode":"GB","overseasFeePercent":2.99,"feeDescription":"One sentence describing the overseas/foreign transaction fee."}
+bankCountryCode must be the ISO 3166-1 alpha-2 country code of the country where this bank is headquartered/originates from (e.g. "GB" for UK banks, "US" for US banks, "DE" for German banks).`
           }],
           tools: [{
             type: "function",
@@ -49,10 +50,11 @@ Return ONLY this JSON (no markdown, no extra text):
                 type: "object",
                 properties: {
                   bankName: { type: "string" },
+                  bankCountryCode: { type: "string", description: "ISO 3166-1 alpha-2 country code of the bank's home country" },
                   overseasFeePercent: { type: "number" },
                   feeDescription: { type: "string" },
                 },
-                required: ["bankName", "overseasFeePercent", "feeDescription"],
+                required: ["bankName", "bankCountryCode", "overseasFeePercent", "feeDescription"],
                 additionalProperties: false,
               }
             }

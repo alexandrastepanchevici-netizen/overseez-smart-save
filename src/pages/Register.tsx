@@ -515,12 +515,11 @@ function Step4({ city, destCurrency, originCountry, onNext }: {
   const [visible, setVisible] = useState(false);
   const [btnVisible, setBtnVisible] = useState(false);
 
-  const destSym = getCurrencySymbol(destCurrency);
   const homeCurrency = originCountry?.currency || 'USD';
   const homeSym = getCurrencySymbol(homeCurrency);
-  const destAmount = 50;
-  const homeAmount = convertCurrency(destAmount, destCurrency, homeCurrency);
   const avgSavings = getCityAvgSavings(city);
+  const monthlyLossHome = convertCurrency(avgSavings, destCurrency, homeCurrency);
+  const yearlySavingsHome = convertCurrency(avgSavings * 12, destCurrency, homeCurrency);
 
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), 400);
@@ -529,7 +528,6 @@ function Step4({ city, destCurrency, originCountry, onNext }: {
   }, []);
 
   const cityLabel = city || 'your area';
-  const cityFlag = city ? '🇬🇧' : '🌍';
 
   return (
     <>
@@ -537,25 +535,25 @@ function Step4({ city, destCurrency, originCountry, onNext }: {
 
       <div className={`transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="bg-card border border-border rounded-xl p-5 text-center">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2">
-              {originCountry?.flag} At home
+          <div className="bg-overseez-red/10 border border-overseez-red/30 rounded-xl p-5 text-center">
+            <p className="text-[11px] uppercase tracking-wider text-overseez-red font-medium mb-2">
+              Without Overseez
             </p>
-            <p className="text-2xl font-display font-bold">{homeSym}{homeAmount.toFixed(0)}</p>
-            <p className="text-xs text-muted-foreground mt-1">equiv. {destSym}{destAmount} locally</p>
+            <p className="text-2xl font-display font-bold text-overseez-red">{homeSym}{monthlyLossHome.toFixed(0)}<span className="text-sm font-normal">/month</span></p>
+            <p className="text-xs text-muted-foreground mt-1">lost to the foreigner tax</p>
           </div>
           <div className="bg-overseez-blue/10 border border-overseez-blue/30 rounded-xl p-5 text-center">
             <p className="text-[11px] uppercase tracking-wider text-overseez-blue font-medium mb-2">
-              {cityFlag} In {cityLabel}
+              With Overseez
             </p>
-            <p className="text-2xl font-display font-bold text-overseez-blue">{destSym}{destAmount}</p>
-            <p className="text-xs text-muted-foreground mt-1">for the same groceries</p>
+            <p className="text-2xl font-display font-bold text-overseez-blue">{homeSym}{yearlySavingsHome.toFixed(0)}<span className="text-sm font-normal">/year</span></p>
+            <p className="text-xs text-muted-foreground mt-1">back in your pocket</p>
           </div>
         </div>
 
         <div className="bg-overseez-green/10 border border-overseez-green/25 rounded-xl p-4 mb-6 text-center">
           <p className="text-xs text-muted-foreground mb-1">People in {cityLabel} save an average of</p>
-          <p className="text-2xl font-display font-bold text-overseez-green">{destSym}{avgSavings}/month</p>
+          <p className="text-2xl font-display font-bold text-overseez-green">{homeSym}{monthlyLossHome.toFixed(0)}/month</p>
           <p className="text-xs text-muted-foreground mt-1">using Overseez to find better prices</p>
         </div>
       </div>

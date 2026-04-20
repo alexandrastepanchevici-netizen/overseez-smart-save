@@ -496,6 +496,14 @@ export default function SearchPage() {
   };
 
   const bankFeeRate = bankInfo ? (bankInfo.overseasFeePercent || 0) / 100 : 0;
+  // Only show abroad fees when the user is outside the bank's home country,
+  // or when they've searched a custom city (implying they're looking at a different location).
+  const showAbroadFees = bankInfo && bankFeeRate > 0 && (
+    useCustomLoc ||
+    !loc?.cc ||
+    !bankInfo.bankCountryCode ||
+    loc.cc !== bankInfo.bankCountryCode
+  );
 
   return (
     <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
@@ -576,7 +584,7 @@ export default function SearchPage() {
         </div>
 
         {/* Bank Notice */}
-        {bankInfo && (
+        {showAbroadFees && (
           <div className="bg-overseez-gold/10 border border-overseez-gold/25 rounded-lg px-4 py-2.5 mb-4 text-xs text-overseez-gold flex items-center gap-2">
             <Building2 className="w-3.5 h-3.5 flex-shrink-0" /> <strong>{bankInfo.bankName}</strong> {t('search.overseasFee')}: <strong>{bankInfo.overseasFeePercent}%</strong> — {bankInfo.feeDescription}
           </div>
@@ -737,7 +745,7 @@ export default function SearchPage() {
                         {place.expires && (
                           <p className="text-[11px] text-overseez-gold/80 italic mt-1 flex items-center gap-1"><Clock className="w-3 h-3" /> {place.expires}</p>
                         )}
-                        {bankFeeRate > 0 && (
+                        {showAbroadFees && (
                           <div className="text-[11px] text-overseez-gold bg-overseez-gold/8 rounded px-2 py-1 mt-1.5 border border-overseez-gold/15">
                             + {currencySymbol}{feeAmount.toFixed(2)} {t('search.overseasFee')} = <strong>{currencySymbol}{effectivePrice.toFixed(2)} {t('search.trueCost')}</strong>
                           </div>
@@ -749,7 +757,7 @@ export default function SearchPage() {
                         {place.isSale && displayedOriginalPrice != null && (
                           <p className="text-xs text-muted-foreground/40 line-through">{currencySymbol}{displayedOriginalPrice.toFixed(2)}</p>
                         )}
-                        {bankFeeRate > 0 && (
+                        {showAbroadFees && (
                           <p className="text-xs text-overseez-gold font-semibold">{t('search.bankFee')} {currencySymbol}{effectivePrice.toFixed(2)}</p>
                         )}
                         {saving > 0 && <p className="text-xs font-semibold mt-0.5 text-overseez-green">▼ {currencySymbol}{saving.toFixed(2)}</p>}
