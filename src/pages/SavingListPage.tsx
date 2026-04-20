@@ -75,7 +75,7 @@ export default function SavingListPage() {
       .gt('expires_at', new Date().toISOString())
       .order('created_at', { ascending: false })
       .then(({ data }) => {
-        setItems((data as SavingListItem[]) || []);
+        setItems((data as unknown as SavingListItem[]) || []);
         setLoading(false);
       });
   }, [user]);
