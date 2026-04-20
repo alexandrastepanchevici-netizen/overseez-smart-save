@@ -47,12 +47,12 @@ export default function LeaderboardPage() {
     if (lastRecorded === currentWeek - 1 || lastRecorded === currentWeek) return;
 
     (async () => {
-      const { data: lastWeekData } = await supabase.rpc('get_last_week_savings_leaderboard', { lim: 200 });
+      const { data: lastWeekData } = await (supabase.rpc as any)('get_last_week_savings_leaderboard', { lim: 200 });
       if (lastWeekData) {
         const myRow = (lastWeekData as any[]).find((r: any) => r.user_id === user.id);
         if (myRow) {
           const rank = Number(myRow.rank);
-          await supabase.rpc('record_weekly_finish', { p_user_id: user.id, p_rank: rank });
+          await (supabase.rpc as any)('record_weekly_finish', { p_user_id: user.id, p_rank: rank });
           if (rank <= 3) {
             queueWeeklyReveal(Math.min(rank, 3) as 1 | 2 | 3);
           }

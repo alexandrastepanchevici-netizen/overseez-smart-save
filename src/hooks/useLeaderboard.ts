@@ -18,7 +18,7 @@ export function useLeaderboard(type: LeaderboardType, period: LeaderboardPeriod)
     enabled:   !!user,
     queryFn:   async () => {
       if (type === 'searches') {
-        const { data, error } = await supabase.rpc('get_search_leaderboard', { period, lim: 50 });
+        const { data, error } = await (supabase.rpc as any)('get_search_leaderboard', { period, lim: 50 });
         if (error) throw error;
         return (data ?? []).map((row: any) => ({
           rank:          Number(row.rank),
@@ -29,7 +29,7 @@ export function useLeaderboard(type: LeaderboardType, period: LeaderboardPeriod)
           isCurrentUser: row.user_id === user?.id,
         }));
       } else {
-        const { data, error } = await supabase.rpc('get_savings_leaderboard', { period, lim: 50 });
+        const { data, error } = await (supabase.rpc as any)('get_savings_leaderboard', { period, lim: 50 });
         if (error) throw error;
         return (data ?? []).map((row: any) => ({
           rank:          Number(row.rank),

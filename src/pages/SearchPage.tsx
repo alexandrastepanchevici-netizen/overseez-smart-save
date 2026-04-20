@@ -199,7 +199,7 @@ export default function SearchPage() {
         setOldestUsageTime(null);
         // Consume the bonus now that the reduced reset has fired
         if (hasCooldownBonus && user) {
-          supabase.rpc('consume_cooldown_bonus', { p_user_id: user.id } as any);
+          (supabase.rpc as any)('consume_cooldown_bonus', { p_user_id: user.id });
         }
         return;
       }
