@@ -8,6 +8,7 @@ import AnimatedCounter from '@/components/AnimatedCounter';
 import { ArrowRight } from 'lucide-react';
 import GlobeComponent from '@/components/ui/globe';
 import { useTranslation } from 'react-i18next';
+import Mascot from '@/components/Mascot';
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
