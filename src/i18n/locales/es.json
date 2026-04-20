@@ -175,7 +175,8 @@
     "sale": "OFERTA",
     "saveVsAvg": "Ahorra {{amount}} vs prom.",
     "viewOnMaps": "Ver en Maps",
-    "iSavedHere": "Ahorré aquí",
+    ""iSavedHere": "Ahorré aquí",
+    "addToSavingList": "Add to Saving List",
     "overseasFee": "comisión exterior",
     "trueCost": "costo real",
     "bankFee": "comisión:",
@@ -314,6 +315,16 @@
     "s7Text": "Todo el contenido, diseño y tecnología de Overseez están protegidos por derechos de autor.",
     "s8Title": "8. Cambios en los términos",
     "s8Text": "Overseez se reserva el derecho de modificar estos términos en cualquier momento."
+  },
+  "savingList": {
+    "title": "Saving List",
+    "subtitle": "Items expire 1 week after being added",
+    "dashboardDesc": "Places you want to buy from later",
+    "empty": "Your list is empty",
+    "emptyPrompt": "Search for something to save — try one of these:",
+    "addedConfirm": "Added to your saving list!",
+    "viewList": "View List",
+    "iSavedHere": "I Saved Here"
   },
   "notFound": {
     "title": "404",

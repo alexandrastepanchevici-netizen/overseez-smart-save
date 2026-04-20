@@ -175,7 +175,8 @@
     "sale": "PROMO",
     "saveVsAvg": "Économisez {{amount}} vs moy.",
     "viewOnMaps": "Voir sur Maps",
-    "iSavedHere": "J'ai économisé ici",
+    ""iSavedHere": "J'ai économisé ici",
+    "addToSavingList": "Add to Saving List",
     "overseasFee": "frais à l'étranger",
     "trueCost": "coût réel",
     "bankFee": "frais à l'étranger :",
@@ -314,6 +315,16 @@
     "s7Text": "Tout le contenu, design et technologie de la plateforme Overseez sont protégés par le droit d'auteur. Toute reproduction sans autorisation écrite est interdite.",
     "s8Title": "8. Modifications des conditions",
     "s8Text": "Overseez se réserve le droit de modifier ces conditions à tout moment. L'utilisation continue de la plateforme après des modifications vaut acceptation."
+  },
+  "savingList": {
+    "title": "Saving List",
+    "subtitle": "Items expire 1 week after being added",
+    "dashboardDesc": "Places you want to buy from later",
+    "empty": "Your list is empty",
+    "emptyPrompt": "Search for something to save — try one of these:",
+    "addedConfirm": "Added to your saving list!",
+    "viewList": "View List",
+    "iSavedHere": "I Saved Here"
   },
   "notFound": {
     "title": "404",

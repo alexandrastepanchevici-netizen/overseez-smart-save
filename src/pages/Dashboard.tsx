@@ -8,7 +8,7 @@ import SavingsRecap from '@/components/SavingsRecap';
 import MonthlyRecap from '@/components/MonthlyRecap';
 import ShareCard from '@/components/ShareCard';
 import NewUserWelcome from '@/components/NewUserWelcome';
-import { TrendingUp, Calendar, Wallet, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+import { TrendingUp, Calendar, Wallet, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane, MapPin, ChevronDown, ChevronUp, ShoppingBag } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 import { getEquivalents } from '@/lib/savingsEquivalents';
 import { useNavigate } from 'react-router-dom';
@@ -40,6 +40,7 @@ export default function Dashboard() {
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [displayCurrency, setDisplayCurrency] = useState(() => localStorage.getItem('overseez_display_currency') || 'USD');
   const [leagueRank, setLeagueRank] = useState<number | null>(null);
+  const [savingListCount, setSavingListCount] = useState(0);
   const [usageLeft, setUsageLeft] = useState(5);
   const [resetCountdown, setResetCountdown] = useState('');
   const [oldestUsageTime, setOldestUsageTime] = useState<number | null>(null);
@@ -50,6 +51,12 @@ export default function Dashboard() {
     supabase.from('savings_entries').select('*').eq('user_id', user.id)
       .order('created_at', { ascending: false }).limit(200)
       .then(({ data }) => { if (data) setSavings(data); });
+    supabase
+      .from('saving_list_items' as any)
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gt('expires_at', new Date().toISOString())
+      .then(({ count }) => setSavingListCount(count || 0));
   }, [user]);
 
   // Fetch AI usage for dashboard counter
@@ -282,6 +289,31 @@ export default function Dashboard() {
           <StatCard icon={<Wallet className="w-5 h-5" />} label={t('dashboard.totalSavedLabel')} value={`${sym}${totalSaved.toFixed(2)}`} />
           <StatCard icon={<Calendar className="w-5 h-5" />} label={t('dashboard.thisWeek')} value={`${sym}${weeklySaved.toFixed(2)}`} />
           <StatCard icon={<TrendingUp className="w-5 h-5" />} label={t('dashboard.thisMonth')} value={`${sym}${monthlySaved.toFixed(2)}`} />
+        </motion.div>
+
+        <motion.div variants={staggerItem} className="mb-6">
+          <button
+            onClick={() => navigate('/saving-list')}
+            className="w-full flex items-center justify-between bg-card border border-border rounded-xl px-5 py-4 overseez-card-hover transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-overseez-blue/10 border border-overseez-blue/25 flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-overseez-blue" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold">{t('savingList.title')}</p>
+                <p className="text-xs text-muted-foreground">{t('savingList.dashboardDesc')}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {savingListCount > 0 && (
+                <span className="text-xs font-bold bg-overseez-blue text-white rounded-full w-6 h-6 flex items-center justify-center">
+                  {savingListCount}
+                </span>
+              )}
+              <span className="text-muted-foreground group-hover:text-foreground transition-colors text-sm">→</span>
+            </div>
+          </button>
         </motion.div>
 
         <motion.div variants={staggerItem} className="flex justify-end mb-4">

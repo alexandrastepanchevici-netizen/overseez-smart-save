@@ -175,7 +175,8 @@
     "sale": "АКЦИЯ",
     "saveVsAvg": "Экономия {{amount}} от средней",
     "viewOnMaps": "Открыть на карте",
-    "iSavedHere": "Я сэкономил здесь",
+    ""iSavedHere": "Я сэкономил здесь",
+    "addToSavingList": "Add to Saving List",
     "overseasFee": "комиссия за рубежом",
     "trueCost": "реальная стоимость",
     "bankFee": "комиссия:",
@@ -314,6 +315,16 @@
     "s7Text": "Весь контент, дизайн и технологии Overseez защищены авторским правом.",
     "s8Title": "8. Изменение условий",
     "s8Text": "Overseez оставляет за собой право изменять эти условия в любое время."
+  },
+  "savingList": {
+    "title": "Saving List",
+    "subtitle": "Items expire 1 week after being added",
+    "dashboardDesc": "Places you want to buy from later",
+    "empty": "Your list is empty",
+    "emptyPrompt": "Search for something to save — try one of these:",
+    "addedConfirm": "Added to your saving list!",
+    "viewList": "View List",
+    "iSavedHere": "I Saved Here"
   },
   "notFound": {
     "title": "404",

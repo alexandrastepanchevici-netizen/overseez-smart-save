@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import Movement from "./pages/Movement";
 import StreakPage from "./pages/StreakPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
+import SavingListPage from "./pages/SavingListPage";
 
 // Capture referral param from ?ref=NICKNAME (before the #) and persist to localStorage
 const refParam = new URLSearchParams(window.location.search).get('ref');
@@ -76,6 +77,7 @@ const App = () => (
             <Route path="/movement" element={<Movement />} />
             <Route path="/streak" element={<ProtectedRoute><StreakPage /></ProtectedRoute>} />
             <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
+            <Route path="/saving-list" element={<ProtectedRoute><SavingListPage /></ProtectedRoute>} />
             <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

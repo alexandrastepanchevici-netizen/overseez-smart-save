@@ -5,10 +5,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol, normalizeCurrencyCode } from '@/components/CurrencySwitcher';
-import { Search, MapPin, Building2, X, ThumbsUp, ThumbsDown, AlertTriangle, BarChart2, Tag, Lock, Clock, Globe, Zap, ShoppingCart, Fuel, Coffee, BedDouble, Pill, UtensilsCrossed, Dumbbell } from 'lucide-react';
+import { Search, MapPin, Building2, X, ThumbsUp, ThumbsDown, AlertTriangle, BarChart2, Tag, Lock, Clock, Globe, Zap, ShoppingCart, Fuel, Coffee, BedDouble, Pill, UtensilsCrossed, Dumbbell, Bookmark, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStreak } from '@/hooks/useStreak';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -71,6 +71,7 @@ function formatCountdown(ms: number): string {
 export default function SearchPage() {
   const { user, subscribed, profile } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { recordActivity } = useStreak();
   const { checkAchievements } = useAchievements();
@@ -83,6 +84,7 @@ export default function SearchPage() {
   useEffect(() => {
     if (tutorialQuery) setQuery(tutorialQuery);
   }, [tutorialQuery]);
+
   const [bankName, setBankName] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -105,6 +107,9 @@ export default function SearchPage() {
   const [loadingStep, setLoadingStep] = useState(0);
   const [voteEntryId, setVoteEntryId] = useState<string | null>(null);
   const [voteStoreName, setVoteStoreName] = useState('');
+  const [addedToListPlace, setAddedToListPlace] = useState<Place | null>(null);
+  const [listItemCount, setListItemCount] = useState(0);
+  const addedToListTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Linger CTA: show "Did you shop here?" after 3 s on a result card
   const [lingerPlace, setLingerPlace] = useState<Place | null>(null);
@@ -157,6 +162,17 @@ export default function SearchPage() {
     { label: t('search.coffee'), q: 'Coffee shops & cafés' },
     { label: t('search.pharmacy'), q: 'Pharmacies & medicines' },
   ];
+
+  // Fetch active saving list count for FAB badge
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('saving_list_items' as any)
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gt('expires_at', new Date().toISOString())
+      .then(({ count }) => setListItemCount(count || 0));
+  }, [user, addedToListPlace]);
 
   // Check usage and get oldest usage timestamp for timer
   useEffect(() => {
@@ -445,6 +461,17 @@ export default function SearchPage() {
     }
   };
 
+  // Pre-fill and auto-search from navigation state (e.g. from saving list empty state)
+  // Placed after doSearch is defined so the reference is valid
+  useEffect(() => {
+    const prefill = (location.state as any)?.prefillQuery;
+    if (prefill) {
+      setQuery(prefill);
+      doSearch(prefill);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const logSaving = async () => {
     if (!spendModal.place || !user) return;
     const spent = parseFloat(spendInput);
@@ -500,6 +527,29 @@ export default function SearchPage() {
     setSpendModal({ open: false, place: null, avgVal: 0 });
     setSpendInput('');
     setSelectedGoalId(null);
+  };
+
+  const addToSavingList = async (place: Place) => {
+    if (!user) return;
+    const displayedAverage = toDisplay(result?.averageValue ?? 0);
+    const displayedPrice = toDisplay(place.priceValue);
+    const { error } = await supabase.from('saving_list_items' as any).insert({
+      user_id: user.id,
+      store_name: place.name,
+      average_price: displayedAverage,
+      displayed_price: displayedPrice,
+      currency: displayCurrency,
+      search_query: query,
+      city: loc?.city ?? null,
+    });
+    if (!error) {
+      setAddedToListPlace(place);
+      setListItemCount(prev => prev + 1);
+      if (addedToListTimerRef.current) clearTimeout(addedToListTimerRef.current);
+      addedToListTimerRef.current = setTimeout(() => setAddedToListPlace(null), 4000);
+    } else {
+      toast.error('Could not add to saving list — please try again.');
+    }
   };
 
   const bankFeeRate = bankInfo ? (bankInfo.overseasFeePercent || 0) / 100 : 0;
@@ -776,12 +826,9 @@ export default function SearchPage() {
                         className="text-xs text-overseez-blue hover:underline flex items-center gap-1">
                         <MapPin className="w-3 h-3" /> {loc ? 'Get Directions' : t('search.viewOnMaps')}
                       </button>
-                      <button onClick={() => {
-                        setSpendModal({ open: true, place, avgVal: displayedAverage });
-                        setSpendInput(displayedPrice.toFixed(2));
-                      }}
-                        className="text-sm font-semibold bg-overseez-green/20 border border-overseez-green/40 text-overseez-green rounded-lg px-5 py-2 hover:bg-overseez-green/30 transition-colors active:scale-95 flex items-center gap-1.5">
-                        <Tag className="w-3.5 h-3.5" /> {t('search.iSavedHere')}
+                      <button onClick={() => addToSavingList(place)}
+                        className="text-sm font-semibold bg-overseez-blue/20 border border-overseez-blue/40 text-overseez-blue rounded-lg px-5 py-2 hover:bg-overseez-blue/30 transition-colors active:scale-95 flex items-center gap-1.5">
+                        <Bookmark className="w-3.5 h-3.5" /> {t('search.addToSavingList')}
                       </button>
                     </div>
                   </div>
@@ -838,6 +885,40 @@ export default function SearchPage() {
                 <ThumbsUp className="w-3.5 h-3.5" /> Yes
               </button>
               <button onClick={() => setVoteEntryId(null)} className="text-xs text-muted-foreground px-2 hover:text-foreground">✕</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Floating "View Saving List" button — bottom-right, shown when list has items */}
+      {listItemCount > 0 && !addedToListPlace && !spendModal.open && (
+        <button
+          onClick={() => navigate('/saving-list')}
+          className="fixed bottom-20 md:bottom-6 right-4 z-30 flex items-center gap-2 bg-overseez-blue text-white rounded-full px-4 py-2.5 shadow-lg hover:opacity-90 active:scale-95 transition-all"
+        >
+          <ShoppingBag className="w-4 h-4" />
+          <span className="text-sm font-semibold">{listItemCount}</span>
+        </button>
+      )}
+
+      {/* "Added to saving list" bottom sheet */}
+      {addedToListPlace && (
+        <div className="fixed bottom-20 md:bottom-4 left-4 right-4 z-30 animate-fade-in-up">
+          <div className="bg-card border border-overseez-blue/30 rounded-xl px-4 py-3 flex items-center justify-between shadow-lg">
+            <div className="min-w-0 mr-3">
+              <p className="text-[11px] text-muted-foreground">{t('savingList.addedConfirm')}</p>
+              <p className="text-sm font-semibold truncate">{addedToListPlace.name}</p>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                onClick={() => setAddedToListPlace(null)}
+                className="text-xs text-muted-foreground px-3 py-1.5 rounded-md hover:bg-muted transition-colors"
+              >
+                {t('search.cancel')}
+              </button>
+              <Button variant="hero" size="sm" onClick={() => { setAddedToListPlace(null); navigate('/saving-list'); }}>
+                {t('savingList.viewList')} →
+              </Button>
             </div>
           </div>
         </div>

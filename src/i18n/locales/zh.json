@@ -175,7 +175,8 @@
     "sale": "促销",
     "saveVsAvg": "比均价省 {{amount}}",
     "viewOnMaps": "在地图上查看",
-    "iSavedHere": "我在这里省了钱",
+    ""iSavedHere": "我在这里省了钱",
+    "addToSavingList": "Add to Saving List",
     "overseasFee": "海外手续费",
     "trueCost": "真实成本",
     "bankFee": "手续费：",
@@ -314,6 +315,16 @@
     "s7Text": "Overseez 平台上的所有内容、设计和技术均受版权法保护。",
     "s8Title": "8. 条款变更",
     "s8Text": "Overseez 保留随时修改这些条款的权利。"
+  },
+  "savingList": {
+    "title": "Saving List",
+    "subtitle": "Items expire 1 week after being added",
+    "dashboardDesc": "Places you want to buy from later",
+    "empty": "Your list is empty",
+    "emptyPrompt": "Search for something to save — try one of these:",
+    "addedConfirm": "Added to your saving list!",
+    "viewList": "View List",
+    "iSavedHere": "I Saved Here"
   },
   "notFound": {
     "title": "404",

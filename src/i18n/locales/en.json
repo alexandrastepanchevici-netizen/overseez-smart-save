@@ -176,6 +176,7 @@
     "saveVsAvg": "Save {{amount}} vs avg",
     "viewOnMaps": "View on Maps",
     "iSavedHere": "I saved here",
+    "addToSavingList": "Add to Saving List",
     "overseasFee": "Fee Abroad",
     "trueCost": "true cost",
     "bankFee": "Fee Abroad:",
@@ -314,6 +315,16 @@
     "s7Text": "All content, design, and technology on the Overseez platform are owned by Overseez and protected by copyright law. You may not reproduce, distribute, or create derivative works from any content without prior written permission.",
     "s8Title": "8. Changes to Terms",
     "s8Text": "Overseez reserves the right to modify these terms at any time. Continued use of the platform after changes constitutes acceptance of the new terms. We will notify users of significant changes via email."
+  },
+  "savingList": {
+    "title": "Saving List",
+    "subtitle": "Items expire 1 week after being added",
+    "dashboardDesc": "Places you want to buy from later",
+    "empty": "Your list is empty",
+    "emptyPrompt": "Search for something to save — try one of these:",
+    "addedConfirm": "Added to your saving list!",
+    "viewList": "View List",
+    "iSavedHere": "I Saved Here"
   },
   "notFound": {
     "title": "404",

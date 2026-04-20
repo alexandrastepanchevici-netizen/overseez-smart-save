@@ -175,7 +175,8 @@
     "sale": "सेल",
     "saveVsAvg": "औसत से {{amount}} बचाएं",
     "viewOnMaps": "मैप पर देखें",
-    "iSavedHere": "मैंने यहां बचाया",
+    ""iSavedHere": "मैंने यहां बचाया",
+    "addToSavingList": "Add to Saving List",
     "overseasFee": "विदेशी शुल्क",
     "trueCost": "वास्तविक लागत",
     "bankFee": "विदेशी शुल्क:",
@@ -314,6 +315,16 @@
     "s7Text": "Overseez प्लेटफॉर्म की सभी सामग्री, डिज़ाइन और तकनीक कॉपीराइट कानून द्वारा सुरक्षित हैं।",
     "s8Title": "8. शर्तों में बदलाव",
     "s8Text": "Overseez किसी भी समय इन शर्तों को संशोधित करने का अधिकार सुरक्षित रखता है।"
+  },
+  "savingList": {
+    "title": "Saving List",
+    "subtitle": "Items expire 1 week after being added",
+    "dashboardDesc": "Places you want to buy from later",
+    "empty": "Your list is empty",
+    "emptyPrompt": "Search for something to save — try one of these:",
+    "addedConfirm": "Added to your saving list!",
+    "viewList": "View List",
+    "iSavedHere": "I Saved Here"
   },
   "notFound": {
     "title": "404",
