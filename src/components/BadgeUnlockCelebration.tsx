@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import type { Badge } from '@/hooks/useAchievements';
 import { useConfettiParticles } from '@/hooks/useConfettiParticles';
+import Mascot from '@/components/Mascot';
 
 export default function BadgeUnlockCelebration() {
   const [queue, setQueue]     = useState<Badge[]>([]);
@@ -82,6 +83,16 @@ export default function BadgeUnlockCelebration() {
               />
             ))}
           </div>
+
+          {/* Mascot cheering from the bottom-right */}
+          <motion.div
+            className="absolute bottom-0 right-0 z-10 pointer-events-none"
+            initial={{ x: 80, y: 40, opacity: 0 }}
+            animate={{ x: 0, y: 0, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 18, delay: 0.35 }}
+          >
+            <Mascot pose="celebrate" size={180} />
+          </motion.div>
 
           {/* Main content */}
           <div className="relative z-10 flex flex-col items-center gap-6 px-8 pointer-events-none select-none">

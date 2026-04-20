@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import AppNav from '@/components/AppNav';
 import CurrencySwitcher, { convertCurrency, getCurrencySymbol, normalizeCurrencyCode } from '@/components/CurrencySwitcher';
 import { MapPin, ChevronLeft, Trash2, ShoppingBag, Tag } from 'lucide-react';
+import Mascot from '@/components/Mascot';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { openExternalUrl } from '@/lib/openExternalUrl';
@@ -209,10 +210,8 @@ export default function SavingListPage() {
       <div className="max-w-3xl mx-auto px-4 py-6">
         {items.length === 0 ? (
           /* Empty state */
-          <div className="text-center py-16 animate-fade-in-up">
-            <div className="w-16 h-16 rounded-full bg-overseez-blue/10 border border-overseez-blue/20 flex items-center justify-center mx-auto mb-4">
-              <ShoppingBag className="w-8 h-8 text-overseez-blue/60" />
-            </div>
+          <div className="text-center py-10 animate-fade-in-up">
+            <Mascot pose="money" size={180} className="mx-auto mb-4" />
             <h2 className="font-display font-semibold text-lg mb-1">{t('savingList.empty')}</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">{t('savingList.emptyPrompt')}</p>
             <div className="flex flex-wrap gap-2 justify-center">
