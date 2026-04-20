@@ -166,9 +166,31 @@ export default function Dashboard() {
 
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 3600000);
+
+  // Use calendar-month boundaries (same logic as MonthlyRecap) for the share card
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthLabel = thisMonthStart.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
   const monthAgo = new Date(now.getTime() - 30 * 24 * 3600000);
+
   const weeklySaved = savings.filter(s => new Date(s.created_at) >= weekAgo).reduce((a, s) => a + convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency), 0);
   const monthlySaved = savings.filter(s => new Date(s.created_at) >= monthAgo).reduce((a, s) => a + convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency), 0);
+
+  // Stats for the share card — derived from the current calendar month
+  const thisMonthSavings = savings.filter(s => new Date(s.created_at) >= thisMonthStart);
+  const shareMonthlyTotal = thisMonthSavings.reduce((a, s) => a + convertCurrency(Number(s.amount_saved), s.currency || profileCurrency, displayCurrency), 0);
+  const shareActiveDays = new Set(thisMonthSavings.map(s => s.created_at.split('T')[0])).size;
+  const shareSavesLogged = thisMonthSavings.length;
+  const shareStoreCounts: Record<string, number> = {};
+  thisMonthSavings.forEach(s => { shareStoreCounts[s.store_name] = (shareStoreCounts[s.store_name] || 0) + 1; });
+  const shareTopStore = Object.entries(shareStoreCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+
+  const monthlyStats = {
+    monthLabel,
+    totalSaved: shareMonthlyTotal,
+    activeDays: shareActiveDays,
+    savesLogged: shareSavesLogged,
+    topStore: shareTopStore,
+  };
 
   return (
     <div className="min-h-screen bg-transparent relative pb-20 md:pb-0">
@@ -264,9 +286,8 @@ export default function Dashboard() {
 
         <motion.div variants={staggerItem} className="flex justify-end mb-4">
           <ShareCard
-            totalSaved={totalSaved}
             displayCurrency={displayCurrency}
-            streak={(profile as any)?.current_streak || 0}
+            monthlyStats={monthlyStats}
           />
         </motion.div>
 
