@@ -72,13 +72,7 @@ bankCountryCode must be the ISO 3166-1 alpha-2 country code of the country where
     }
 
     // Main search
-    const searchPrompt = `You are a local price comparison engine with sale detection. User searches: "${query}". ${locCtx}
-
-TWO tasks:
-1. Find the top 5 cheapest REAL, EXISTING places/stores/businesses near the user for "${query}", cheapest first. Use real business names that actually exist (e.g. "Tesco", "Carrefour", "Walmart", not made-up names). For each place, provide the REAL official website URL (e.g. https://www.tesco.com). For searchQuery, provide the FULL exact address of the specific branch (e.g. "Tesco Express, 123 High Street, London EC1A 1BB") so Google Maps can pinpoint the exact location.
-2. Find up to 3 current sales, promotions or discounts for "${query}" near the user. Same rules: real stores, real URLs, specific location in searchQuery.
-
-Use correct local currency. Amounts under 1 unit: use decimals e.g. "${cur}0.89".`;
+    const searchPrompt = `You are a local price comparison engine with sale detection. User searches: "${query}". ${locCtx} IMPORTANT — interpret the query correctly: - If the query is a CATEGORY or BASKET (e.g. "weekly grocery shop", "weekly groceries", "monthly food shop", "petrol for a week"), ALL prices must reflect the TOTAL cost for that category/basket. For example, "weekly grocery shop" → price is the total cost of a typical weekly grocery basket at each store (e.g. ${cur}75–${cur}120), NOT the price of an individual item. The averageValue must also be the area average total for that category. - If the query is a SPECIFIC ITEM or SERVICE (e.g. "milk", "coffee", "haircut"), prices are for that specific item/service. - Never return a single small item price (e.g. ${cur}0.89 for fruit) when the user is asking about a category or basket spend. TWO tasks: 1. Find the top 5 cheapest REAL, EXISTING places/stores/businesses near the user for "${query}", cheapest first. Use real business names that actually exist (e.g. "Tesco", "Carrefour", "Walmart", not made-up names). For each place, provide the REAL official website URL (e.g. https://www.tesco.com). For searchQuery, provide the FULL exact address of the specific branch (e.g. "Tesco Express, 123 High Street, London EC1A 1BB") so Google Maps can pinpoint the exact location. Prices must reflect the correct scope (total basket for category queries, unit price for item queries). 2. Find up to 3 current sales, promotions or discounts for "${query}" near the user. Same rules: real stores, real URLs, specific location in searchQuery. Use correct local currency. Amounts under 1 unit: use decimals e.g. "${cur}0.89" (only appropriate for actual single small items, not categories).`;
 
     const searchResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
