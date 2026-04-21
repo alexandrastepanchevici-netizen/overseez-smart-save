@@ -243,10 +243,10 @@ export default function SavingListPage() {
                 <div key={item.id} className="bg-card border border-border rounded-xl p-4">
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm">{item.store_name}</p>
-                      {item.city && (
-                        <p className="text-xs text-muted-foreground mt-0.5">{item.city}</p>
-                      )}
+                      <p className="font-semibold text-sm">{item.search_query || item.store_name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {[item.store_name, item.city].filter(Boolean).join(', ')}
+                      </p>
                       <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <span className={`text-[11px] font-medium rounded-full px-2 py-0.5 border ${
                           isExpiringSoon
