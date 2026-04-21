@@ -8,8 +8,15 @@ interface ProfileAvatarProps {
   onClick?:    () => void;
   showLevel?:  boolean;
   level?:      number;
+  weeklyRank?: number | null;
   className?:  string;
 }
+
+const RANK_RING: Record<number, string> = {
+  1: 'ring-2 ring-overseez-gold shadow-[0_0_14px_3px_hsl(43_96%_56%_/_0.65)]',
+  2: 'ring-2 ring-slate-300 shadow-[0_0_10px_2px_rgba(203,213,225,0.55)]',
+  3: 'ring-2 ring-amber-600 shadow-[0_0_10px_2px_rgba(180,83,9,0.5)]',
+};
 
 const SIZE_MAP = {
   sm: { outer: 'w-7 h-7',   icon: 'w-4 h-4', camera: 'w-3.5 h-3.5' },
