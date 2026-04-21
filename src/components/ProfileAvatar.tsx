@@ -31,14 +31,16 @@ export default function ProfileAvatar({
   onClick,
   showLevel = false,
   level,
+  weeklyRank,
   className = '',
 }: ProfileAvatarProps) {
   const s = SIZE_MAP[size];
+  const ring = weeklyRank && RANK_RING[weeklyRank] ? RANK_RING[weeklyRank] : '';
 
   const inner = (
     <div className={`relative ${onClick ? 'group' : ''} flex-shrink-0 ${className}`}>
       <div
-        className={`${s.outer} rounded-full bg-overseez-blue/20 flex items-center justify-center overflow-hidden`}
+        className={`${s.outer} rounded-full bg-overseez-blue/20 flex items-center justify-center overflow-hidden ${ring}`}
       >
         {avatarUrl ? (
           <img src={avatarUrl} alt={nickname} className="w-full h-full object-cover" />
