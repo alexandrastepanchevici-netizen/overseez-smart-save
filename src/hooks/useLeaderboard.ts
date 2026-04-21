@@ -19,8 +19,7 @@ export function useLeaderboard(period: LeaderboardPeriod) {
     enabled:   !!user,
     queryFn:   async () => {
       const { data, error } = await (supabase.rpc as any)('get_saves_leaderboard', { period, lim: 50 });
-      if (error) throw error;
-      const real = (data ?? []).map((row: any) => ({
+      const real = error ? [] : (data ?? []).map((row: any) => ({
         rank:          Number(row.rank),
         userId:        row.user_id,
         nickname:      row.nickname,

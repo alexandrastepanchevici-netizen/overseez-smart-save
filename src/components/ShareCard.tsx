@@ -5,6 +5,9 @@ import { toast } from 'sonner';
 import { getCurrencySymbol } from '@/components/CurrencySwitcher';
 import ShareableMonthCard from '@/components/ShareableMonthCard';
 import html2canvas from 'html2canvas';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 interface MonthlyStats {
   monthLabel: string;
@@ -39,28 +42,39 @@ export default function ShareCard({ displayCurrency, monthlyStats }: Props) {
       const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
       if (!blob) throw new Error('Canvas capture failed');
 
-      const file = new File([blob], 'overseez-savings.png', { type: 'image/png' });
-
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          title: 'My Overseez Savings',
-          files: [file],
+      if (Capacitor.isNativePlatform()) {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve((reader.result as string).split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
         });
-      } else if (navigator.share) {
-        // Fallback: share without file (text only)
-        await navigator.share({
+
+        const { uri } = await Filesystem.writeFile({
+          path: 'overseez-savings.png',
+          data: base64,
+          directory: Directory.Cache,
+        });
+
+        await Share.share({
           title: 'My Overseez Savings',
-          text: `I saved ${formattedTotal} this month using Overseez!\n${monthlyStats.activeDays} active days · ${monthlyStats.savesLogged} saves logged · Top store: ${monthlyStats.topStore}\nhttps://overseez.co`,
+          text: `I saved ${formattedTotal} this month using Overseez!`,
+          url: uri,
+          dialogTitle: 'Share your savings',
         });
       } else {
-        // Desktop fallback: download the image
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'overseez-savings.png';
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success('Savings card downloaded!');
+        const file = new File([blob], 'overseez-savings.png', { type: 'image/png' });
+        if (navigator.share && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ title: 'My Overseez Savings', files: [file] });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'overseez-savings.png';
+          a.click();
+          URL.revokeObjectURL(url);
+          toast.success('Savings card downloaded!');
+        }
       }
     } catch (err: any) {
       if (err?.name !== 'AbortError') {

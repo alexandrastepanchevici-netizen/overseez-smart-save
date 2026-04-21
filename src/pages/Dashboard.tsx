@@ -11,6 +11,8 @@ import NewUserWelcome from '@/components/NewUserWelcome';
 import { TrendingUp, Calendar, Wallet, Trophy, Zap, Search as SearchIcon, Coffee, GlassWater, Dumbbell, Film, UtensilsCrossed, Tv, Fuel, Gamepad2, Plane, MapPin, ChevronDown, ChevronUp, ShoppingBag } from 'lucide-react';
 import type { LucideProps } from 'lucide-react';
 import { getEquivalents } from '@/lib/savingsEquivalents';
+import { fillLeaderboardWithBots } from '@/lib/leaderboardBots';
+import type { LeaderboardEntry } from '@/types/leaderboard';
 import { useNavigate } from 'react-router-dom';
 import { openExternalUrl } from '@/lib/openExternalUrl';
 import { Button } from '@/components/ui/button';
@@ -101,39 +103,46 @@ export default function Dashboard() {
     return () => clearInterval(id);
   }, [oldestUsageTime, usageLeft, cooldownMs]);
 
-  // League group of 20 — rank among weekly savers, backfill with bots
+  // League group of 20 — rank among weekly savers (by save count), backfill with bots
   useEffect(() => {
-    if (!user || !profile) return;
+    if (!user) return;
 
-    const BOT_NAMES = [
-      'SavvySam', 'BudgetBen', 'ThriftyTia', 'DealsDave', 'CentsCarla',
-      'PennyPat', 'FrugalFred', 'BargainBea', 'SmartSue', 'WisdomWes',
-      'CashCora', 'ValueVic', 'MintMike', 'SaverSol', 'CleverCleo',
-      'GainGrace', 'EcoElla', 'NiftNate', 'DimeDan', 'PricePaige',
-    ];
-    const isoWeek = (d: Date) => {
-      const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-      const day = date.getUTCDay() || 7;
-      date.setUTCDate(date.getUTCDate() + 4 - day);
-      const y = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-      return Math.ceil((((date as any) - (y as any)) / 86400000 + 1) / 7);
-    };
-    const weekSeed = isoWeek(new Date());
+    // Compute user's weekly save count from already-loaded savings state
+    const weekStart = new Date();
+    const dow = weekStart.getUTCDay() || 7;
+    weekStart.setUTCDate(weekStart.getUTCDate() - dow + 1);
+    weekStart.setUTCHours(0, 0, 0, 0);
+    const myWeeklyCount = savings.filter(s => new Date(s.created_at) >= weekStart).length;
 
-    (supabase.rpc as any)('get_savings_leaderboard', { period: 'week', lim: 50 }).then(({ data }) => {
-      const entries: Array<{ user_id: string; amount_saved: number; isBot?: boolean }> = ((data ?? []) as any[]).map((r: any) => ({
-        user_id: r.user_id, amount_saved: Number(r.amount_saved),
-      }));
-      const botsNeeded = Math.max(0, 20 - entries.length);
-      const bots = BOT_NAMES.slice(0, botsNeeded).map((_, i) => ({
-        user_id: `bot-${i}`, isBot: true,
-        amount_saved: Math.round(((weekSeed * (i + 7)) % 180) + 20) / 10,
-      }));
-      const merged = [...entries, ...bots].sort((a, b) => b.amount_saved - a.amount_saved);
-      const meIdx = merged.findIndex(e => e.user_id === user.id);
-      setLeagueRank(meIdx >= 0 ? meIdx + 1 : 20);
-    });
-  }, [user?.id, profile?.weekly_saved]);
+    (supabase.rpc as any)('get_saves_leaderboard', { period: 'week', lim: 50 })
+      .then(({ data, error }: any) => {
+        const rows: any[] = error ? [] : (data ?? []);
+        const real: LeaderboardEntry[] = rows.map((r: any) => ({
+          rank:          Number(r.rank),
+          userId:        r.user_id,
+          nickname:      r.nickname,
+          avatarUrl:     r.avatar_url ?? null,
+          saveCount:     Number(r.save_count),
+          isCurrentUser: r.user_id === user.id,
+        }));
+
+        // Ensure the current user is always in the list so their rank is accurate
+        if (!real.some(e => e.isCurrentUser)) {
+          real.push({
+            rank:          0,
+            userId:        user.id,
+            nickname:      (profile as any)?.nickname ?? 'You',
+            avatarUrl:     (profile as any)?.avatar_url ?? null,
+            saveCount:     myWeeklyCount,
+            isCurrentUser: true,
+          });
+        }
+
+        const merged = fillLeaderboardWithBots(real);
+        const me = merged.find(e => e.isCurrentUser);
+        setLeagueRank(me?.rank ?? null);
+      });
+  }, [user?.id, savings]);
 
   const profileCurrency = profile?.currency || 'USD';
   const sym = getCurrencySymbol(displayCurrency);

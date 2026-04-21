@@ -1,7 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
 
 export const XP_EVENTS = {
   SEARCH:  10,
@@ -71,9 +70,9 @@ export function useXP() {
     await refreshProfile();
 
     if (newLevel.level > prevLevel) {
-      toast.success(`Level up! You're now ${newLevel.name} (Lv.${newLevel.level})`, {
-        duration: 4000,
-      });
+      window.dispatchEvent(new CustomEvent('overseez:level-up', {
+        detail: { level: newLevel.level, name: newLevel.name },
+      }));
     }
   }, [user, levelInfo.level, xp, refreshProfile]);
 

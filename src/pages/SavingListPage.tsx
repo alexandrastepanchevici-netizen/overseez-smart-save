@@ -36,10 +36,10 @@ function formatTimeLeft(expiresAt: string): string {
 }
 
 const QUICK_SEARCHES = [
-  { label: '🥛 Milk', q: 'Milk' },
-  { label: '⛽ Petrol', q: 'Petrol & fuel stations' },
-  { label: '☕ Coffee', q: 'Coffee shops & cafés' },
-  { label: '🍞 Bread', q: 'Bread & bakery' },
+  { label: 'Milk', q: 'Milk' },
+  { label: 'Petrol', q: 'Petrol & fuel stations' },
+  { label: 'Coffee', q: 'Coffee shops & cafés' },
+  { label: 'Bread', q: 'Bread & bakery' },
 ];
 
 export default function SavingListPage() {
