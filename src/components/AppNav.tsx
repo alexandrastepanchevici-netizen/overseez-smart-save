@@ -65,7 +65,6 @@ export default function AppNav() {
                   size="sm"
                   avatarUrl={(profile as any)?.avatar_url ?? null}
                   nickname={profile?.nickname || profile?.full_name || 'U'}
-                  weeklyRank={(profile as any)?.weekly_rank ?? null}
                 />
                 <span className="hidden sm:inline text-muted-foreground">
                   {profile?.nickname || t('nav.account')}

@@ -6,7 +6,6 @@ import { getCurrencySymbol } from '@/components/CurrencySwitcher';
 import BadgeShelf from '@/components/BadgeShelf';
 import GoalCard from '@/components/GoalCard';
 import ProfileAvatar from '@/components/ProfileAvatar';
-import ProfileFrameSheet from '@/components/ProfileFrameSheet';
 import FriendsList from '@/components/FriendsList';
 import { Calendar, Wallet, Star, Shield, Flame, X, Loader2, User, Users, Camera } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -32,7 +31,6 @@ export default function Profile() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
-  const [frameSheetOpen, setFrameSheetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'friends'>('profile');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -130,23 +128,13 @@ export default function Profile() {
 
         <div className="bg-card border border-border rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-6">
-            {/* Tappable avatar — opens frame sheet */}
             <ProfileAvatar
               size="md"
               avatarUrl={avatarUrl}
               nickname={profile?.nickname || profile?.full_name || 'U'}
-              weeklyRank={(profile as any)?.weekly_rank ?? null}
               showLevel
               level={levelInfo.level}
-              onClick={() => setFrameSheetOpen(true)}
-            />
-            <ProfileFrameSheet
-              open={frameSheetOpen}
-              onOpenChange={setFrameSheetOpen}
-              weeklyRank={(profile as any)?.weekly_rank ?? null}
-              avatarUrl={avatarUrl}
-              nickname={profile?.nickname || profile?.full_name || 'U'}
-              onChangePhoto={() => { setFrameSheetOpen(false); openEdit(); }}
+              onClick={openEdit}
             />
 
             <div className="flex-1 min-w-0">

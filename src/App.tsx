@@ -7,7 +7,6 @@ import { DeepLinkHandler } from "@/components/DeepLinkHandler";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import PageTransition from "@/components/PageTransition";
 import BadgeUnlockCelebration from "@/components/BadgeUnlockCelebration";
-import WeeklyFinishReveal from "@/components/WeeklyFinishReveal";
 import StreakMilestoneCelebration from "@/components/StreakMilestoneCelebration";
 import { TutorialProvider } from "@/contexts/TutorialContext";
 import TutorialOverlay from "@/components/TutorialOverlay";
@@ -61,7 +60,6 @@ const App = () => (
           <DeepLinkHandler />
           <AppInner />
           <BadgeUnlockCelebration />
-          <WeeklyFinishReveal />
           <StreakMilestoneCelebration />
           <TutorialOverlay />
           <PageTransition>
